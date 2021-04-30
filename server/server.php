@@ -12,7 +12,7 @@
 	class Chat implements MessageComponentInterface {
 		private $db;
 		protected $clients;
-		protected $users = array();
+		protected $users_ids = array();
 		private $color;
 
 		public function __construct() {
@@ -22,28 +22,16 @@
 
 		//Un utente apre la connessione col socket
 		public function onOpen(ConnectionInterface $conn) {
-			$this->clients->attach($conn);			
-		}
-
-		public function indexConn($conn){
-			$conta=0;
-			foreach ($this->clients as $client) {
-				if($conn==$client){
-					return $conta;
-					break;
-				}
-				$conta++;
-			}
+			$this->clients->attach($conn);		
 		}
 
 		//Un utente chiude la connessione col socket
 		public function onClose(ConnectionInterface $conn) {
 			// Output
-			$index_conn=$this->indexConn($conn);
-			$userID=$this->users[$index_conn];
-			$risultato=$this->db->query("SELECT user FROM utente WHERE userID='$user_id';")->fetchArray();
+			$userID=$this->users_ids[$conn->resourceId];
+			$risultato=$this->db->query("SELECT user FROM utente WHERE userID='$userID';")->fetchArray();
 			echo"$risultato[user] si è disconnesso\n";
-			//print_r($this->users);
+			print_r($this->users_ids);
 			$timestamp = date('Y-m-d H:i:s', strtotime("now"));
 			$this->db->query("UPDATE utente SET ultimo_accesso='$timestamp' WHERE userID='$userID';");
 			//echo"UPDATE utente SET ultimo_accesso='$timestamp' WHERE userID='$userID';";
@@ -54,30 +42,36 @@
 						json_encode(
 							array(
 								"type"=>"disconnected",
-								"user_id"=>$userID
+								"user_id"=>$userID,
+								"time"=>$timestamp
 							)
 						)
 					);
 				}
 			}
 
-			unset($this->users[$index_conn]);
+			unset($this->users_ids[$conn->resourceId]);
 			$this->clients->detach($conn);
-		}
-
-		public function utentiOnline(){
-			return json_encode($this->users);
 		}
 
 		public function variabileConn($index){
 			$conta=0;
 			foreach ($this->clients as $client) {
-				if($index==$conta){
+				if($index==$client->resourceId){
 					return $client;
 					break;
 				}
-				$conta++;
 			}
+		}
+
+		public function stampaUtenti($utenti_online,$user_id){
+			$stampa="";
+			foreach($utenti_online as $utente){
+				if($utente!=$user_id)
+					$stampa.=$utente.",";
+			}
+			$stampa=substr($stampa,0,-1);
+			return $stampa;
 		}
 
 		public function onMessage(ConnectionInterface $from,  $data) {
@@ -100,11 +94,11 @@
 										)
 									);
 					print_r($json_message);
-					if(in_array($to_id, $this->users)){
+					if(in_array($to_id, $this->users_ids)){
 						$this->variabileConn(
 									array_search(
 										$to_id,
-										$this->users
+										$this->users_ids
 										)
 									)->send(
 										$json_message						
@@ -124,9 +118,17 @@
 				case 'socket':
 					$user_id = $data->user_id;
 					$risultato=$this->db->query("SELECT user FROM utente WHERE userID='$user_id';")->fetchArray();
-					array_push($this->users, $user_id);
+					$this->users_ids[$from->resourceId]=$user_id;
 					echo"$risultato[user]($user_id) si è connesso\n";
-					//print_r($this->users);
+					$from->send(
+								json_encode(
+									array(
+										"type"=>"utenti_online",
+										"utenti_online"=>$this->stampaUtenti($this->users_ids,$user_id)
+									)
+								)
+							);	
+					//print_r($this->stampaUtenti($this->users_ids));
 					// Output
 					foreach($this->clients as $client)					
 						if($from!=$client)						
@@ -144,8 +146,8 @@
 					$from_id = $data->from_id;
 					$to_id= $data->to_id;
 					
-					if(in_array($to_id, $this->users)){
-						$this->variabileConn(array_search($to_id,$this->users))->send(
+					if(in_array($to_id, $this->users_ids)){
+						$this->variabileConn(array_search($to_id,$this->users_ids))->send(
 									json_encode(
 										array(
 											"type"=>$type,
@@ -171,8 +173,8 @@
 					$from_id = $data->from_id;
 					$to_id= $data->to_id;
 					
-					if(in_array($to_id, $this->users)){
-						$this->variabileConn(array_search($to_id,$this->users))->send(
+					if(in_array($to_id, $this->users_ids)){
+						$this->variabileConn(array_search($to_id,$this->users_ids))->send(
 									json_encode(
 										array(
 											"type"=>$type,
@@ -202,8 +204,8 @@
 		public function onError(ConnectionInterface $conn, \Exception $e) {
 			$conn->close();
 			$utente="Client";
-			if(isset($this->users[$this->indexConn($conn)]))
-				$utente=$users[$conn->resourceId];
+			if(isset($this->users_ids[$this->indexConn($conn)]))
+				$utente=$users_ids[$conn->resourceId];
 			echo " disconnesso causa errore\n";
 		}
 	}
