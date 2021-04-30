@@ -1,0 +1,138 @@
+body{
+    margin:0;
+    padding:0;
+    background: #34495e
+}
+
+.box{
+    width:300px;
+    padding: 10px 20px; 
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background:#191919;
+    text-align:center;
+    border-radius: 24px;
+}
+
+.box h1{
+    color: white;
+    text-transform: uppercase;
+    font-weight: 500;
+
+}
+
+
+.box input[type="text"], .box input[type="password"]{
+    border:0;
+    background:none;
+    display:block;
+    margin: 20px auto;
+    text-align: center;
+    border: 2px solid #3498db;
+    padding: 14px 10px;
+    width: 200px;
+    outline: none;
+    color: white;
+    border-radius: 24px;
+    transition: 0.25s;
+}
+
+.box input[type="text"]:focus, .box input[type="password"]:focus{
+    width: 280px;
+    border-color: #2ecc71;
+}
+
+#label_carica{
+    border:0;
+    background:none;
+    display:block;
+    margin: 20px auto;
+    text-align: center;
+    border: 2px solid #3498db;
+    padding: 14px 10px;
+    width: 200px;
+    outline: none;
+    color: white;
+    border-radius: 24px;
+    transition: 0.25s;
+    word-wrap: break-word
+}
+
+#label_carica:hover{
+    width: 280px;
+    border-color: #a86f32;
+    background-color: #a86f32;
+    color:white;
+}
+
+.box input[type="submit"]{
+    border:0;
+    background:none;
+    display:block;
+    margin: 20px auto;
+    text-align: center;
+    border: 2px solid #3498db;
+    padding: 14px 60px;
+    width: 200px;
+    outline: none;
+    color: white;
+    border-radius: 24px;
+    transition: 0.25s;
+}
+
+.box input[type="submit"]:focus,.box input[type="submit"]:hover{
+    width: 280px;
+    border-color: #2ecc71;
+    background-color: #2ecc71;
+    color:white;
+}
+
+a{
+    border:0;
+    background:none;
+    display:block;
+    text-decoration: none;
+    margin: 20px auto;
+    text-align: center;
+    border: 2px solid #3498db;
+    padding: 14px 10px;
+    width: 200px;
+    outline: none;
+    color: white;
+    border-radius: 24px;
+    transition: 0.25s;
+}
+
+a:focus,a:hover{
+    width: 280px;
+    border-color: #f24033;
+    background-color: #f24033;
+    color:white;
+}
+
+a#accedi:hover,a#iscriviti:hover,a#accedi:focus,a#iscriviti:focus{
+    width: 280px;
+    border-color: #11d982;
+    background-color: #11d982;
+    color:white;
+}
+
+#youtsapp{
+  font-family: "Comic Sans MS", cursive, sans-serif;
+  font-size: 28px;
+  letter-spacing: 1px;
+  word-spacing: 0px;
+  color: #FFFFFF;
+  font-weight: 700;
+  text-decoration: none solid rgb(68, 68, 68);
+  font-style: normal;
+  font-variant: small-caps;
+  text-transform: none;
+  text-align: center;
+}
+
+input[type='file']{
+    display: none;
+}
