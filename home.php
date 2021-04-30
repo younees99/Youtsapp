@@ -84,14 +84,17 @@
 				<td align="center">
 					<div id='main'>					
 							<?php
-								/*function stampaUltimoAccesso(){							
-									$query="SELECT ultimo_accesso FROM utente WHERE userID='$_GET[userID]';";
-									$result=$conn_database->query($query);
-									$ultimo_accesso=$row['ultimo_accesso'];
-									$ultimo_accesso=date('M j Y g:i A', strtotime($ultimo_accesso));
-									$ultimo_accesso="Ultimo accesso: ".$ultimo_accesso;
-									return $ultimo_accesso;
-								}*/
+								function stampaUltimoAccesso($conn_database){	
+									if(isset($_GET['userID'])){
+										$query="SELECT ultimo_accesso FROM utente WHERE userID='$_GET[userID]';";
+										$result=$conn_database->query($query);
+										$row=$result->fetch_row();
+										$ultimo_accesso=$row[0];
+										$ultimo_accesso=date('M j Y g:i A', strtotime($ultimo_accesso));
+										$ultimo_accesso="Ultimo accesso: ".$ultimo_accesso;
+										return $ultimo_accesso;
+									}	
+								}
 								if(isset($_GET['userID'])){
 									echo"<header id='header_chat'>";									
 									$query="SELECT nickname,url_immagine FROM utente WHERE userID='$_GET[userID]';";
@@ -101,7 +104,7 @@
 										$url_immagine="src/immagini_profilo/".$row['url_immagine'];
 										echo"<div id='propic' style='background-image:url(".$url_immagine.");'></div>
 										<p id='nickname'>$nickname</p>
-										<p id='stato'>Offline</p>";
+										<p id='stato'>".stampaUltimoAccesso($conn_database)."</p>";
 									}
 										
 
@@ -142,8 +145,7 @@
 									}
 									else
 										echo"<p class='print_text'>Nessun messaggio! Inizia una coversazione!<p>";
-									echo"</table></div>";
-									$conn_database->close();		
+									echo"</table></div>";	
 								}		
 
 							?>						
@@ -172,8 +174,7 @@
 			updateScroll();
 
 			// Websocket
-			var websocket_server = new WebSocket("ws://192.168.1.251:8080/");
-			
+			var websocket_server = new WebSocket("ws://192.168.1.251:8080/");			
 			websocket_server.onopen = function(e) {
 				websocket_server.send(
 					JSON.stringify({
@@ -192,9 +193,7 @@
 					document.getElementById("stato").innerHTML="Online";
 				else
 					document.getElementById("stato").innerHTML="<?php
-						/*include 'db/config.php';
-						echo stampaUltimoAccesso();*/
-						echo "Offline";
+						echo stampaUltimoAccesso($conn_database);
 					?>";
 			}
 
@@ -209,7 +208,12 @@
 					propic="#191919";
 					propic_elenco="#333333";
 				}
-				if(id==<?php echo"'$_GET[userID]'"?>)					
+				if(id==<?php
+							if(isset($_GET['userID']))
+								echo $_GET['userID'];
+							else
+								echo"-1";
+						?>)					
 					document.getElementById("propic").style.border="solid 2.5px"+propic;
 				document.getElementById("propic_elenco"+id).style.border="solid 2.5px"+propic_elenco;
 			}
@@ -226,6 +230,14 @@
 						var array_utenti=json.utenti_online.split(",");
 						for (let index = 0; index < array_utenti.length; index++) {
 							visualizzaStato(array_utenti[index],"online");
+							if(array_utenti[index]==<?php
+														if(isset($_GET['userID']))
+															echo $_GET['userID'];
+														else
+															echo"-1";
+													?>)
+								visualizzaUltimoAccesso(id,"online");
+
 						}
 						break;
 					
@@ -244,20 +256,32 @@
 					case 'connected':
 						var id=json.user_id;	
 						visualizzaStato(id,"online");
+						visualizzaUltimoAccesso(id,"online");
 						break;
 					
 					case 'disconnected':
 						var id=json.user_id;
 						visualizzaStato(id,"offline");
+						visualizzaUltimoAccesso(id,"online");
 						break;
 					
 					case 'writing':
-						if(json.from_id==<?php echo"'$_GET[userID]'"?>)
+						if(json.from_id==<?php
+												if(isset($_GET["userID"])) 
+													echo"'$_GET[userID]'";
+												else
+													echo"-1";
+										?>)
 							stato.innerHTML='Sta scrivendo...';
 						break;
 					
 					case 'not_writing':
-						if(json.from_id==<?php echo"'$_GET[userID]'"?>)
+						if(json.from_id==<?php
+												if(isset($_GET["userID"])) 
+													echo"'$_GET[userID]'";
+												else
+													echo"-1";
+										?>)
 							stato.innerHTML='Online';
 						break;
 				}
@@ -357,5 +381,8 @@
 				});
 			}
 		</script>
+		<?php
+			$conn_database->close();
+		?>
 	</body>
 </html>

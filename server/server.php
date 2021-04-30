@@ -31,10 +31,9 @@
 			$userID=$this->users_ids[$conn->resourceId];
 			$risultato=$this->db->query("SELECT user FROM utente WHERE userID='$userID';")->fetchArray();
 			echo"$risultato[user] si è disconnesso\n";
-			print_r($this->users_ids);
 			$timestamp = date('Y-m-d H:i:s', strtotime("now"));
 			$this->db->query("UPDATE utente SET ultimo_accesso='$timestamp' WHERE userID='$userID';");
-			//echo"UPDATE utente SET ultimo_accesso='$timestamp' WHERE userID='$userID';";
+
 			//Invio agli altri utenti che si è disconnesso
 			foreach($this->clients as $client){					
 				if($conn!=$client){		
@@ -93,7 +92,6 @@
 											"time"=>$time
 										)
 									);
-					print_r($json_message);
 					if(in_array($to_id, $this->users_ids)){
 						$this->variabileConn(
 									array_search(
