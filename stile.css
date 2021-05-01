@@ -14,6 +14,7 @@ body{
     background:#191919;
     text-align:center;
     border-radius: 24px;
+    color:white;
 }
 
 .box h1{
@@ -89,7 +90,7 @@ body{
     color:white;
 }
 
-a{
+.link_index{
     border:0;
     background:none;
     display:block;
@@ -105,14 +106,14 @@ a{
     transition: 0.25s;
 }
 
-a:focus,a:hover{
+.link_index:focus,.link_index:hover{
     width: 280px;
     border-color: #f24033;
     background-color: #f24033;
     color:white;
 }
 
-a#accedi:hover,a#iscriviti:hover,a#accedi:focus,a#iscriviti:focus{
+#accedi:hover,#iscriviti:hover,#accedi:focus,#iscriviti:focus{
     width: 280px;
     border-color: #11d982;
     background-color: #11d982;

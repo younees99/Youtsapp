@@ -33,7 +33,7 @@
 
                     case'conn':
                         echo"<p style='color:white'>
-                                Errore di connessione!
+                                Server non raggiungibile!
                             </p>";
                         break;
 

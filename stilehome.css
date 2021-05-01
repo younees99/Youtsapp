@@ -210,7 +210,7 @@ div.seleziona_chat:hover{
   display: inline-block;
 }
 
-.tabella_principale{
+#tabella_principale{
   height: 100%;
   width: 100%;
   position: fixed;

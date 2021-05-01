@@ -17,11 +17,16 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=42">
+	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=242">
+	    <link rel="stylesheet" type="text/css" href="stile.css?version=548">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	</head>
 	<body>		
-		<table class='tabella_principale'>
+		<div id="caricamento" class='box'>
+			<i class="fa fa-circle-o-notch fa-spin fa-3x" aria-hidden="true"></i>
+			<p style="font-size: 28px;">Connessione in corso...</p>
+		</div>
+		<table id='tabella_principale'>
 			<tr>
 				<td style="width:30%;">
 					<div id='menu_laterale'>
@@ -164,18 +169,13 @@
 		</tr>
 		</table>
 		<script>
-			function updateScroll(){
-				var messaggi=document.getElementById("messaggi");
-				var output=document.getElementById("output");
-				if(messaggi&&output){
-					output.scrollTop = messaggi.offsetHeight;
-				}
-			}
-			updateScroll();
-
-			// Websocket
-			var websocket_server = new WebSocket("ws://192.168.1.251:8080/");			
+			// Websocket	
+			var websocket_server = new WebSocket("ws://192.168.1.251:8080/");
+			document.getElementById("tabella_principale").style.display="none";
+			document.getElementById("caricamento").style.display="block";
 			websocket_server.onopen = function(e) {
+				document.getElementById("tabella_principale").style.display="table";
+				document.getElementById("caricamento").style.display="none";
 				websocket_server.send(
 					JSON.stringify({
 						'type':'socket',
@@ -188,35 +188,51 @@
 				window.location="error.php?errore=conn";
 			}
 
-			function visualizzaUltimoAccesso(id,stato){	
-				if(stato=="online")			
-					document.getElementById("stato").innerHTML="Online";
+			function visualizzaUltimoAccesso(id,val_stato){	
+				var stato=document.getElementById("stato");
+				if(val_stato=="online")			
+					stato.innerHTML="Online";
 				else
-					document.getElementById("stato").innerHTML="<?php
-						echo stampaUltimoAccesso($conn_database);
-					?>";
+					stato.innerHTML="<?php
+										echo stampaUltimoAccesso($conn_database);
+									?>";
 			}
 
-			function visualizzaStato(id,stato) {
-				var propic
-				var propic_elenco;
-				if(stato=="online"){
-					propic="#00ff33";
-					propic_elenco="#00ff33";
+			function visualizzaStato(id,val_stato) {
+				var val_propic
+				var val_propic_elenco;
+				var propic=document.getElementById("propic");
+				var propic_elenco=document.getElementById("propic_elenco"+id);
+				if(propic&&propic_elenco){
+					if(val_stato=="online"){
+						val_propic="#00ff33";
+						val_propic_elenco="#00ff33";
+					}
+					else{
+						val_propic="#191919";
+						val_propic_elenco="#333333";
+					}
+					if(id==<?php
+								if(isset($_GET['userID']))
+									echo $_GET['userID'];
+								else
+									echo"-1";
+							?>)					
+						propic.style.border="solid 2.5px"+propic;
+					propic_elenco.style.border="solid 2.5px"+propic_elenco;	
 				}
-				else{
-					propic="#191919";
-					propic_elenco="#333333";
-				}
-				if(id==<?php
-							if(isset($_GET['userID']))
-								echo $_GET['userID'];
-							else
-								echo"-1";
-						?>)					
-					document.getElementById("propic").style.border="solid 2.5px"+propic;
-				document.getElementById("propic_elenco"+id).style.border="solid 2.5px"+propic_elenco;
+				
 			}
+			
+			function updateScroll(){
+				var messaggi=document.getElementById("messaggi");
+				var output=document.getElementById("output");
+				if(messaggi&&output){
+					output.scrollTop = messaggi.offsetHeight;
+				}
+			}
+			updateScroll();
+
 
 			//Printing a message when i recieve it
 			websocket_server.onmessage = function(e)
@@ -226,19 +242,32 @@
 				var json = JSON.parse(e.data);
 				switch(json.type){
 					case 'utenti_online':
-						console.log(json.utenti_online);
-						var array_utenti=json.utenti_online.split(",");
-						for (let index = 0; index < array_utenti.length; index++) {
-							visualizzaStato(array_utenti[index],"online");
-							if(array_utenti[index]==<?php
-														if(isset($_GET['userID']))
-															echo $_GET['userID'];
-														else
-															echo"-1";
-													?>)
-								visualizzaUltimoAccesso(id,"online");
+						var utenti_on=json.utenti_online;
+						if(typeof utenti_on === String){
+							var array_utenti=json.utenti_online.split(",");
+							for (let index = 0; index < array_utenti.length; index++) {
+								visualizzaStato(array_utenti[index],"online");
+								if(array_utenti[index]==<?php
+															if(isset($_GET['userID']))
+																echo $_GET['userID'];
+															else
+																echo"-1";
+														?>)
+									visualizzaUltimoAccesso(id,"online");
 
+							}	
 						}
+						else{
+							visualizzaStato(utenti_on,"online");
+								if(utenti_on==<?php
+													if(isset($_GET['userID']))
+														echo $_GET['userID'];
+													else
+														echo"-1";
+												?>)
+									visualizzaUltimoAccesso(id,"online");
+						}
+						
 						break;
 					
 					/*case'nuovo_utente':

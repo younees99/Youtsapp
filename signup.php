@@ -18,7 +18,7 @@
             </label>
             <input id="file-upload" type="file" name="immagine" accept="image/*"/ onchange="fileCaricato(this)">
             <input type='submit' name='ok' value='Iscriviti'>            
-            <a href='index.php'>Sei già iscritto? Accedi!</a>
+            <a href='index.php' class="link_index">Sei già iscritto? Accedi!</a>
         </form>
         <script>
 
