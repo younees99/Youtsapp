@@ -15,10 +15,10 @@
         <p id='youtsapp'>YOUTSAPP</p>
         <form class='box' action='db/login.php' method='POST'>
             <h1>Login</h1>
-            <input type='text' name='user' placeholder='Username o email' maxlength="32">
+            <input type='text' name='user' placeholder='Username or email' maxlength="32">
             <input type='password' name='pass' placeholder='Password' maxlength="16">
             <input type='submit' name='ok' value='Login'>
-            <a href='signup.php' class='link_index'>Non sei iscritto? Iscriviti!</a>
+            <a href='signup.php' class='link_index'>Sign up!</a>
         </form>
     </body>
 </html>

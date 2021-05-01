@@ -2,21 +2,21 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Registrazione</title>
+        <title>Sign-up</title>
         <link rel="stylesheet" type="text/css" href="stile.css?version=80">
     </head>
     <body>
         <form class='box' name='mioForm' action='db/signupdatabase.php' method='POST' onsubmit='return validaForm(this);'  enctype="multipart/form-data">
-            <h1>Iscriviti</h1>
-            <input type='text' name='user' onchange="controllaUser(this);" placeholder='Username'>
-            <input type='text' name='nickname' onchange="controllaNickname(this);" placeholder='Nickname'>
-            <input type='text' name='email' onchange="controllaEmail(this);" placeholder='Email'>
-            <input type='password' name='pass' onchange="controllaPassword(this);" placeholder='Password'>
-            <input type='password' name='rip_pass' onchange="controllaPassword(this);" placeholder='Ripeti la password'>
-            <label for="file-upload" id='label_carica'>
-                Carica il tuo file
+            <h1>Sign-up</h1>
+            <input type='text' name='user' onchange="checkUser(this);" placeholder='Username'>
+            <input type='text' name='nickname' onchange="checkNickname(this);" placeholder='Nickname'>
+            <input type='text' name='email' onchange="checkEmail(this);" placeholder='Email'>
+            <input type='password' name='pass' onchange="checkPassword(this);" placeholder='Password'>
+            <input type='password' name='rep_pass' onchange="checkPassword(this);" placeholder='Repeat password'>
+            <label for="file-upload" id='label_upload'>
+                upload your file
             </label>
-            <input id="file-upload" type="file" name="immagine" accept="image/*"/ onchange="fileCaricato(this)">
+            <input id="file-upload" type="file" name="uploaded_image" accept="image/*"/ onchange="fileUploaded(this)">
             <input type='submit' name='ok' value='Iscriviti'>            
             <a href='index.php' class="link_index">Sei già iscritto? Accedi!</a>
         </form>
@@ -27,130 +27,121 @@
                 nickname=form["nickname"];
                 email=form["email"];
                 pass=form["pass"];
-                rip_pass=form["rip_pass"];     
-                form_valido=false;   
+                rep_pass=form["rep_pass"];     
+                valid_form=false;   
 
-                user_valido=controllaUser(user);
+                valid_user=checkUser(user);
 
-                nome_valido=controllaNickname(nome);
+                valid_name=checkNickname(nome);
 
-                email_valida=controllaEmail(email);
+                valid_email=checkEmail(email);
                 
-                pass_valida=controllaPassword(pass);
+                valid_pass=checkPassword(pass);
 
-                pass_uguali=controllaPasswordUguali(pass,rip_pass);
+                equal_pass=checkEqualPass(pass,rep_pass);
 
-                form_valido=user_valido&&controllaNickname&&email_valida&&pass_valida&&pass_uguali;
+                valid_form=valid_user&&checkNickname&&valid_email&&valid_pass&&equal_pass;
 
-                return form_valido;
+                return valid_form;
             }
 
-            function controllaNickname(nickname){
-                controllo=nicknameValido(nickname.value);      
-                coloraBordi(controllo,nickname);
-                return controllo;
+            function checkNickname(nickname){
+                check=validNickame(nickname.value);      
+                colorBorders(check,nickname);
+                return check;
             }
 
-            function controllaUser(user){
-                controllo=userValido(user.value);               
-                coloraBordi(controllo,user);
-                return controllo;
+            function checkUser(user){
+                check=validUser(user.value);               
+                colorBorders(check,user);
+                return check;
             }
 
-            function userValido(user) {
+            function validUser(user) {
                 var re= new RegExp("^[A-Za-z][A-Za-z0-9]{4,32}$");
                 return re.test(user);
             }
 
-            function nicknameValido(nome) {
+            function validNickame(nome) {
                 var re= new RegExp("^[A-Za-z][A-Za-z0-9_ ]{1,100}$");
                 return re.test(nome);
             }
 
-            function controllaPasswordUguali(pass,rip_pass){
-                controllo=true;  
+            function checkEqualPass(pass,rep_pass){
+                check=true;  
                 if(pass.value.length>0){                                              
-                    if(pass.value==rip_pass.value){
-                        controllo=true;
-                        coloraBordiBlu(pass);
-                        coloraBordiBlu(rip_pass); 
+                    if(pass.value==rep_pass.value){
+                        check=true;
+                        colorBordersBlue(pass);
+                        colorBordersBlue(rep_pass); 
                     }
                     else{
-                        coloraBordiRosso(pass);
-                        coloraBordiRosso(rip_pass);  
-                        alert("le password non combaciano");
-                        controllo=false;
+                        colorBordersRed(pass);
+                        colorBordersRed(rep_pass);  
+                        alert("Attention! The password must be equal");
+                        check=false;
                     }
                 } 
                 
-                return controllo;
+                return check;
             }
 
-            //Funzione che controlla se la password inserita rispetta le seguenti condizioni:
-            //lunghezza tra 8 e 16 caratteri
-            //almeno un numero
-            //almeno una lettera minuscola
-            //almeno una lettera maiuscola
-            function controllaPassword(pass){
+
+            function checkPassword(pass){
                 valida=passwordValida(pass.value);               
-                coloraBordi(valida,pass);
+                colorBorders(valida,pass);
                 return valida;
             }
 
-            //Funzione che cerca lettere maiuscole in una stringa
             function passwordValida(password) {
                 var re= new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*\.\,\'])(?=.{8,})");
                 console.log(re.test(password));
                 return re.test(password);
             }
 
-            //Funzione che controlla se il campo email è pieno e l'email è valida
-            function controllaEmail(email){
+            function checkEmail(email){
                 valida=emailValida(email.value);
-                coloraBordi(valida,email);
+                colorBorders(valida,email);
                 return valida;
             }
 
-            //Funzione che rispetti le seguente condizioni: stringa@stringa.stringa
             function emailValida(email) {
                 const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
                 return re.test(email);
             }
 
-            //Funzione che in base al valore della booleana 'bool' colora di rosso o del colore predefinito i bordi del campo n questione
-            function coloraBordi(bool,campo){
+            function colorBorders(bool,campo){
                 if(!bool)
-                    coloraBordiRosso(campo);
+                    colorBordersRed(campo);
                 else
-                    coloraBordiBlu(campo);
+                    colorBordersBlue(campo);
             }
 
-            //Funzione che colora i bordi di rosso
-            function coloraBordiRosso(campo) {
+            
+            function colorBordersRed(campo) {
                 campo.style.borderColor="red";
             }
 
-            //Funzione che colora i bordi di rosso
-            function coloraBordiBlu(campo) {
+            
+            function colorBordersBlue(campo) {
                 campo.style.borderColor="#3498db";
             }
 
 
-            //Funzione che controlla che un campo sia vuoto e richiama la funzione coloraBordi
+            
             function controllaCampoVuoto(campo){
                 vuoto=false;
                 if(campo.value.length==0)
                     vuoto=true;
-                coloraBordi(vuoto);
+                colorBorders(vuoto);
                 return vuoto;
             }
 
-            function fileCaricato(input_file){
-                var valImmagine=input_file.value;
-                var inizioNomeFile=valImmagine.lastIndexOf("\\");
-                valImmagine=valImmagine.substr(inizioNomeFile+1);
-                document.getElementById("label_carica").innerHTML=valImmagine;
-                console.log("file caricato");
+            function fileUploaded(input_file){
+                var val_uploaded_image=input_file.value;
+                var inizioNomeFile=val_uploaded_image.lastIndexOf("\\");
+                val_uploaded_image=val_uploaded_image.substr(inizioNomeFile+1);
+                document.getElementById("label_upload").innerHTML=val_uploaded_image;
             }
         </script>
     </body>

@@ -17,24 +17,24 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=242">
+	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=357">
 	    <link rel="stylesheet" type="text/css" href="stile.css?version=548">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	</head>
 	<body>		
 		<div id="caricamento" class='box'>
 			<i class="fa fa-circle-o-notch fa-spin fa-3x" aria-hidden="true"></i>
-			<p style="font-size: 28px;">Connessione in corso...</p>
+			<p style="font-size: 28px;">Connection...</p>
 		</div>
 		<table id='tabella_principale'>
 			<tr>
-				<td style="width:30%;">
+				<td style="width:20%;">
 					<div id='menu_laterale'>
-						<header style="display:inline-block">
+						<header class='header_chats'>
 							<p class='youtsapp'>Youtsapp</p>
-							<!--<button class='iconebtn' onclick='function()'>
+							<button class='iconebtn' id="bottone_profilo" onclick='function()'>
 								<i class="fa fa-user-circle-o fa-2x" aria-hidden="true" style="float:right"></i>
-							</button>-->
+							</button>
 						</header>
 						<div style="height: 88%;">
 							<table id='chats'>
@@ -72,16 +72,16 @@
 							</table>
 						</div>
 						
-						<footer>
+						<footer class='footer_chats'>
 							<a href="logout.php" class='iconelink'>
 								<i class="fa fa-sign-out fa-2x" aria-hidden="true" ></i>
 							</a>
-							<!--<button class='iconebtn' onclick='function()'>
+							<button class='iconebtn' onclick='function()'>
 								<i class="fa fa-plus fa-2x" aria-hidden="true"></i>
 							</button>
 							<button class='iconebtn' onclick='function()'>
-								<i class="fa fa-plus fa-2x" aria-hidden="true"></i>
-							</button>-->
+								<i class="fa fa-users fa-2x" aria-hidden="true"></i>
+							</button>
 						</footer>
 							
 					</div>
@@ -166,7 +166,7 @@
 							?>
 					</div>
 				</td>
-		</tr>
+			</tr>
 		</table>
 		<script>
 			// Websocket				

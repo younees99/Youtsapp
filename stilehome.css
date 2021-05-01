@@ -75,10 +75,7 @@ h1{
 
 .iconelink{
     border:none;
-    margin: 20px auto;
-    padding: 2px 2px;
     outline: none;
-    margin-top: 20px;
     color:white;
     cursor: pointer; 
 }
@@ -89,6 +86,18 @@ h1{
   color: white; 
   padding: 2px 2px; 
   cursor: pointer; 
+}
+
+.header_chats{  
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer_chats{  
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
 
 

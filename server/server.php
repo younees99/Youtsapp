@@ -22,8 +22,7 @@
 
 		//Un utente apre la connessione col socket
 		public function onOpen(ConnectionInterface $conn) {
-			$this->clients->attach($conn);
-					
+			$this->clients->attach($conn);		
 		}
 
 		//Un utente chiude la connessione col socket
