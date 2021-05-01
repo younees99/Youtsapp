@@ -169,11 +169,11 @@
 		</tr>
 		</table>
 		<script>
-			// Websocket	
-			var websocket_server = new WebSocket("ws://192.168.1.251:8080/");
+			// Websocket				
+			var websocket_server = new WebSocket("ws://<?php echo $_SERVER['SERVER_NAME'];?>:8080/");
 			document.getElementById("tabella_principale").style.display="none";
 			document.getElementById("caricamento").style.display="block";
-			websocket_server.onopen = function(e) {
+			websocket_server.onopen = function(e){
 				document.getElementById("tabella_principale").style.display="table";
 				document.getElementById("caricamento").style.display="none";
 				websocket_server.send(
@@ -203,7 +203,11 @@
 				var val_propic_elenco;
 				var propic=document.getElementById("propic");
 				var propic_elenco=document.getElementById("propic_elenco"+id);
-				if(propic&&propic_elenco){
+				var elementiOn=false;
+				propic.addEventListener("load", function () {
+					elementiOn=true;
+				});		
+				if(elementiOn){
 					if(val_stato=="online"){
 						val_propic="#00ff33";
 						val_propic_elenco="#00ff33";
@@ -218,10 +222,11 @@
 								else
 									echo"-1";
 							?>)					
-						propic.style.border="solid 2.5px"+propic;
-					propic_elenco.style.border="solid 2.5px"+propic_elenco;	
+						propic.style.border="solid 2.5px"+val_propic;						
+					propic_elenco.style.border="solid 2.5px"+val_propic_elenco;		
 				}
 				
+
 			}
 			
 			function updateScroll(){
@@ -365,7 +370,7 @@
 				});	
 			 }
 			
-
+			
 			var pulsante=document.getElementById("invia_messaggio");
 			if(pulsante){
 				pulsante.addEventListener('click',function(e){

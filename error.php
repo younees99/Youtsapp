@@ -46,7 +46,7 @@
                         break;
                 }
                 echo"
-                        <a href='index.php' id='accedi'>
+                        <a href='index.php' class='link_index' id='accedi'>
                         Accedi!
                         </a>";
             ?>

@@ -22,7 +22,8 @@
 
 		//Un utente apre la connessione col socket
 		public function onOpen(ConnectionInterface $conn) {
-			$this->clients->attach($conn);		
+			$this->clients->attach($conn);
+					
 		}
 
 		//Un utente chiude la connessione col socket
@@ -126,7 +127,7 @@
 									)
 								)
 							);	
-					//print_r($this->stampaUtenti($this->users_ids));
+					
 					// Output
 					foreach($this->clients as $client)					
 						if($from!=$client)						
