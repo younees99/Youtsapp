@@ -6,22 +6,21 @@
 	$pass=$_POST['pass'];  
 	$user_escape=mysqli_real_escape_string($conn_database,$user);
 
-	$query="
-		SELECT * FROM utente WHERE user='$user_escape' OR email='$user_escape';"; 
+	$query="SELECT * FROM users WHERE username='$user_escape' OR email='$user_escape';"; 
 		
-	$risultato=$conn_database->query($query);
-	$riga=$risultato->fetch_assoc();
-	$pass_criptata=crypt(md5($pass),md5($riga['user']));
-
-	if(!$riga)
-		header("Location: ../error.php?errore=user");
-  	
-	else if (mysqli_real_escape_string($conn_database,$pass_criptata)!=$riga['password']){
-		header("Location: ../error.php?errore=pass");
+	$result=$conn_database->query($query);
+	if($result){
+		$row=$result->fetch_assoc();
+		$encrypted_pass=crypt(md5($pass),md5($row['username']));
+		if (mysqli_real_escape_string($conn_database,$encrypted_pass)!=$row['password'])
+			header("Location: ../error.php?error=pass&pass=$row[password]&pass=$pass");
+		
+		else{
+			$_SESSION['name']=$row['userID'];
+			header("Location:../home.php");
+		}
 	}
-
-	else{
-		$_SESSION['name']=$riga['userID'];
-		header("Location:../home.php");
-	}
+	else
+		header("Location: ../error.php?error=user");
+	
 ?>

@@ -9,7 +9,7 @@
     <head>
         <meta charset="utf-8">
         <title>Login</title>
-        <link rel="stylesheet" type="text/css" href="stile.css?version=425">
+        <link rel="stylesheet" type="text/css" href="stile.css?version=25">
     </head>
     <body>
         <p id='youtsapp'>YOUTSAPP</p>
@@ -17,8 +17,8 @@
             <h1>Login</h1>
             <input type='text' name='user' placeholder='Username or email' maxlength="32">
             <input type='password' name='pass' placeholder='Password' maxlength="16">
-            <input type='submit' name='ok' value='Login'>
-            <a href='signup.php' class='link_index'>Sign up!</a>
+            <input type='submit' class='buttons_index' name='ok' value='Login'>
+            <a href='signup.php' class='buttons_index'>Sign up!</a>
         </form>
     </body>
 </html>

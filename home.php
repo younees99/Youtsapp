@@ -8,7 +8,7 @@
 	else{
 		$cookie_name = "userID";
 		$cookie_value = $_SESSION['name'];
-		setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/"); // 86400 = 1 giorno	
+		setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/"); // 86400 = 1 day	
 	}
 	include 'db/config.php';
 	date_default_timezone_set('Europe/Rome');
@@ -185,7 +185,7 @@
 			};
 				
 			websocket_server.onerror = function(e) {
-				window.location="error.php?errore=conn";
+				window.location="error.php?error=conn";
 			}
 
 			function visualizzaUltimoAccesso(id,val_stato){	

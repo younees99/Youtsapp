@@ -1,7 +1,7 @@
 body{
     margin:0;
     padding:0;
-    background: #34495e
+    background: #34495e;
 }
 
 .box{
@@ -45,52 +45,7 @@ body{
     border-color: #2ecc71;
 }
 
-#label_carica{
-    border:0;
-    background:none;
-    display:block;
-    margin: 20px auto;
-    text-align: center;
-    border: 2px solid #3498db;
-    padding: 14px 10px;
-    width: 200px;
-    outline: none;
-    color: white;
-    border-radius: 24px;
-    transition: 0.25s;
-    word-wrap: break-word
-}
-
-#label_carica:hover{
-    width: 280px;
-    border-color: #a86f32;
-    background-color: #a86f32;
-    color:white;
-}
-
-.box input[type="submit"]{
-    border:0;
-    background:none;
-    display:block;
-    margin: 20px auto;
-    text-align: center;
-    border: 2px solid #3498db;
-    padding: 14px 60px;
-    width: 200px;
-    outline: none;
-    color: white;
-    border-radius: 24px;
-    transition: 0.25s;
-}
-
-.box input[type="submit"]:focus,.box input[type="submit"]:hover{
-    width: 280px;
-    border-color: #2ecc71;
-    background-color: #2ecc71;
-    color:white;
-}
-
-.link_index{
+.buttons_index{
     border:0;
     background:none;
     display:block;
@@ -106,18 +61,11 @@ body{
     transition: 0.25s;
 }
 
-.link_index:focus,.link_index:hover{
+.buttons_index:focus,.buttons_index:hover{
     width: 280px;
-    border-color: #f24033;
-    background-color: #f24033;
-    color:white;
-}
-
-#accedi:hover,#iscriviti:hover,#accedi:focus,#iscriviti:focus{
-    width: 280px;
-    border-color: #11d982;
-    background-color: #11d982;
-    color:white;
+    border-color: #2ecc71;
+    background-color: #2ecc71;
+    color:black;
 }
 
 #youtsapp{

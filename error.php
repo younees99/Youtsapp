@@ -3,19 +3,19 @@
     <head>
         <meta charset="utf-8">
         <title>Errore</title>
-        <link rel="stylesheet" type="text/css" href="stile.css?version=">
+        <link rel="stylesheet" type="text/css" href="stile.css?version=78">
     </head>
     <body>
         <div class='box'>
-            <h1>Errore</h1>
+            <h1>Error</h1>
             <?php
                 switch ($_GET['error']) {
                     case 'user':
                         echo"<p style='color:white'>
                                 Account not found!
                             </p>
-                            <a href='signup.php' id='iscriviti'>
-                                Non sei iscritto? Iscriviti!
+                            <a href='signup.php' id='iscriviti' class='buttons_index'>
+                                Sign-up!
                             </a>";
                         break;
                         
@@ -33,7 +33,7 @@
 
                     case'conn':
                         echo"<p style='color:white'>
-                                Server avialable!
+                                Connection failed!
                             </p>";
                         break;
 
@@ -46,8 +46,8 @@
                         break;
                 }
                 echo"
-                        <a href='index.php' class='link_index' id='accedi'>
-                        Login!
+                        <a href='index.php' class='buttons_index' id='log_in'>
+                        Try again!
                         </a>";
             ?>
             
