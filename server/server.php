@@ -17,7 +17,7 @@
 
 		public function __construct() {
 			$this->clients = new \SplObjectStorage;
-			$this->db=new db("localhost","root","root","youtsapp");
+			$this->db=new db("localhost","root","root");
 		}
 
 		//Un utente apre la connessione col socket

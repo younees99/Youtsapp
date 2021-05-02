@@ -6,8 +6,10 @@
 		protected $query_closed = TRUE;
 		public $query_count = 0;
 
-		public function __construct($dbhost = 'localhost', $dbuser = 'root', $dbpass = '', $dbname = '', $charset = 'utf8') {
-			$this->connection = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
+		public function __construct($dbhost = 'localhost', $dbuser = 'root', $dbpass = 'root', $dbname = '', $charset = 'utf8') {
+			$this->connection = new mysqli($dbhost, $dbuser, $dbpass);
+			$this->connection->query("create database if not exists youtsapp;");
+			$this->connection->query("use youtsapp;");
 
 			if ($this->connection->connect_error) {
 				$this->error('Failed to connect to MySQL - ' . $this->connection->connect_error);

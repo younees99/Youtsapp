@@ -300,7 +300,7 @@ class Route implements \Serializable
      */
     public function getOption(string $name)
     {
-        return isset($this->options[$name]) ? $this->options[$name] : null;
+        return $this->options[$name] ?? null;
     }
 
     /**
@@ -369,7 +369,7 @@ class Route implements \Serializable
      */
     public function getDefault(string $name)
     {
-        return isset($this->defaults[$name]) ? $this->defaults[$name] : null;
+        return $this->defaults[$name] ?? null;
     }
 
     /**
@@ -457,7 +457,7 @@ class Route implements \Serializable
      */
     public function getRequirement(string $key)
     {
-        return isset($this->requirements[$key]) ? $this->requirements[$key] : null;
+        return $this->requirements[$key] ?? null;
     }
 
     /**
@@ -539,15 +539,15 @@ class Route implements \Serializable
             return $pattern;
         }
 
-        return preg_replace_callback('#\{(!?\w++)(<.*?>)?(\?[^\}]*+)?\}#', function ($m) {
-            if (isset($m[3][0])) {
-                $this->setDefault($m[1], '?' !== $m[3] ? substr($m[3], 1) : null);
+        return preg_replace_callback('#\{(!?)(\w++)(<.*?>)?(\?[^\}]*+)?\}#', function ($m) {
+            if (isset($m[4][0])) {
+                $this->setDefault($m[2], '?' !== $m[4] ? substr($m[4], 1) : null);
             }
-            if (isset($m[2][0])) {
-                $this->setRequirement($m[1], substr($m[2], 1, -1));
+            if (isset($m[3][0])) {
+                $this->setRequirement($m[2], substr($m[3], 1, -1));
             }
 
-            return '{'.$m[1].'}';
+            return '{'.$m[1].$m[2].'}';
         }, $pattern);
     }
 

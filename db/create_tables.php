@@ -1,6 +1,7 @@
 <?php
     include 'config.php';
-    //Creating user table
+
+    //Creating USERS table
     $query='create table if not exists users(        
         userID INT(255) primary key auto_increment NOT NULL,
         username VARCHAR(255) NOT NULL,
@@ -12,7 +13,7 @@
     )engine=InnoDB';
     $db->query($query) or die ("Error creating user table: ".$conn_database->error);  
 
-    //Creating rooms table
+    //Creating ROOMS table
     $query='create table if not exists rooms( 
         roomID INT(255) primary key auto_increment NOT NULL,
         founded timestamp NOT NULL,
@@ -22,7 +23,7 @@
     )engine=InnoDB';
     $db->query($query) or die ("Error creating rooms table: ".$conn_database->error); 
 
-    //Creating messages table
+    //Creating MESSAGES table
     $query='create table if not exists messages( 
         messageID INT(255) primary key auto_increment NOT NULL,
         data timestamp NOT NULL,
@@ -35,7 +36,7 @@
     )engine=InnoDB';
     $db->query($query) or die ("Error creating messages table: ".$conn_database->error);  
 
-    //Creating role table for rooms
+    //Creating ROLE table for rooms
     $query='create table if not exists roles(
         roleID INT(255) primary key auto_increment NOT NULL,
         value ENUM("membro","amministratore") NOT NULL,
@@ -46,7 +47,7 @@
     )engine=InnoDB';
     $db->query($query) or die ("Error creating roles table: ".$conn_database->error);  
  
-    //Creating group friends
+    //Creating GROUP friends
     $query="create table if not exists friends(
         friendshipID INT(255) primary key auto_increment NOT NULL,
         since timestamp NOT NULL,

@@ -21,7 +21,7 @@ h1{
     color:white;
 }
 
-#inputmessaggio{  
+#input_message{  
     width: 90%; 
     height: 100%;
     resize: none;
@@ -37,11 +37,11 @@ h1{
     word-wrap: break-word
 }
 
-#inputmessaggio:focus{
+#input_message:focus{
   border:none;
 }
 
-.invia{
+.send{
     border:0;
     background-color: #6495ed;
     margin: 8px auto;
@@ -54,7 +54,7 @@ h1{
     transition: 0.25s;
 }
 
-.invia:hover{
+.send:hover{
     border-color: #2ecc71;
     background-color: #2ecc71;
     color:black;
@@ -73,14 +73,14 @@ h1{
   width: 100%;
 }
 
-.iconelink{
+.iconlink{
     border:none;
     outline: none;
     color:white;
     cursor: pointer; 
 }
 
-.iconebtn {
+.iconbtn {
   background-color: #333333; 
   border: none; 
   color: white; 
@@ -164,17 +164,17 @@ h1{
   clear: both;
 }
 
-a.seleziona_chat{
+a.select_chat{
   text-decoration: none;
 }
 
-button.seleziona_chat{  
+button.select_chat{  
     border:none;
     background-color: #333333;
     padding:0;
 }
 
-div.seleziona_chat{
+div.select_chat{
     border:0;
     background-color:#333333;
     padding: 5px 0px 5px 0px;
@@ -189,11 +189,11 @@ div.seleziona_chat{
     overflow: hidden;
 }
 
-div.seleziona_chat:hover{
+div.select_chat:hover{
   background-color: #4a72ba;
 }
 
-.propic_elenco{
+.propic_from_list{
   width: 45px;
   height: 45px;
   max-width:100%;
@@ -207,7 +207,7 @@ div.seleziona_chat:hover{
   border: solid 2.5px #333333;
 }
 
-.form_invio{
+.send_form{
     background-color: #191919;
 }
 
@@ -219,7 +219,7 @@ div.seleziona_chat:hover{
   display: inline-block;
 }
 
-#tabella_principale{
+#main_table{
   height: 100%;
   width: 100%;
   position: fixed;
@@ -241,10 +241,6 @@ div.seleziona_chat:hover{
   text-align: center;
   margin: 0;
   display: inline-block;
-}
-
-.testo_messaggio{
-  margin: auto;
 }
 
 .time-left{
@@ -272,7 +268,7 @@ div.seleziona_chat:hover{
 #nickname{
   margin:1ch;
 }
-#stato{
+#log{
   margin:1ch;
 }
 #menu_laterale{

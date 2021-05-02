@@ -1,5 +1,5 @@
 <?php
-    include("config.php");
+    include "config.php";
     $user=$_POST['user'];
     $nickname=$_POST['nickname'];
     $email=$_POST['email'];
