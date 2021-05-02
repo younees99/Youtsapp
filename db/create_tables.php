@@ -1,5 +1,5 @@
 <?php
-	include __DIR__.'\config.php';
+    include 'config.php';
     //Creating user table
     $query='create table if not exists users(        
         userID INT(255) primary key auto_increment NOT NULL,
@@ -10,7 +10,7 @@
         image_url VARCHAR(255),
         last_seen timestamp NOT NULL
     )engine=InnoDB';
-    $conn_database->query($query) or die ("Error creating user table: ".$conn_database->error);  
+    $db->query($query) or die ("Error creating user table: ".$conn_database->error);  
 
     //Creating rooms table
     $query='create table if not exists rooms( 
@@ -20,7 +20,7 @@
         image_url VARCHAR(255),
         messageID INT(255) NOT NULL
     )engine=InnoDB';
-    $conn_database->query($query) or die ("Error creating rooms table: ".$conn_database->error); 
+    $db->query($query) or die ("Error creating rooms table: ".$conn_database->error); 
 
     //Creating messages table
     $query='create table if not exists messages( 
@@ -33,7 +33,7 @@
         foreign key (source) references users(userID),  
         foreign key (destination) references rooms(roomID)
     )engine=InnoDB';
-    $conn_database->query($query) or die ("Error creating messages table: ".$conn_database->error);  
+    $db->query($query) or die ("Error creating messages table: ".$conn_database->error);  
 
     //Creating role table for rooms
     $query='create table if not exists roles(
@@ -44,7 +44,7 @@
         foreign key (room) references rooms(roomID),
         foreign key (user) references users(userID)
     )engine=InnoDB';
-    $conn_database->query($query) or die ("Error creating roles table: ".$conn_database->error);  
+    $db->query($query) or die ("Error creating roles table: ".$conn_database->error);  
  
     //Creating group friends
     $query="create table if not exists friends(
@@ -55,5 +55,5 @@
         foreign key (friend1ID) references users(userID),  
         foreign key (friend2ID) references users(userID)
     )engine=InnoDB";
-    $conn_database->query($query) or die ("Error creating friends table: ".$conn_database->error);  
+    $db->query($query) or die ("Error creating friends table: ".$conn_database->error);  
 ?>
