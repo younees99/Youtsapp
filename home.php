@@ -39,7 +39,17 @@
 						<div style="height: 88%;">
 							<table id='chats'>
 									<?php
-										$query="SELECT userID,nickname,image_url FROM users U JOIN friends F ON userID IN (friend1ID,friend2ID);";
+										$query="SELECT userID,nickname,image_url 
+													FROM Users U JOIN Friends F 
+														ON U.userID IN (friend1ID,friend2ID)
+													WHERE '$_SESSION[name]' IN (friend1ID,friend2ID)
+												UNION
+												SELECT groupID,group_name,image_url
+													FROM Users U JOIN Groups_users G 
+														ON U.userID=G.userID
+													WHERE U.userID='$_SESSION[name]'
+
+													";
 										$result=$db->query($query);
 										$count=0;				
 										if($result->numRows()>0){
