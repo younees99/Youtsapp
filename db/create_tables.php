@@ -11,17 +11,28 @@
         image_url VARCHAR(255),
         last_seen timestamp NOT NULL
     )engine=InnoDB';
-    $db->query($query) or die ("Error creating user table: ".$conn_database->error);  
+    $db->query($query);
 
-    //Creating ROOMS table
-    $query='create table if not exists rooms( 
-        roomID INT(255) primary key auto_increment NOT NULL,
+    //Creating GROUPS table
+    $query='create table if not exists groups( 
+        groupID INT(255) primary key auto_increment NOT NULL,
         founded timestamp NOT NULL,
         name VARCHAR(255) NOT NULL,
-        image_url VARCHAR(255),
-        messageID INT(255) NOT NULL
+        image_url VARCHAR(255)
     )engine=InnoDB';
-    $db->query($query) or die ("Error creating rooms table: ".$conn_database->error); 
+    $db->query($query);
+    
+    //Creating GROUPS_USER table
+    $query="create table if not exists groups_user(
+        group_userID INT(255) primary key auto_increment NOT NULL,
+        since timestamp NOT NULL,
+        value ENUM('Member','Admin'),
+        groupID INT(255),
+        userID INT(255),
+        foreign key (userID) references users(userID),
+        foreign key (groupID) references groups(groupID)
+    )engine=InnoDB";
+    $db->query($query);
 
     //Creating MESSAGES table
     $query='create table if not exists messages( 
@@ -29,25 +40,16 @@
         data timestamp NOT NULL,
         text VARCHAR(255) NOT NULL,
         source INT(255) NOT NULL,
-        destination INT(255) NOT NULL,
-        stato ENUM("sent","recieved","read") NOT NULL,
+        destination_user INT(255),
+        destination_group INT(255),
+        stato ENUM("Sent","Recieved","Read") NOT NULL,
         foreign key (source) references users(userID),  
-        foreign key (destination) references rooms(roomID)
+        foreign key (destination_user) references users(userID),
+        foreign key (destination_group) references groups(groupID)
     )engine=InnoDB';
-    $db->query($query) or die ("Error creating messages table: ".$conn_database->error);  
-
-    //Creating ROLE table for rooms
-    $query='create table if not exists roles(
-        roleID INT(255) primary key auto_increment NOT NULL,
-        value ENUM("membro","amministratore") NOT NULL,
-        room INT(255) NOT NULL,
-        user INT(255) NOT NULL, 
-        foreign key (room) references rooms(roomID),
-        foreign key (user) references users(userID)
-    )engine=InnoDB';
-    $db->query($query) or die ("Error creating roles table: ".$conn_database->error);  
+    $db->query($query);
  
-    //Creating GROUP friends
+    //Creating FRIENDS table
     $query="create table if not exists friends(
         friendshipID INT(255) primary key auto_increment NOT NULL,
         since timestamp NOT NULL,
@@ -56,5 +58,5 @@
         foreign key (friend1ID) references users(userID),  
         foreign key (friend2ID) references users(userID)
     )engine=InnoDB";
-    $db->query($query) or die ("Error creating friends table: ".$conn_database->error);  
+    $db->query($query);  
 ?>
