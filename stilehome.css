@@ -10,6 +10,11 @@ body{
     height: 83%;
 }
 
+.side_div{
+  height: 88%; 
+  overflow-y:auto;
+}
+
 #main{
   height: 100vh;
   background-color: #34495e;
@@ -98,6 +103,10 @@ h1{
   width: 100%;
   display: flex;
   justify-content: space-between;
+}
+
+.message_value{
+  margin:0;
 }
 
 

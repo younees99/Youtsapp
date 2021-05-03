@@ -17,7 +17,7 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=357">
+	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=125">
 	    <link rel="stylesheet" type="text/css" href="stile.css?version=548">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	</head>
@@ -29,14 +29,14 @@
 		<table id='main_table'>
 			<tr>
 				<td style="width:20%;">
-					<div id='lateral_menu'>
+					<div id='side_menu'>
 						<header class='header_chats'>
 							<p class='youtsapp'>Youtsapp</p>
 							<button class='iconbtn' onclick='openProfileMenu()'>
 								<i class="fa fa-user-circle-o fa-2x" aria-hidden="true" style="float:right"></i>
 							</button>
 						</header>
-						<div style="height: 88%;">
+						<div class='side_div'>
 							<table id='chats'>
 									<?php
 										$query="SELECT friendID,nickname,image_url,mess_text,date_time
@@ -48,35 +48,37 @@
 													WHERE U.userID='$_SESSION[name]'
 												UNION
 												SELECT G.groupID,group_name,G.image_url,mess_text,date_time
-													FROM Groups_users GU
+													FROM groups_users GU
 														JOIN users U
 															ON GU.userID=U.userID
-														LEFT JOIN Groups G
+														LEFT JOIN groups G
 															ON GU.groupID=G.groupID 
 														LEFT JOIN messages M
 															ON G.last_message=M.messageID
 													WHERE U.userID='$_SESSION[name]'
 												ORDER BY date_time DESC;";
-										$result=$db->query($query);
-										if($result->numRows()>0){
-											while($row=$result->fetchAll()){	
-												$chat_type="";
-												if(isset($row['friendID'])){
+										$result=$db->query($query)->fetchAll();
+										if(count($result)>0){
+											foreach($result as $row){											
+												if(array_key_exists('friendID',$row)){
 													$chat_type='user';
 													$chat_name=$row['nickname'];
+													$chat_ID_value=$row['friendID'];
 												}	
-												else{
+												else if (array_key_exists('groupID',$row)){
 													$chat_type='group';
-													$chat_name=$row['group_name'];												
+													$chat_name=$row['group_name'];	
+													$chat_ID_value=$row['groupID'];											
 												}
 												$image_url="src/profile_pictures/".$row['image_url'];	
 												$mess_text=$row['mess_text'];
 												$date_time=$row['date_time'];
+												$chat_ID=$chat_type."ID";
 												echo "<tr><td>
 														<a class='select_chat'
-														href='$_SERVER[PHP_SELF]?$chat_typeID=$row[$chat_typeID]'>
+														href='$_SERVER[PHP_SELF]?$chat_ID=$chat_ID_value'>
 														<div class='select_chat'>
-															<div class='propic_from_list' id='propic_from_list$row[$chat_typeID]'
+															<div class='propic_from_list' id='propic_from_list$chat_ID_value'
 																style='background-image:url(".
 																	$image_url.");'>
 															</div> 
@@ -85,9 +87,9 @@
 															<span class='time-left'>$date_time</span>
 														</div>".
 														"</a>											
-													</td></tr>";
+													</td></tr>";	
+												}										
 											}
-										}
 										else{
 											echo"<tr>
 													<td>
@@ -97,8 +99,7 @@
 										}
 									?>
 							</table>
-						</div>
-						
+						</div>						
 						<footer class='footer_chats'>
 							<a href="logout.php" class='iconlink'>
 								<i class="fa fa-sign-out fa-2x" aria-hidden="true" ></i>
@@ -116,7 +117,7 @@
 				<td align="center">
 					<div id='main'>					
 							<?php
-								/*function printLastSeen($db){	
+								function printLastSeen($db){	
 									if(isset($_GET['userID'])){
 										$query="SELECT last_seen FROM users WHERE userID='$_GET[userID]';";
 										$result=$db->query($query);
@@ -131,8 +132,8 @@
 								if(isset($_GET['userID'])){
 									echo"<header id='header_chat'>";									
 									$query="SELECT nickname,image_url FROM users WHERE userID='$_GET[userID]';";
-									$result=$db->query($query);
-									while ($row=$result->fetch_assoc()) {
+									$result=$db->query($query)->fetchAll();
+									foreach($result as $row) {
 										$nickname=$row['nickname'];
 										$image_url="src/profile_pictures/".$row['image_url'];
 										echo"<div id='propic' style='background-image:url(".$image_url.");'></div>
@@ -143,12 +144,12 @@
 									echo"</header>
 									<div class='output' id='output'>
 										<table id='messages' width='100%'>";
-									$query="SELECT * FROM messages WHERE (source='$_SESSION[name]' OR destination='$_SESSION[name]') AND (source='$_GET[userID]' OR destination='$_GET[userID]') ORDER BY data;";
-									$result=$db->query($query);
+									$query="SELECT * FROM messages WHERE (source='$_SESSION[name]' OR destination_user='$_SESSION[name]') AND (source='$_GET[userID]' OR destination_user='$_GET[userID]') ORDER BY date_time;";
+									$result=$db->query($query)->fetchAll();
 									$mese_giorno='';
-									if($result->numRows()>0){
-										while($row=$result->fetch_assoc()){
-											$data=strtotime($row['data']);
+									if(count($result)){
+										foreach($result as $row){
+											$data=strtotime($row['date_time']);
 											$ore_min=date("H:m",$data);
 											if($mese_giorno!=date("F d",$data)){
 												setlocale(LC_TIME,'ita');
@@ -158,7 +159,7 @@
 											if($row['source']==$_SESSION['name']){
 												echo "<tr><td>
 												<div class='right'>".
-														"<p class='message_value'>".$row['testo']."</p> 
+														"<p class='message_value'>".$row['mess_text']."</p> 
 														<span class='time-right'>".$ore_min."</span>
 														<i class='fa fa-check-circle-o' aria-hidden='true'></i>
 												</div>
@@ -167,7 +168,7 @@
 											else{
 												echo "<tr><td>
 												<div class='left'>".
-														"<p class='message_value'>".$row['testo']."</p> 
+														"<p class='message_value'>".$row['mess_text']."</p> 
 														<span class='time-left'>".$ore_min."</span>
 												</div>
 													</td></tr>";
@@ -178,18 +179,18 @@
 									else
 										echo"<p class='print_text'>No messages! Start a conversation<p>";
 									echo"</table></div>";	
-								}	*/	
+								}	
 
 							?>						
 							
 							<?php
-								/*if(isset($_GET['userID'])){
+								if(isset($_GET['userID'])){
 									$destination=$_GET['userID'];
 									echo "<footer class='send_form'>									
 											<textarea name='msg' placeholder='Scrivi un messaggio...' id='input_message'></textarea>
 											<button id='send_message' class='send'><i class='fa fa-send'></i></button>
 										</footer>";
-								}	*/					
+								}				
 							?>
 					</div>
 				</td>
@@ -198,11 +199,7 @@
 		<script>
 			// Websocket				
 			var websocket_server = new WebSocket("ws://<?php echo $_SERVER['SERVER_NAME'];?>:8080/");
-			/*document.getElementById("main_table").style.display="none";
-			document.getElementById("loading_div").style.display="block";*/
 			websocket_server.onopen = function(e){
-				document.getElementById("main_table").style.display="table";
-				document.getElementById("loading_div").style.display="none";
 				websocket_server.send(
 					JSON.stringify({
 						'type':'socket',
@@ -215,7 +212,7 @@
 				window.location="error.php?error=conn";
 			}
 
-			function visualizzaUltimoAccesso(id,val_log){	
+			function printLastSeen(id,val_log){	
 				var log=document.getElementById("log");
 				if(val_log=="online")			
 					log.innerHTML="Online";
@@ -225,16 +222,12 @@
 									?>";
 			}
 
-			function visualizzalog(id,val_log) {
+			function printLog(id,val_log) {
 				var val_propic
 				var val_propic_from_list;
 				var propic=document.getElementById("propic");
 				var propic_from_list=document.getElementById("propic_from_list"+id);
-				var elementiOn=false;
-				propic.addEventListener("load", function () {
-					elementiOn=true;
-				});		
-				if(elementiOn){
+				if(propic&&propic_from_list){
 					if(val_log=="online"){
 						val_propic="#00ff33";
 						val_propic_from_list="#00ff33";
@@ -257,10 +250,10 @@
 			}
 			
 			function updateScroll(){
-				var messaggi=document.getElementById("messaggi");
+				var messages=document.getElementById("messages");
 				var output=document.getElementById("output");
-				if(messaggi&&output){
-					output.scrollTop = messaggi.offsetHeight;
+				if(messages&&output){
+					output.scrollTop = messages.offsetHeight;
 				}
 			}
 			updateScroll();
@@ -269,54 +262,54 @@
 			//Printing a message when i recieve it
 			websocket_server.onmessage = function(e)
 			{
-				var messaggi= document.getElementById("messaggi");
+				var messages= document.getElementById("messages");
 				var log = document.getElementById("log");
 				var json = JSON.parse(e.data);
 				switch(json.type){
-					case 'utenti_online':
-						var utenti_on=json.utenti_online;
+					case 'online_users':
+						var utenti_on=json.online_users;
 						if(typeof utenti_on === String){
-							var array_utenti=json.utenti_online.split(",");
+							var array_utenti=json.online_users.split(",");
 							for (let index = 0; index < array_utenti.length; index++) {
-								visualizzalog(array_utenti[index],"online");
+								printLog(array_utenti[index],"online");
 								if(array_utenti[index]==<?php
 															if(isset($_GET['userID']))
 																echo $_GET['userID'];
 															else
 																echo"-1";
 														?>)
-									visualizzaUltimoAccesso(id,"online");
+									printLastSeen(id,"online");
 
 							}	
 						}
 						else{
-							visualizzalog(utenti_on,"online");
+							printLog(utenti_on,"online");
 								if(utenti_on==<?php
 													if(isset($_GET['userID']))
 														echo $_GET['userID'];
 													else
 														echo"-1";
 												?>)
-									visualizzaUltimoAccesso(id,"online");
+									printLastSeen(id,"online");
 						}
 						
 						break;
 
 					case 'chat':
-						messaggi.innerHTML+=stampaMessaggio(json);
+						messages.innerHTML+=printMessage(json);
 						updateScroll();
 						break;
 					
 					case 'connected':
 						var id=json.user_id;	
-						visualizzalog(id,"online");
-						visualizzaUltimoAccesso(id,"online");
+						printLog(id,"online");
+						printLastSeen(id,"online");
 						break;
 					
 					case 'disconnected':
 						var id=json.user_id;
-						visualizzalog(id,"offline");
-						visualizzaUltimoAccesso(id,"online");
+						printLog(id,"offline");
+						printLastSeen(id,"offline");
 						break;
 					
 					case 'writing':
@@ -340,39 +333,53 @@
 						break;
 				}
 			}
-			//Funzione che stampa il messaggio ricevuto come json
-			function stampaMessaggio(json){
-				var messaggio;
+			
+			function printMessage(json){
+				var message;
+				var source_type
 				var source;
-				var icona='';
+				var icon='';
 				if(json.from_id==<?php echo"'$_SESSION[name]'"?>){
 					source="right";
-					icona="<i class='fa fa-circle-o' aria-hidden='true'></i>";
+					icon="<i class='fa fa-circle-o' aria-hidden='true'></i>";
 				}
 				
 				else
 					source="left";
 				
-				messaggio="<tr><td><div class='"+source+"'><p class='message_value'>"+json.msg+"</p><span class='time-"+source+"'>"+json.time+"</span>"+icona+"</div></td></tr>";
-				return messaggio;
+				message="<tr><td><div class='"+source+"'><p class='message_value'>"+json.msg+"</p><span class='time-"+source+"'>"+json.time+"</span>"+icon+"</div></td></tr>";
+				return message;
 			}
 
-			//Funzione che formatta il messaggio per json
+
 			var textarea = document.getElementById("input_message");
 			function inviaMessaggio(){
 				var chat_msg = textarea.value;
 				websocket_server.send(
 					JSON.stringify({
 						'type':'chat',
-						'from_id':<?php echo "'$_SESSION[name]'"; ?>,
+						'from_id':<?php 
+									echo "'$_SESSION[name]'"; 
+								?>,
 						'to_id':<?php 
 									if(isset($_GET['userID'])) 
 										echo"'$_GET[userID]'";
 									else
-										echo"'-1'"?>,
+										echo"'-1'"
+								?>,
 						'chat_msg':chat_msg.trim(),
-						'time': <?php $time=date('H:i');
-									  echo"'$time'"?>
+						'destination_type':<?php
+											if(isset($_GET['userID']))
+												echo "'destination_user'";
+											elseif(isset($_GET['groupID']))
+												echo "'destination_group'";
+											else
+												echo "'-1'";
+											?>,
+						'time': <?php 
+									$time=date('H:i');
+									 echo"'$time'"
+								?>
 					})
 				);
 				textarea.value='';
@@ -380,7 +387,7 @@
 				updateScroll();
 			}
 			
-			// Evento che invia un messaggio
+			
 			if(textarea){
 				textarea.addEventListener('keyup',function(e){
 					if(e.keyCode==13 && !e.shiftKey){
