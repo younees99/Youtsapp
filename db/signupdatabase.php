@@ -31,7 +31,7 @@
         insert into users(username,nickname,password,email,image_url) values
             ('".$db->escapeString($user)."',
              '".$db->escapeString($nickname)."',
-             '".$db->escapeString($pass)."',
+             '".$db->escapeString($pass_criptata)."',
              '$email',
              '$file_name');
     ";
