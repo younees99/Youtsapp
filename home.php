@@ -39,14 +39,22 @@
 						<div style="height: 88%;">
 							<table id='chats'>
 									<?php
-										$query="SELECT friendID,nickname,image_url,mess_text,date_time,last_message
-													FROM Users U JOIN Friends F FROM Messages
-														ON U.userID=F.UserID
+										$query="SELECT friendID,nickname,image_url,mess_text,date_time
+													FROM friends F 
+														JOIN users U
+															ON F.userID=U.userID
+														LEFT JOIN messages M
+															ON F.last_message=M.messageID
 													WHERE U.userID='$_SESSION[name]'
 												UNION
-												SELECT groupID,group_name,image_url,mess_text,date_time,last_message
-													FROM Users U JOIN Groups_users G FROM Messages
-														ON U.userID=G.userID
+												SELECT G.groupID,group_name,G.image_url,mess_text,date_time
+													FROM Groups_users GU
+														JOIN users U
+															ON GU.userID=U.userID
+														LEFT JOIN Groups G
+															ON GU.groupID=G.groupID 
+														LEFT JOIN messages M
+															ON G.last_message=M.messageID
 													WHERE U.userID='$_SESSION[name]'
 												ORDER BY date_time DESC;";
 										$result=$db->query($query);
@@ -107,8 +115,8 @@
 				</td>
 				<td align="center">
 					<div id='main'>					
-							<?php/*
-								function printLastSeen($db){	
+							<?php
+								/*function printLastSeen($db){	
 									if(isset($_GET['userID'])){
 										$query="SELECT last_seen FROM users WHERE userID='$_GET[userID]';";
 										$result=$db->query($query);
@@ -174,8 +182,8 @@
 
 							?>						
 							
-							<?php/*
-								if(isset($_GET['userID'])){
+							<?php
+								/*if(isset($_GET['userID'])){
 									$destination=$_GET['userID'];
 									echo "<footer class='send_form'>									
 											<textarea name='msg' placeholder='Scrivi un messaggio...' id='input_message'></textarea>
