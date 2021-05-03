@@ -32,50 +32,55 @@
 					<div id='lateral_menu'>
 						<header class='header_chats'>
 							<p class='youtsapp'>Youtsapp</p>
-							<button class='iconbtn' id="bottone_profilo" onclick='function()'>
+							<button class='iconbtn' onclick='openProfileMenu()'>
 								<i class="fa fa-user-circle-o fa-2x" aria-hidden="true" style="float:right"></i>
 							</button>
 						</header>
 						<div style="height: 88%;">
 							<table id='chats'>
 									<?php
-										$query="SELECT userID,nickname,image_url 
-													FROM Users U JOIN Friends F 
-														ON U.userID IN (friend1ID,friend2ID)
-													WHERE '$_SESSION[name]' IN (friend1ID,friend2ID)
+										$query="SELECT friendID,nickname,image_url,mess_text,date_time,last_message
+													FROM Users U JOIN Friends F FROM Messages
+														ON U.userID=F.UserID
+													WHERE U.userID='$_SESSION[name]'
 												UNION
-												SELECT groupID,group_name,image_url
-													FROM Users U JOIN Groups_users G 
+												SELECT groupID,group_name,image_url,mess_text,date_time,last_message
+													FROM Users U JOIN Groups_users G FROM Messages
 														ON U.userID=G.userID
 													WHERE U.userID='$_SESSION[name]'
-
-													";
+												ORDER BY date_time DESC;";
 										$result=$db->query($query);
-										$count=0;				
 										if($result->numRows()>0){
-											while($row=$result->fetch_assoc()){							
-												if($row['userID']!=$_SESSION['name']){
-													$nickname=$row['nickname'];
-													$image_url="src/profile_pictures/".$row['image_url'];	
-													echo "<tr><td>
-															<a class='select_chat'
-															href='$_SERVER[PHP_SELF]?userID=$row[userID]'>
-															<div class='select_chat'>
-																<div class='propic_from_list' id='propic_from_list$row[userID]'
-																	style='background-image:url(".
-																			$image_url.");'>
-																</div> ".
-																$nickname.
-															"</div>".
-															"</a>											
-														</td></tr>";
-													$count--;
+											while($row=$result->fetchAll()){	
+												$chat_type="";
+												if(isset($row['friendID'])){
+													$chat_type='user';
+													$chat_name=$row['nickname'];
+												}	
+												else{
+													$chat_type='group';
+													$chat_name=$row['group_name'];												
 												}
-												else
-													$count++;
+												$image_url="src/profile_pictures/".$row['image_url'];	
+												$mess_text=$row['mess_text'];
+												$date_time=$row['date_time'];
+												echo "<tr><td>
+														<a class='select_chat'
+														href='$_SERVER[PHP_SELF]?$chat_typeID=$row[$chat_typeID]'>
+														<div class='select_chat'>
+															<div class='propic_from_list' id='propic_from_list$row[$chat_typeID]'
+																style='background-image:url(".
+																	$image_url.");'>
+															</div> 
+															<p class='chat_name'>$chat_name</p>
+															<span class='mess_preview'>$mess_text</span>
+															<span class='time-left'>$date_time</span>
+														</div>".
+														"</a>											
+													</td></tr>";
 											}
 										}
-										if($count>0){
+										else{
 											echo"<tr>
 													<td>
 														<p>You don't have any friend yet</p>
@@ -102,7 +107,7 @@
 				</td>
 				<td align="center">
 					<div id='main'>					
-							<?php
+							<?php/*
 								function printLastSeen($db){	
 									if(isset($_GET['userID'])){
 										$query="SELECT last_seen FROM users WHERE userID='$_GET[userID]';";
@@ -165,18 +170,18 @@
 									else
 										echo"<p class='print_text'>No messages! Start a conversation<p>";
 									echo"</table></div>";	
-								}		
+								}	*/	
 
 							?>						
 							
-							<?php
+							<?php/*
 								if(isset($_GET['userID'])){
 									$destination=$_GET['userID'];
 									echo "<footer class='send_form'>									
 											<textarea name='msg' placeholder='Scrivi un messaggio...' id='input_message'></textarea>
 											<button id='send_message' class='send'><i class='fa fa-send'></i></button>
 										</footer>";
-								}						
+								}	*/					
 							?>
 					</div>
 				</td>
@@ -185,8 +190,8 @@
 		<script>
 			// Websocket				
 			var websocket_server = new WebSocket("ws://<?php echo $_SERVER['SERVER_NAME'];?>:8080/");
-			document.getElementById("main_table").style.display="none";
-			document.getElementById("loading_div").style.display="block";
+			/*document.getElementById("main_table").style.display="none";
+			document.getElementById("loading_div").style.display="block";*/
 			websocket_server.onopen = function(e){
 				document.getElementById("main_table").style.display="table";
 				document.getElementById("loading_div").style.display="none";

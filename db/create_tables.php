@@ -10,7 +10,7 @@
         email VARCHAR(255) NOT NULL,
         image_url VARCHAR(255),
         last_seen TIMESTAMP NOT NULL,
-        is_online BOOLEAN NOT NULL
+        is_online BOOLEAN NOT NULL DEFAULT 0
     )engine=InnoDB';
     $db->query($query);
 
@@ -27,8 +27,8 @@
     //Creating MESSAGES table
     $query='CREATE TABLE IF NOT EXISTS Messages( 
         messageID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-        data TIMESTAMP NOT NULL,
-        text VARCHAR(255) NOT NULL,
+        date_time TIMESTAMP NOT NULL,
+        mess_text VARCHAR(255) NOT NULL,
         source INT(255) NOT NULL,
         destination_user INT(255),
         destination_group INT(255),
@@ -60,11 +60,11 @@
     $query="CREATE TABLE IF NOT EXISTS Friends(
         friendshipID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
         since TIMESTAMP NOT NULL,
-        friend1ID INT(255) NOT NULL,
-        friend2ID INT(255) NOT NULL,
+        userID INT(255) NOT NULL,
+        friendID INT(255) NOT NULL,
         last_message INT(255),
-        FOREIGN KEY (friend1ID) REFERENCES Users(userID),  
-        FOREIGN KEY (friend2ID) REFERENCES Users(userID),
+        FOREIGN KEY (userID) REFERENCES Users(userID),  
+        FOREIGN KEY (friendID) REFERENCES Users(userID),
         FOREIGN KEY (last_message) REFERENCES Messages(messageID)
     )engine=InnoDB";
     $db->query($query);  

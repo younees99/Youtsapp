@@ -29,13 +29,12 @@
 
     $query="
         insert into users(username,nickname,password,email,image_url) values
-            ('".mysqli_real_escape_string($conn_database,$user)."',
-             '".mysqli_real_escape_string($conn_database,$nickname)."',
-             '".mysqli_real_escape_string($conn_database,$pass_criptata)."',
+            ('".$db->escapeString($user)."',
+             '".$db->escapeString($nickname)."',
+             '".$db->escapeString($pass)."',
              '$email',
              '$file_name');
     ";
-
-    mysqli_query($conn_database,$query)or die ("Something went wrong!".$conn_database->error);
+    $db->query($query);    
     header("Location:../index.php");
 ?> 
