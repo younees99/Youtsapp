@@ -45,7 +45,7 @@
 															ON F.userID=U.userID
 														LEFT JOIN users FU
 															ON FU.userID=friendID
-														LEFT JOIN messages M
+														JOIN messages M
 															ON F.last_message=M.messageID
 													WHERE U.userID='$_SESSION[name]'
 												UNION
@@ -75,20 +75,21 @@
 												$image_url="src/profile_pictures/".$row['image_url'];	
 												$mess_text=$row['mess_text'];
 												$date_time=$row['date_time'];
+												$date_time=date('H:i', strtotime($date_time));
 												$chat_ID=$chat_type."ID";
 												echo "<tr><td>
 														<a class='select_chat'
 														href='$_SERVER[PHP_SELF]?$chat_ID=$chat_ID_value'>
-														<div class='select_chat'>
-															<div class='propic_from_list' id='propic_from_list$chat_ID_value'
-																style='background-image:url(".
-																	$image_url.");'>
-															</div> 
-															<p class='chat_name'>$chat_name</p>
-															<span class='mess_preview'>$mess_text</span>
-															<span class='time-left'>$date_time</span>
-														</div>".
-														"</a>											
+															<div class='select_chat'>
+																<div class='propic_from_list' id='propic_from_list$chat_ID_value'
+																	style='background-image:url(".
+																		$image_url.");'>
+																</div> 
+																<p class='chat_name'>$chat_name</p>
+																<span class='mess_preview'>$mess_text</span>
+																<span class='time-preview'>$date_time</span>
+															</div>
+														</a>											
 													</td></tr>";	
 												}										
 											}
