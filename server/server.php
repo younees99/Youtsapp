@@ -32,7 +32,7 @@
 			$result=$this->db->query("SELECT username FROM users WHERE userID='$userID';")->fetchArray();
 			echo"$result[username] disconnected\n";
 			$timestamp = date('Y-m-d H:i:s', strtotime("now"));
-			$this->db->query("UPDATE users SET last_seen='$timestamp' WHERE userID='$userID';");
+			$this->db->query("UPDATE users SET last_seen='$timestamp',is_online='0' WHERE userID='$userID';");
 
 			//Send to the other users the disconnection information
 			foreach($this->clients as $client){					
@@ -60,16 +60,6 @@
 					break;
 				}
 			}
-		}
-
-		public function printUsers($online_users,$user_id){
-			$print="";
-			foreach($online_users as $user){
-				if($user!=$user_id)
-					$print.=$user.",";
-			}
-			$print=substr($print,0,-1);
-			return $print;
 		}
 
 		public function onMessage(ConnectionInterface $from,  $data) {
@@ -119,15 +109,8 @@
 					$result=$this->db->query("SELECT username FROM users WHERE userID='$user_id';")->fetchArray();
 					$this->users_ids[$from->resourceId]=$user_id;
 					echo"$result[username]($user_id) just connected\n";
-					$from->send(
-								json_encode(
-									array(
-										"type"=>"online_users",
-										"online_users"=>$this->printUsers($this->users_ids,$user_id)
-									)
-								)
-							);	
-					
+					$query="UPDATE users SET is_online='1' WHERE userID='$user_id';";
+					$this->db->query($query);
 					// Output
 					foreach($this->clients as $client)					
 						if($from!=$client)						

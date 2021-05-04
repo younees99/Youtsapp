@@ -39,10 +39,12 @@
 						<div class='side_div'>
 							<table id='chats'>
 									<?php
-										$query="SELECT friendID,nickname,image_url,mess_text,date_time
+										$query="SELECT friendID,FU.nickname,FU.image_url,mess_text,date_time
 													FROM friends F 
 														JOIN users U
 															ON F.userID=U.userID
+														LEFT JOIN users FU
+															ON FU.userID=friendID
 														LEFT JOIN messages M
 															ON F.last_message=M.messageID
 													WHERE U.userID='$_SESSION[name]'
@@ -144,7 +146,13 @@
 									echo"</header>
 									<div class='output' id='output'>
 										<table id='messages' width='100%'>";
-									$query="SELECT * FROM messages WHERE (source='$_SESSION[name]' OR destination_user='$_SESSION[name]') AND (source='$_GET[userID]' OR destination_user='$_GET[userID]') ORDER BY date_time;";
+									$query="SELECT * 
+												FROM messages 
+												WHERE 
+													(source='$_SESSION[name]' OR destination_user='$_SESSION[name]') 
+													AND 
+													(source='$_GET[userID]' OR destination_user='$_GET[userID]') 
+											ORDER BY date_time;";
 									$result=$db->query($query)->fetchAll();
 									$mese_giorno='';
 									if(count($result)){
@@ -196,7 +204,9 @@
 				</td>
 			</tr>
 		</table>
-		<script>
+		<script>	
+			showOnlineUsers();		
+
 			// Websocket				
 			var websocket_server = new WebSocket("ws://<?php echo $_SERVER['SERVER_NAME'];?>:8080/");
 			websocket_server.onopen = function(e){
@@ -227,15 +237,11 @@
 				var val_propic_from_list;
 				var propic=document.getElementById("propic");
 				var propic_from_list=document.getElementById("propic_from_list"+id);
-				if(propic&&propic_from_list){
-					if(val_log=="online"){
-						val_propic="#00ff33";
-						val_propic_from_list="#00ff33";
-					}
-					else{
-						val_propic="#191919";
-						val_propic_from_list="#333333";
-					}
+				if(propic){
+					if(val_log=="online")
+						val_propic="#00ff33";					
+					else
+						val_propic="#191919";					
 					if(id==<?php
 								if(isset($_GET['userID']))
 									echo $_GET['userID'];
@@ -243,9 +249,14 @@
 									echo"-1";
 							?>)					
 						propic.style.border="solid 2.5px"+val_propic;						
-					propic_from_list.style.border="solid 2.5px"+val_propic_from_list;		
 				}
-				
+				if(propic_from_list){
+					if(val_log=="online")
+						val_propic_from_list="#00ff33";
+					else
+						val_propic_from_list="#333333";	
+					propic_from_list.style.border="solid 2.5px"+val_propic_from_list;	
+				}
 
 			}
 			
@@ -266,35 +277,6 @@
 				var log = document.getElementById("log");
 				var json = JSON.parse(e.data);
 				switch(json.type){
-					case 'online_users':
-						var utenti_on=json.online_users;
-						if(typeof utenti_on === String){
-							var array_utenti=json.online_users.split(",");
-							for (let index = 0; index < array_utenti.length; index++) {
-								printLog(array_utenti[index],"online");
-								if(array_utenti[index]==<?php
-															if(isset($_GET['userID']))
-																echo $_GET['userID'];
-															else
-																echo"-1";
-														?>)
-									printLastSeen(id,"online");
-
-							}	
-						}
-						else{
-							printLog(utenti_on,"online");
-								if(utenti_on==<?php
-													if(isset($_GET['userID']))
-														echo $_GET['userID'];
-													else
-														echo"-1";
-												?>)
-									printLastSeen(id,"online");
-						}
-						
-						break;
-
 					case 'chat':
 						messages.innerHTML+=printMessage(json);
 						updateScroll();
@@ -440,6 +422,42 @@
 						})
 					);					
 				});
+			}
+
+					
+			function showOnlineUsers() {
+				var array_utenti='<?php
+										$users_online='';
+										$result=$db->query("SELECT userID FROM users WHERE is_online='1';")->fetchAll();
+										foreach ($result as $row) {
+											$users_online.=$row['userID'].",";
+										}
+										$users_online=substr($users_online,0,-1);
+										echo $users_online;
+									?>';
+					
+				if(array_utenti!=''){
+					for (let index = 0; index < array_utenti.length; index++) {
+						printLog(array_utenti[index],"online");
+						if(array_utenti[index]==<?php
+													if(isset($_GET['userID']))
+														echo $_GET['userID'];
+													else
+														echo"-1";
+												?>)
+							printLastSeen(id,"online");
+						}	
+				}
+				else{
+					printLog(array_utenti,"online");
+						if(array_utenti==<?php
+											if(isset($_GET['userID']))
+												echo $_GET['userID'];
+											else
+												echo"-1";
+										?>)
+							printLastSeen(id,"online");
+				}	
 			}
 		</script>
 		<?php
