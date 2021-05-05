@@ -17,7 +17,7 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=125">
+	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=458">
 	    <link rel="stylesheet" type="text/css" href="stile.css?version=548">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	</head>
@@ -31,7 +31,11 @@
 				<td style="width:20%;">
 					<div id='side_menu'>
 						<header class='header_chats'>
-							<p class='youtsapp'>Youtsapp</p>
+							<a href='home.php' style='color:white; text-decoration:none;'>
+								<p class='youtsapp'>
+									Youtsapp
+								</p>
+							</a>
 							<button class='iconbtn' onclick='openProfileMenu()'>
 								<i class="fa fa-user-circle-o fa-2x" aria-hidden="true" style="float:right"></i>
 							</button>
@@ -206,31 +210,31 @@
 			</tr>
 		</table>
 		<script>	
-			showOnlineUsers();		
+			//Defining functions		
 
-			// Websocket				
-			var websocket_server = new WebSocket("ws://<?php echo $_SERVER['SERVER_NAME'];?>:8080/");
-			websocket_server.onopen = function(e){
-				websocket_server.send(
-					JSON.stringify({
-						'type':'socket',
-						'user_id':<?php echo "'$_SESSION[name]'"; ?>
-					})
-				);
-			};
-				
-			websocket_server.onerror = function(e) {
-				window.location="error.php?error=conn";
-			}
-
-			function printLastSeen(id,val_log){	
-				var log=document.getElementById("log");
-				if(val_log=="online")			
-					log.innerHTML="Online";
-				else
-					log.innerHTML="<?php
-										echo printLastSeen($db);
-									?>";
+			function showOnlineUsers() {
+					var users_online='<?php
+											$users_online='';
+											$result=$db->query("SELECT userID FROM users WHERE is_online='1';")->fetchAll();
+											foreach ($result as $row) {
+												$users_online.=$row['userID'].",";
+											}
+											$users_online=substr($users_online,0,-1);
+											echo $users_online;
+										?>';
+					var array_users=users_online.split(",");
+					if(array_users){
+						for (let index = 0; index < array_users.length; index++) {
+							printLog(array_users[index],"online");
+							if(array_users[index]==<?php
+														if(isset($_GET['userID']))
+															echo $_GET['userID'];
+														else
+															echo"-1";
+													?>)
+								printLastSeen(array_users[index],"online");
+							}	
+					}
 			}
 
 			function printLog(id,val_log) {
@@ -259,7 +263,24 @@
 					propic_from_list.style.border="solid 2.5px"+val_propic_from_list;	
 				}
 
-			}
+			}			
+
+			function printLastSeen(id,val_log){	
+				var log=document.getElementById("log");
+				if(id==<?php
+								if(isset($_GET['userID']))
+									echo $_GET['userID'];
+								else
+									echo"-1";
+							?>){
+				if(val_log=="online")			
+					log.innerHTML="Online";
+				else
+					log.innerHTML="<?php
+										echo printLastSeen($db);
+									?>";		
+				}
+			}			
 			
 			function updateScroll(){
 				var messages=document.getElementById("messages");
@@ -268,18 +289,93 @@
 					output.scrollTop = messages.offsetHeight;
 				}
 			}
-			updateScroll();
 
+			function printMessage(json){
+				var message;
+				var source;
+				var icon='';
+				if(json.from_id==<?php echo"'$_SESSION[name]'"?>){
+					source="right";
+					icon="<i class='fa fa-circle-o' aria-hidden='true'></i>";
+				}
+				
+				else
+					source="left";
+				
+				message="<tr><td><div class='"+source+"'><p class='message_value'>"+json.msg+"</p><span class='time-"+source+"'>"+json.time+"</span>"+icon+"</div></td></tr>";
+				
+				var messages=document.getElementById("messages");
+				messages.innerHtml+=message;
+			}
+
+			function printPreview(json){
+				var message;
+				var source_type
+				var source;
+							
+			}
+			
+			function inviaMessaggio(){
+				var chat_msg = textarea.value;
+				websocket_server.send(
+					JSON.stringify({
+						'type':'chat',
+						'from_id':<?php 
+									echo "'$_SESSION[name]'"; 
+								?>,
+						'to_id':<?php 
+									if(isset($_GET['userID'])) 
+										echo"'$_GET[userID]'";
+									else
+										echo"'-1'"
+								?>,
+						'chat_msg':chat_msg.trim(),
+						'destination_type':<?php
+											if(isset($_GET['userID']))
+												echo "'destination_user'";
+											elseif(isset($_GET['groupID']))
+												echo "'destination_group'";
+											else
+												echo "'-1'";
+											?>,
+						'time': <?php 
+									$time=date('H:i');
+									 echo"'$time'"
+								?>
+					})
+				);
+				textarea.value='';
+				textarea.blur();
+				updateScroll();
+			}
+
+			showOnlineUsers();
+			updateScroll();		
+
+			// Websocket				
+			var websocket_server = new WebSocket("ws://<?php echo $_SERVER['SERVER_NAME'];?>:8080/");
+
+			websocket_server.onopen = function(e){
+				websocket_server.send(
+					JSON.stringify({
+						'type':'socket',
+						'user_id':<?php echo "'$_SESSION[name]'"; ?>
+					})
+				);
+			};
+				
+			websocket_server.onerror = function(e) {
+				window.location="error.php?error=conn";
+			}
 
 			//Printing a message when i recieve it
 			websocket_server.onmessage = function(e)
 			{
-				var messages= document.getElementById("messages");
-				var log = document.getElementById("log");
 				var json = JSON.parse(e.data);
 				switch(json.type){
 					case 'chat':
-						messages.innerHTML+=printMessage(json);
+						printMessage(json);
+						printPreview(json);
 						updateScroll();
 						break;
 					
@@ -316,61 +412,11 @@
 						break;
 				}
 			}
-			
-			function printMessage(json){
-				var message;
-				var source_type
-				var source;
-				var icon='';
-				if(json.from_id==<?php echo"'$_SESSION[name]'"?>){
-					source="right";
-					icon="<i class='fa fa-circle-o' aria-hidden='true'></i>";
-				}
-				
-				else
-					source="left";
-				
-				message="<tr><td><div class='"+source+"'><p class='message_value'>"+json.msg+"</p><span class='time-"+source+"'>"+json.time+"</span>"+icon+"</div></td></tr>";
-				return message;
-			}
 
+			var textarea = document.getElementById("input_message");		
+			var button=document.getElementById("send_message");
 
-			var textarea = document.getElementById("input_message");
-			function inviaMessaggio(){
-				var chat_msg = textarea.value;
-				websocket_server.send(
-					JSON.stringify({
-						'type':'chat',
-						'from_id':<?php 
-									echo "'$_SESSION[name]'"; 
-								?>,
-						'to_id':<?php 
-									if(isset($_GET['userID'])) 
-										echo"'$_GET[userID]'";
-									else
-										echo"'-1'"
-								?>,
-						'chat_msg':chat_msg.trim(),
-						'destination_type':<?php
-											if(isset($_GET['userID']))
-												echo "'destination_user'";
-											elseif(isset($_GET['groupID']))
-												echo "'destination_group'";
-											else
-												echo "'-1'";
-											?>,
-						'time': <?php 
-									$time=date('H:i');
-									 echo"'$time'"
-								?>
-					})
-				);
-				textarea.value='';
-				textarea.blur();
-				updateScroll();
-			}
-			
-			
+			//Events sending a message
 			if(textarea){
 				textarea.addEventListener('keyup',function(e){
 					if(e.keyCode==13 && !e.shiftKey){
@@ -378,12 +424,10 @@
 						updateScroll();
 					}
 				});	
-			 }
-			
-			
-			var pulsante=document.getElementById("send_message");
-			if(pulsante){
-				pulsante.addEventListener('click',function(e){
+			}	
+
+			if(button){
+				button.addEventListener('click',function(e){
 					inviaMessaggio();
 				});	
 			}
@@ -408,7 +452,6 @@
 			}
 
 			// Events stop writing a message
-			var textarea = document.getElementById("input_message");
 			if(textarea){
 				textarea.addEventListener('blur',function(e){
 					websocket_server.send(
@@ -423,42 +466,6 @@
 						})
 					);					
 				});
-			}
-
-					
-			function showOnlineUsers() {
-				var array_utenti='<?php
-										$users_online='';
-										$result=$db->query("SELECT userID FROM users WHERE is_online='1';")->fetchAll();
-										foreach ($result as $row) {
-											$users_online.=$row['userID'].",";
-										}
-										$users_online=substr($users_online,0,-1);
-										echo $users_online;
-									?>';
-					
-				if(array_utenti!=''){
-					for (let index = 0; index < array_utenti.length; index++) {
-						printLog(array_utenti[index],"online");
-						if(array_utenti[index]==<?php
-													if(isset($_GET['userID']))
-														echo $_GET['userID'];
-													else
-														echo"-1";
-												?>)
-							printLastSeen(id,"online");
-						}	
-				}
-				else{
-					printLog(array_utenti,"online");
-						if(array_utenti==<?php
-											if(isset($_GET['userID']))
-												echo $_GET['userID'];
-											else
-												echo"-1";
-										?>)
-							printLastSeen(id,"online");
-				}	
 			}
 		</script>
 		<?php

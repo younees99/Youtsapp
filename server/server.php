@@ -35,19 +35,27 @@
 			$this->db->query("UPDATE users SET last_seen='$timestamp',is_online='0' WHERE userID='$userID';");
 
 			//Send to the other users the disconnection information
-			foreach($this->clients as $client){					
-				if($conn!=$client){		
-					$client->send(
-						json_encode(
-							array(
-								"type"=>"disconnected",
-								"user_id"=>$userID,
-								"time"=>$timestamp
-							)
-						)
-					);
-				}
-			}
+			$query="SELECT friendID FROM friends WHERE userID='$user_id';";
+					$result=$this->db->query($query)->fetchAll();
+					foreach ($result as $row) {
+						$friendId=$row['friendID'];
+						if(in_array($friendId, $this->users_ids)){
+							$this->variableConn(
+										array_search(
+											$friendId,
+											$this->users_ids
+											)
+										)->send(
+											json_encode(
+												array(
+													"type"=>"disconnected",
+													"user_id"=>$user_id,
+													"time"=>$timestamp
+												)
+											)						
+										);	
+						}
+					}
 
 			unset($this->users_ids[$conn->resourceId]);
 			$this->clients->detach($conn);
@@ -72,7 +80,18 @@
 					$chat_msg = $data->chat_msg;
 					$to_id= $data->to_id;
 					$time= $data->time;
-					$destination_type= $data->destination_type;
+					$destination_type= $data->destination_type;	
+					$query="INSERT INTO messages(mess_text,source,$destination_type) 
+								VALUES ('$chat_msg','$from_id','$to_id');
+							SELECT SCOPE_IDENTITY();";
+					$new_message_ID=$this->db->query($query)->fetchArray();
+					$query="UPDATE friends 
+								SET last_message='$new_message_ID' 
+									WHERE 
+										userID='$from_id' AND friendID='$to_id'
+									OR
+										userID='$to_id' AND friendID='$from_id';";			
+
 					$json_message=json_encode(
 										array(
 											"type"=>$type,
@@ -94,9 +113,7 @@
 								);	
 					}
 
-					$from->send($json_message);		
-					$query="INSERT INTO messages(mess_text,source,$destination_type) VALUES ('$chat_msg','$from_id','$to_id');";
-					$this->db->query($query);
+					$from->send($json_message);	
 					$result=$this->db->query("SELECT username FROM users WHERE userID='$from_id';")->fetchArray();
 					$from=$result['username'];
 					$result=$this->db->query("SELECT username FROM users WHERE userID='$to_id';")->fetchArray();
@@ -112,6 +129,27 @@
 					$query="UPDATE users SET is_online='1' WHERE userID='$user_id';";
 					$this->db->query($query);
 					// Output
+					$query="SELECT friendID FROM friends WHERE userID='$user_id';";
+					$result=$this->db->query($query)->fetchAll();
+					foreach ($result as $row) {
+						$friendId=$row['friendID'];
+						if(in_array($friendId, $this->users_ids)){
+							$this->variableConn(
+										array_search(
+											$friendId,
+											$this->users_ids
+											)
+										)->send(
+											json_encode(
+												array(
+													"type"=>"connected",
+													"user_id"=>$user_id
+												)
+											)						
+										);	
+						}
+					}
+					/*
 					foreach($this->clients as $client)					
 						if($from!=$client)						
 							$client->send(
@@ -121,7 +159,7 @@
 										"user_id"=>$user_id
 									)
 								)
-							);
+							);*/
 					break;
 						
 				case 'writing':
