@@ -35,7 +35,7 @@
 			$this->db->query("UPDATE users SET last_seen='$timestamp',is_online='0' WHERE userID='$userID';");
 
 			//Send to the other users the disconnection information
-			$query="SELECT friendID FROM friends WHERE userID='$user_id';";
+			$query="SELECT friendID FROM friends WHERE userID='$userID';";
 					$result=$this->db->query($query)->fetchAll();
 					foreach ($result as $row) {
 						$friendId=$row['friendID'];
@@ -49,7 +49,7 @@
 											json_encode(
 												array(
 													"type"=>"disconnected",
-													"user_id"=>$user_id,
+													"user_id"=>$userID,
 													"time"=>$timestamp
 												)
 											)						
@@ -82,16 +82,16 @@
 					$time= $data->time;
 					$destination_type= $data->destination_type;	
 					$query="INSERT INTO messages(mess_text,source,$destination_type) 
-								VALUES ('$chat_msg','$from_id','$to_id');
-							SELECT SCOPE_IDENTITY();";
-					$new_message_ID=$this->db->query($query)->fetchArray();
+								VALUES ('$chat_msg','$from_id','$to_id');";
+					$this->db->query($query);
+					$last_id=$this->db->getInsertId();
 					$query="UPDATE friends 
-								SET last_message='$new_message_ID' 
+								SET last_message='$last_id' 
 									WHERE 
 										userID='$from_id' AND friendID='$to_id'
 									OR
 										userID='$to_id' AND friendID='$from_id';";			
-
+					$this->db->query($query);
 					$json_message=json_encode(
 										array(
 											"type"=>$type,
@@ -111,6 +111,7 @@
 									)->send(
 										$json_message						
 								);	
+						echo "spedito\n";
 					}
 
 					$from->send($json_message);	
@@ -149,17 +150,6 @@
 										);	
 						}
 					}
-					/*
-					foreach($this->clients as $client)					
-						if($from!=$client)						
-							$client->send(
-								json_encode(
-									array(
-										"type"=>"connected",
-										"user_id"=>$user_id
-									)
-								)
-							);*/
 					break;
 						
 				case 'writing':

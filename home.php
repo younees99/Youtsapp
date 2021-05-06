@@ -90,8 +90,8 @@
 																		$image_url.");'>
 																</div> 
 																<p class='chat_name'>$chat_name</p>
-																<span class='mess_preview'>$mess_text</span>
-																<span class='time-preview'>$date_time</span>
+																<span class='mess_preview$chat_type$chat_ID_value'>$mess_text</span>
+																<span class='time-preview$chat_type$chat_ID_value'>$date_time</span>
 															</div>
 														</a>											
 													</td></tr>";	
@@ -294,18 +294,20 @@
 				var message;
 				var source;
 				var icon='';
+
 				if(json.from_id==<?php echo"'$_SESSION[name]'"?>){
 					source="right";
 					icon="<i class='fa fa-circle-o' aria-hidden='true'></i>";
-				}
-				
+				}				
 				else
 					source="left";
 				
-				message="<tr><td><div class='"+source+"'><p class='message_value'>"+json.msg+"</p><span class='time-"+source+"'>"+json.time+"</span>"+icon+"</div></td></tr>";
-				
-				var messages=document.getElementById("messages");
-				messages.innerHtml+=message;
+				message="<tr><td>";
+				message+="<div class='"+source+"'>";
+				message+="<p class='message_value'>"+json.msg+"</p>";
+				message+="<span class='time-"+source+"'>"+json.time+"</span>";
+				message+=icon+"</div></td></tr>";
+				document.getElementById("messages").innerHTML+=message;
 			}
 
 			function printPreview(json){
@@ -375,7 +377,8 @@
 				switch(json.type){
 					case 'chat':
 						printMessage(json);
-						printPreview(json);
+						console.log(json);
+						//printPreview(json);
 						updateScroll();
 						break;
 					

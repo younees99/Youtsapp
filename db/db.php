@@ -121,6 +121,10 @@
 			return $this->connection->real_escape_string($string);
 		}
 
+		public function getInsertId(){
+			return $this->connection->insert_id;
+		}
+
 		public function error($error) {
 			if ($this->show_errors) {
 				exit($error);
