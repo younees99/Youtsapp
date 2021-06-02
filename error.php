@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <title>Errore</title>
         <link rel="stylesheet" type="text/css" href="stile.css?version=78">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
         <div class='box'>

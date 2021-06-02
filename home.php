@@ -17,8 +17,9 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=458">
+	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=125">
 	    <link rel="stylesheet" type="text/css" href="stile.css?version=548">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	</head>
 	<body>		
@@ -90,8 +91,8 @@
 																		$image_url.");'>
 																</div> 
 																<p class='chat_name'>$chat_name</p>
-																<span class='mess_preview$chat_type$chat_ID_value'>$mess_text</span>
-																<span class='time-preview$chat_type$chat_ID_value'>$date_time</span>
+																<span class='mess_preview'>$mess_text</span>
+																<span class='time-preview'>$date_time</span>
 															</div>
 														</a>											
 													</td></tr>";	

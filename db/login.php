@@ -11,9 +11,8 @@
 	$result=$db->query($query);
 	if($result->numRows()>0){
 		$row=$result->fetchArray();
-		$encrypted_pass=crypt(md5($pass),md5($row['username']));
-		if($db->escapeString($encrypted_pass)!=$row['password'])
-			header("Location: ../error.php?error=pass&pass=$row[password]&pass=$encrypted_pass");		
+		if(md5($pass)!=$row['password'])
+			header("Location: ../error.php?error=pass&pass=$row[password]&db_pass=$row[password]");		
 		else{
 			$_SESSION['name']=$row['userID'];
 			header("Location:../home.php");

@@ -56,7 +56,7 @@
 										);	
 						}
 					}
-
+			
 			unset($this->users_ids[$conn->resourceId]);
 			$this->clients->detach($conn);
 		}

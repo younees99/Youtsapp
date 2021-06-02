@@ -24,14 +24,12 @@
             header("Location: ../error.php?errore=file");
         }
     }
-    //Encrypting the password
-    $pass_criptata = crypt(md5($pass),md5($user)); 
 
     $query="
         insert into users(username,nickname,password,email,image_url) values
             ('".$db->escapeString($user)."',
              '".$db->escapeString($nickname)."',
-             '".$db->escapeString($pass_criptata)."',
+             'MD5(".$db->escapeString($pass).")',
              '$email',
              '$file_name');
     ";
