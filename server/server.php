@@ -18,6 +18,9 @@
 		public function __construct() {
 			$this->clients = new \SplObjectStorage;
 			$this->db=new db("localhost","root","root");
+			$this->db->query("UPDATE users SET is_online='0';");
+			$this->db->query("UPDATE friends SET is_writing='0';");
+			$this->db->query("UPDATE groups_users SET is_writing='0';");
 		}
 
 		//A user opens the connection with the socket
@@ -33,6 +36,8 @@
 			echo"$result[username] disconnected\n";
 			$timestamp = date('Y-m-d H:i:s', strtotime("now"));
 			$this->db->query("UPDATE users SET last_seen='$timestamp',is_online='0' WHERE userID='$userID';");
+			$this->db->query("UPDATE friends SET is_writing='0' WHERE userID='$userID';");
+			$this->db->query("UPDATE groups_users SET is_writing='0' WHERE userID='$userID';");
 
 			//Send to the other users the disconnection information
 			$query="SELECT friendID FROM friends WHERE userID='$userID';";
@@ -77,11 +82,11 @@
 			switch ($type) {
 				case 'chat':
 					$from_id = $data->from_id;
-					$chat_msg = $data->chat_msg;
+					$chat_msg = $this->db->escapeString($data->chat_msg);
 					$to_id= $data->to_id;
 					$time= $data->time;
 					$destination_type= $data->destination_type;	
-					$query="INSERT INTO messages(mess_text,source,$destination_type) 
+					$query="INSERT INTO messages(mess_text,source_user,$destination_type) 
 								VALUES ('$chat_msg','$from_id','$to_id');";
 					$this->db->query($query);
 					$last_id=$this->db->getInsertId();
@@ -92,6 +97,10 @@
 									OR
 										userID='$to_id' AND friendID='$from_id';";			
 					$this->db->query($query);
+					$query="SELECT image_url FROM users WHERE userID='$from_id';";			
+					$result=$this->db->query($query)->fetchAll();
+					foreach ($result as $row)
+						$image_url=$row['image_url'];
 					$json_message=json_encode(
 										array(
 											"type"=>$type,
@@ -99,27 +108,44 @@
 											"from_id"=>$from_id,
 											"to_id"=>$to_id,
 											"destination_type"=>$destination_type,
+											"image_url"=>$image_url,
 											"time"=>$time
 										)
 									);
-					if(in_array($to_id, $this->users_ids)){
-						$this->variableConn(
-									array_search(
-										$to_id,
-										$this->users_ids
-										)
-									)->send(
-										$json_message						
-								);	
-						echo "spedito\n";
-					}
-
+					
+					//Send back the message to print it in live
 					$from->send($json_message);	
-					$result=$this->db->query("SELECT username FROM users WHERE userID='$from_id';")->fetchArray();
-					$from=$result['username'];
-					$result=$this->db->query("SELECT username FROM users WHERE userID='$to_id';")->fetchArray();
-					$to=$result['username'];
-					echo"$from($from_id) sent a message to $to($to_id)\n";
+					
+					//If the destination is user and is online send him the message
+					if($destination_type=='destination_user'){
+						if(in_array($to_id, $this->users_ids)){
+							$this->variableConn(
+										array_search(
+											$to_id,
+											$this->users_ids
+											)
+										)->send(
+											$json_message						
+									);	
+						}	
+					}
+					else{
+						$query="SELECT userID FROM groups_users WHERE groupID='$to_id';";
+						$result=$this->db->query($query)->fetchAll();
+						foreach($result as $row){
+							$userID=$row['userID'];
+							if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
+								$this->variableConn(
+											array_search(
+												$userID,
+												$this->users_ids
+												)
+											)->send(
+												$json_message						
+										);	
+							}
+						}
+					}					
 					break;
 
 				case 'socket':
@@ -155,6 +181,8 @@
 				case 'writing':
 					$from_id = $data->from_id;
 					$to_id= $data->to_id;
+					$query="UPDATE friends SET is_writing='1' WHERE userID='$from_id' AND friendID='$to_id';";
+					$this->db->query($query);
 					
 					if(in_array($to_id, $this->users_ids)){
 						$this->variableConn(array_search($to_id,$this->users_ids))->send(
@@ -167,21 +195,12 @@
 									)
 								);	
 					}	
-
-					$result=$this->db->query(
-						"SELECT username FROM users WHERE userID='$from_id';"
-						)->fetchArray();
-					$from=$result['username'];
-					$result=$this->db->query(
-						"SELECT username FROM users WHERE userID='$to_id';"
-						)->fetchArray();
-					$to=$result['username'];
-					echo"$from($from_id) is writing to $to($to_id)\n";
 					break;
 
 				case 'not_writing':
 					$from_id = $data->from_id;
 					$to_id= $data->to_id;
+					$query="UPDATE friends SET is_writing='0' WHERE userID='$from_id' AND friendID='$to_id';";
 					
 					if(in_array($to_id, $this->users_ids)){
 						$this->variableConn(array_search($to_id,$this->users_ids))->send(
@@ -194,18 +213,6 @@
 									)
 								);	
 					}	
-
-					$result=$this->db->query(
-						"SELECT username FROM users WHERE userID='$from_id';"
-						)->fetchArray();
-					$from=$result['username'];
-
-					$result=$this->db->query(
-						"SELECT username FROM users WHERE userID='$to_id';"
-						)->fetchArray();
-					$to=$result['username'];
-
-					echo"$from($from_id) non writing to $to($to_id) anymore\n";
 					break;
 							
 			}

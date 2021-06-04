@@ -1,9 +1,9 @@
 <?php
     include "config.php";
-    $user=$_POST['user'];
-    $nickname=$_POST['nickname'];
-    $email=$_POST['email'];
-    $pass=$_POST['pass'];
+    $user=$db->escapeString($_POST['user']);
+    $nickname=$db->escapeString($_POST['nickname']);
+    $email=$db->escapeString($_POST['email']);
+    $pass=$db->escapeString($_POST['pass']);
     $tmp_name=$_FILES['uploaded_image']['tmp_name'];
     $name=$_FILES['uploaded_image']['name'];
 
@@ -25,14 +25,21 @@
         }
     }
 
-    $query="
-        insert into users(username,nickname,password,email,image_url) values
-            ('".$db->escapeString($user)."',
-             '".$db->escapeString($nickname)."',
-             'MD5(".$db->escapeString($pass).")',
-             '$email',
-             '$file_name');
+    $query="INSERT INTO users(username,nickname,password,email,image_url) VALUES
+                ('$user',
+                '$nickname',
+                MD5('$pass'),
+                '$email',
+                '$file_name');
     ";
+    $db->query($query);   
+    $last_id=$db->getInsertId(); 
+    $query="INSERT INTO groups_users (user_role,groupID,userID) VALUES
+            (
+                'member',
+                '1',
+                '$last_id'
+            );";
     $db->query($query);    
     header("Location:../index.php");
 ?> 

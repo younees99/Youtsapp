@@ -131,6 +131,10 @@
 			}
 		}
 
+		public function setCharset($charset){
+			$this->connection->set_charset($charset);
+		}
+
 		private function _gettype($var) {
 			if (is_string($var)) return 's';
 			if (is_float($var)) return 'd';

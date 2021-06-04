@@ -29,28 +29,39 @@
         messageID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
         date_time TIMESTAMP NOT NULL,
         mess_text VARCHAR(255) NOT NULL,
-        source INT(255) NOT NULL,
+        source_user INT(255),
         destination_user INT(255),
         destination_group INT(255),
-        stato ENUM("Sent","Recieved","Read") NOT NULL,
-        FOREIGN KEY (source) REFERENCES users(userID),  
+        mess_status ENUM("sent","recieved","read") NOT NULL,
+        FOREIGN KEY (source_user) REFERENCES users(userID),  
         FOREIGN KEY (destination_user) REFERENCES Users(userID),
         FOREIGN KEY (destination_group) REFERENCES Groups(groupID)
     )engine=InnoDB';
     $db->query($query);
 
-    //Adding column last_message in group table
+    //Adding charset for emojis
+    $query='ALTER TABLE messages CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;';
+    $db->query($query);
+    
+    $query='ALTER TABLE messages MODIFY mess_text TEXT CHARSET utf8mb4;';
+    $db->query($query);
+
+
+    //Adding last_message foreign key in group table
     $query='ALTER TABLE  Groups
         ADD CONSTRAINT  FOREIGN KEY (last_message) REFERENCES messages(messageID)';
     $db->query($query);
     
+    //Adding  foreign keys in messages
+
     //Creating GROUPS_USER table
     $query="CREATE TABLE IF NOT EXISTS Groups_users(
         group_userID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
         since TIMESTAMP NOT NULL,
-        user_role ENUM('Member','Admin'),
+        user_role ENUM('member','admin'),
         groupID INT(255),
         userID INT(255),
+        is_writing BOOLEAN NOT NULL DEFAULT 0;
         FOREIGN KEY (userID) REFERENCES Users(userID),
         FOREIGN KEY (groupID) REFERENCES Groups(groupID)
     )engine=InnoDB";
@@ -63,9 +74,14 @@
         userID INT(255) NOT NULL,
         friendID INT(255) NOT NULL,
         last_message INT(255),
+        is_writing BOOLEAN NOT NULL DEFAULT 0;
         FOREIGN KEY (userID) REFERENCES Users(userID),  
         FOREIGN KEY (friendID) REFERENCES Users(userID),
         FOREIGN KEY (last_message) REFERENCES Messages(messageID)
     )engine=InnoDB";
+    $db->query($query);  
+
+    //Creating global group    
+    $query="INSERT INTO Groups (group_name,image_url) VALUES('Global','global.png');";
     $db->query($query);  
 ?>
