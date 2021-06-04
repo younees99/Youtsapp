@@ -86,17 +86,6 @@
 					$to_id= $data->to_id;
 					$time= $data->time;
 					$destination_type= $data->destination_type;	
-					$query="INSERT INTO messages(mess_text,source_user,$destination_type) 
-								VALUES ('$chat_msg','$from_id','$to_id');";
-					$this->db->query($query);
-					$last_id=$this->db->getInsertId();
-					$query="UPDATE friends 
-								SET last_message='$last_id' 
-									WHERE 
-										userID='$from_id' AND friendID='$to_id'
-									OR
-										userID='$to_id' AND friendID='$from_id';";			
-					$this->db->query($query);
 					$query="SELECT image_url FROM users WHERE userID='$from_id';";			
 					$result=$this->db->query($query)->fetchAll();
 					foreach ($result as $row)
@@ -116,8 +105,20 @@
 					//Send back the message to print it in live
 					$from->send($json_message);	
 					
+					
+					$query="INSERT INTO messages(mess_text,source_user,$destination_type) 
+								VALUES ('$chat_msg','$from_id','$to_id');";
+					$this->db->query($query);					
+					$last_id=$this->db->getInsertId();
 					//If the destination is user and is online send him the message
 					if($destination_type=='destination_user'){
+						$query="UPDATE friends 
+									SET last_message='$last_id' 
+										WHERE 
+											userID='$from_id' AND friendID='$to_id'
+										OR
+											userID='$to_id' AND friendID='$from_id';";			
+						$this->db->query($query);
 						if(in_array($to_id, $this->users_ids)){
 							$this->variableConn(
 										array_search(
@@ -130,6 +131,10 @@
 						}	
 					}
 					else{
+						$query="UPDATE groups 
+									SET last_message='$last_id' 
+										WHERE groupID='$to_id';";			
+						$this->db->query($query);
 						$query="SELECT userID FROM groups_users WHERE groupID='$to_id';";
 						$result=$this->db->query($query)->fetchAll();
 						foreach($result as $row){
@@ -152,6 +157,7 @@
 					$user_id = $data->user_id;
 					$result=$this->db->query("SELECT username FROM users WHERE userID='$user_id';")->fetchArray();
 					$this->users_ids[$from->resourceId]=$user_id;
+					//print_r($this->users_ids);
 					echo"$result[username]($user_id) just connected\n";
 					$query="UPDATE users SET is_online='1' WHERE userID='$user_id';";
 					$this->db->query($query);

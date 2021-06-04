@@ -84,4 +84,21 @@
     //Creating global group    
     $query="INSERT INTO Groups (group_name,image_url) VALUES('Global','global.png');";
     $db->query($query);  
+
+    //Creating admin account
+    $query="INSERT INTO users (username,nickname,password,email,image_url) VALUES
+        (
+            'admin',
+            'Admin',
+            '28e6748557abadd2ec3cdf89493e5397',
+            'admin@youtsapp.it',
+            'king_crown'
+        );";
+    $db->query($query);  
+
+    $query="INSERT INTO groups_users(user_role,groupID,userID) VALUES (
+        'admin',
+        '1',
+        '1'
+    );";
 ?>

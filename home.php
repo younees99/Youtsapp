@@ -31,7 +31,7 @@
 			<tr>
 				<td id='left_main_td'>
 					<div id='side_menu'>
-						<header class='header_chats'>
+						<header class='header_chats' id='header_chats'> 
 							<a href='home.php' style='color:white; text-decoration:none;'>
 								<p class='youtsapp'>
 									Youtsapp
@@ -90,13 +90,14 @@
 												$date_time=$row['date_time'];
 												$date_time=date('H:i', strtotime($date_time));
 											}
-											$chat_ID=$chat_type."ID";
 											echo "<tr><td>
 													<a class='select_chat'
 													href='$_SERVER[PHP_SELF]?$chat_type=$chatID'>
-														<div class='select_chat'>
-															<div class='propic_from_list' id='propic_from_list$chatID'
-																style='background-image:url(".
+														<div class='select_chat'>";
+														echo"<div class='propic_from_list'";
+														if($chat_type=='userID')
+															echo" id='propic_from_list$chatID'";
+														echo"style='background-image:url(".
 																	$chatImage.");'>
 															</div> 
 															<p class='chat_name'>$chatName</p>
@@ -110,7 +111,7 @@
 										
 								?>
 						</table>												
-						<footer class='footer_chats'>
+						<footer class='footer_chats' id='footer_chats'>
 							<a href="logout.php" class='iconlink'>
 								<i class="fa fa-sign-out fa-2x" aria-hidden="true" ></i>
 							</a>
@@ -155,14 +156,14 @@
 												friendID='$_SESSION[name]'
 											AND
 												U.userID='$_GET[userID]';";
-									$result=$db->query($query)->fetchAll();
+									$result=$db->query($query)->fetchAll();									
 									foreach($result as $row) {
 										$nickname=$row['nickname'];
 										$is_writing=$row['is_writing'];
 										$image_url="src/profile_pictures/".$row['image_url'];
-										echo'<button onclick="back()" id="backButton">
+										echo'<a href="home.php" id="backButton">
 											<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white"></i>
-											</button>';
+											</a>';
 										echo"<div id='propic' style='background-image:url(".$image_url.");'></div>
 										<p id='nickname'>$nickname</p>
 										<p id='log'>";
@@ -193,9 +194,9 @@
 										$group_name=$row['group_name'];
 										//$is_writing=$row['is_writing'];
 										$image_url="src/profile_pictures/".$row['image_url'];
-										echo'<button onclick="back()" id="backButton">
+										echo'<a href="home.php" id="backButton">
 											<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white"></i>
-											</button>';
+											</a>';
 										echo"<div id='propic' style='background-image:url(".$image_url.");'></div>
 										<p id='nickname'>$group_name</p>
 										<p id='log'>";
@@ -284,9 +285,9 @@
 									echo"</table></div>";
 							if(isset($_GET['userID'])||isset($_GET['groupID'])){
 									echo "<footer class='send_form' id='footer_form' style='display:none;'>									
-											<textarea name='msg' placeholder='Scrivi un messaggio...' id='input_message'></textarea>
-											<button id='send_emoji' class='footer_btn'><i class='fa fa-smile-o fa-2x'></i></button>
-											<button id='send_attachment' class='footer_btn'><i class='fa fa-paperclip fa-2x'></i></button>
+											<textarea name='msg' placeholder='Write a message...' id='input_message'></textarea>
+											<button id='send_emoji' class='footer_btn' style='display:none;'><i class='fa fa-smile-o fa-2x'></i></button>
+											<button id='send_attachment' class='footer_btn' style='display:none;'><i class='fa fa-paperclip fa-2x'></i></button>
 											<button id='send_message' class='footer_btn'><i class='fa fa-send fa-2x'></i></button>
 										</footer>";
 								}				
@@ -365,7 +366,7 @@
 						val_propic_from_chat="#00ff33";
 					else
 						val_propic_from_chat="black";	
-					propic_from_list.style.border="solid 2.5px"+val_propic_from_chat;	
+					propic_from_chat.style.border="solid 2.5px"+val_propic_from_chat;	
 				}
 
 			}			
@@ -475,7 +476,8 @@
 			websocket_server.onopen = function(e){
 				document.getElementById("loading_div").style='display: none;';	
 				document.getElementById("main_table").style='display: block;';	
-				document.getElementById("footer_form").style='display: block;';	
+				if(document.getElementById("footer_form"))
+					document.getElementById("footer_form").style='display: block;';	
 				websocket_server.send(
 					JSON.stringify({
 						'type':'socket',
@@ -588,6 +590,23 @@
 					);					
 				});
 			}
+
+			var propic=document.getElementById("propic");
+			var right_main_td=document.getElementById("right_main_td");
+			var left_main_td=document.getElementById("left_main_td");
+			var header_chats=document.getElementById("header_chats");
+			var chats=document.getElementById("chats");
+			var footer_chats=document.getElementById("footer_chats");			
+			if(!propic){
+				if(document.documentElement.clientWidth<705){
+					right_main_td.style='display:none;';
+					left_main_td.style='width: 100vw;';
+					header_chats.style='width: 100vw;';
+					chats.style='width: 100vw;';
+					footer_chats.style='width: 100vw;';
+				}
+			}
+			
 		</script>
 		<?php
 			$db->close();

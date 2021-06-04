@@ -12,7 +12,7 @@
 	if($result->numRows()>0){
 		$row=$result->fetchArray();
 		if(md5($pass)!=$row['password'])
-			header("Location: ../error.php?error=pass&pass=$row[password]&db_pass=$row[password]");		
+			header("Location: ../error.php?error=pass&pass=".md5($pass)."&db_pass=$row[password]");		
 		else{
 			$_SESSION['name']=$row['userID'];
 			header("Location:../home.php");
