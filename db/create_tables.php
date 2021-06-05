@@ -17,6 +17,7 @@
     //Creating GROUPS table
     $query='CREATE TABLE IF NOT EXISTS Groups( 
         groupID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
+        grouptag VARCHAR(255) NOT NULL,
         founded TIMESTAMP NOT NULL,
         group_name VARCHAR(255) NOT NULL,
         image_url VARCHAR(255),

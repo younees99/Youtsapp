@@ -39,29 +39,20 @@
 			$this->db->query("UPDATE friends SET is_writing='0' WHERE userID='$userID';");
 			$this->db->query("UPDATE groups_users SET is_writing='0' WHERE userID='$userID';");
 
-			//Send to the other users the disconnection information
-			$query="SELECT friendID FROM friends WHERE userID='$userID';";
-					$result=$this->db->query($query)->fetchAll();
-					foreach ($result as $row) {
-						$friendId=$row['friendID'];
-						if(in_array($friendId, $this->users_ids)){
-							$this->variableConn(
-										array_search(
-											$friendId,
-											$this->users_ids
-											)
-										)->send(
-											json_encode(
-												array(
-													"type"=>"disconnected",
-													"user_id"=>$userID,
-													"time"=>$timestamp
-												)
-											)						
-										);	
-						}
-					}
-			
+			//Send to the other users the disconnection information			
+			foreach ($this->users_ids as $user_id){
+				$this->variableConn(array_search($user_id,$this->users_ids))->send(
+								json_encode(
+									array(
+										"type"=>"disconnected",
+										"user_id"=>$userID,
+										"time"=>$timestamp
+									)
+								)						
+							);	
+								
+			}
+				
 			unset($this->users_ids[$conn->resourceId]);
 			$this->clients->detach($conn);
 		}
@@ -86,15 +77,18 @@
 					$to_id= $data->to_id;
 					$time= $data->time;
 					$destination_type= $data->destination_type;	
-					$query="SELECT image_url FROM users WHERE userID='$from_id';";			
+					$query="SELECT image_url,nickname FROM users WHERE userID='$from_id';";			
 					$result=$this->db->query($query)->fetchAll();
-					foreach ($result as $row)
+					foreach ($result as $row) {
 						$image_url=$row['image_url'];
+						$from_nickname=$row['nickname'];						
+					}
 					$json_message=json_encode(
 										array(
 											"type"=>$type,
 											"msg"=>$chat_msg,
 											"from_id"=>$from_id,
+											"from_nickname"=>$from_nickname,
 											"to_id"=>$to_id,
 											"destination_type"=>$destination_type,
 											"image_url"=>$image_url,
@@ -162,25 +156,16 @@
 					$query="UPDATE users SET is_online='1' WHERE userID='$user_id';";
 					$this->db->query($query);
 					// Output
-					$query="SELECT friendID FROM friends WHERE userID='$user_id';";
-					$result=$this->db->query($query)->fetchAll();
-					foreach ($result as $row) {
-						$friendId=$row['friendID'];
-						if(in_array($friendId, $this->users_ids)){
-							$this->variableConn(
-										array_search(
-											$friendId,
-											$this->users_ids
+					foreach ($this->users_ids as $id_from_array){
+						$index=array_search($id_from_array,$this->users_ids);
+						$this->variableConn($index)->send(
+										json_encode(
+											array(
+												"type"=>"connected",
+												"user_id"=>$user_id
 											)
-										)->send(
-											json_encode(
-												array(
-													"type"=>"connected",
-													"user_id"=>$user_id
-												)
-											)						
-										);	
-						}
+										)						
+									);										
 					}
 					break;
 						

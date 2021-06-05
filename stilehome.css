@@ -36,7 +36,7 @@ h1{
 }
 
 #input_message{  
-    width: 67vw; 
+    width: 66vw; 
     padding-left: 4px;
     height: 100%;
     resize: none;
@@ -58,7 +58,7 @@ h1{
 
 .footer_btn{
   float: right;
-  margin: 1.2vh auto;
+  margin: 1vh auto;
   background-color: transparent;
   border: 0;
   outline: none;
@@ -93,7 +93,9 @@ h1{
   top: 28px;
 }
 
-.chat_name{  
+.chat_name{ 
+  padding-left: 3px;
+  text-align: left; 
   margin-bottom: 0;
   margin-top: auto;
   text-overflow: ellipsis;
@@ -262,6 +264,7 @@ div.select_chat{
 
 .mess_preview{
   float: left;
+  text-align: left;
   margin-left: 2px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -273,7 +276,7 @@ div.select_chat{
     position: fixed;
     right: 3px;
     bottom:0;
-    height: 7vh;
+    height: 6vh;
     width: 80vw;
     background-color: #191919;
 }
@@ -281,6 +284,7 @@ div.select_chat{
 .print_text{
   position: fixed;
   left: 50%;
+  transform: translateX(-50%);
   background-color:#192735de;
   border-radius: 24px;
   color:white;
@@ -330,6 +334,10 @@ div.select_chat{
   color: #162736;
 }
 
+.message_source{
+  margin:0;
+}
+
 #propic{  
   width: 50px;
   height: 50px;
@@ -363,6 +371,40 @@ div.select_chat{
   display: none;
 }
 
+.overlay_menu{
+  width: 300px;
+  padding: 14px 10px;
+  top: 14%;
+  left: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: #52aca0;
+  text-align: center;
+  border-radius: 20px;
+  color: black;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 35vh;
+}
+
+.overlay_menu h1{
+  background-color: #52aca0;
+  color: black
+}
+
+.overlay_menu input{  
+  background:#80f2e9;
+  border-radius: 20px;
+  border-color: #2ecc71;
+  outline: none;
+  width: 270px;
+}
+
+.overlay_menu input[type='submit']{
+  width: 80px;
+}
+
+
 @media screen  and (max-width: 704px) {
   #left_main_td{
     display: none;
@@ -375,9 +417,10 @@ div.select_chat{
   }
   .send_form{
     width: 100vw;
+    margin-bottom: 1px;
   }
   #input_message{
-    width:81vw;
+    width:72vw;
   }
   #backButton{
     display:block;

@@ -17,7 +17,7 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=1234">
+	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=518">
 	    <link rel="stylesheet" type="text/css" href="stile.css?version=548">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -115,10 +115,10 @@
 							<a href="logout.php" class='iconlink'>
 								<i class="fa fa-sign-out fa-2x" aria-hidden="true" ></i>
 							</a>
-							<button class='iconbtn' onclick='function()'>
+							<button class='iconbtn' onclick='search()'>
 								<i class="fa fa-plus fa-2x" aria-hidden="true"></i>
 							</button>
-							<button class='iconbtn' onclick='function()'>
+							<button class='iconbtn' onclick='createGroup()'>
 								<i class="fa fa-users fa-2x" aria-hidden="true"></i>
 							</button>
 						</footer>
@@ -135,9 +135,22 @@
 										$result=$db->query($query);
 										$row=$result->fetchArray();
 										$last_seen=$row['last_seen'];
-										$last_seen=date('M j Y g:i A', strtotime($last_seen));
-										$last_seen="Last seen: ".$last_seen;
-										return $last_seen;
+										$year=date('Y', strtotime($last_seen));
+										$current_year=date('Y');
+										$month=date('F', strtotime($last_seen));
+										$current_month=date('F');
+										$day=date('l', strtotime($last_seen));
+										$current_day=date('l');
+										if($year!=$current_year)
+											$print_last_seen=date('l j F Y', strtotime($last_seen));
+										elseif ($month!=$current_month) 
+											$print_last_seen=date('l j F', strtotime($last_seen));
+										elseif ($day!=$current_day) 
+											$print_last_seen=date('l j H:i', strtotime($last_seen));										
+										else
+											$print_last_seen="Today at ".date('H:i', strtotime($last_seen));										
+										$print_last_seen="Last seen: ".$print_last_seen;
+										return $print_last_seen;
 									}									
 								}
 
@@ -162,7 +175,8 @@
 										$is_writing=$row['is_writing'];
 										$image_url="src/profile_pictures/".$row['image_url'];
 										echo'<a href="home.php" id="backButton">
-											<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white"></i>
+											<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white; 
+											padding-top: 10px;"></i>
 											</a>';
 										echo"<div id='propic' style='background-image:url(".$image_url.");'></div>
 										<p id='nickname'>$nickname</p>
@@ -195,14 +209,17 @@
 										//$is_writing=$row['is_writing'];
 										$image_url="src/profile_pictures/".$row['image_url'];
 										echo'<a href="home.php" id="backButton">
-											<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white"></i>
+											<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white;
+											padding-top: 10px;"></i>
 											</a>';
 										echo"<div id='propic' style='background-image:url(".$image_url.");'></div>
 										<p id='nickname'>$group_name</p>
-										<p id='log'>";
-										/*if($is_writing)
-											echo"Is typing...";*/
-										echo"</p>";
+										<p id='log'> Online users:
+										<span id='count_online'>";
+										$result=$db->query("SELECT COUNT(*) as online_users FROM users WHERE is_online='1' AND userID!='$_SESSION[name]';")->fetchArray();
+										echo $result['online_users'];										
+										echo"</span>
+										</p>";
 									}				
 									$chatID='groupID';				
 								}
@@ -237,7 +254,7 @@
 									if($chatID!=''){
 										$result=$db->query($query)->fetchAll();
 										$month_day='';
-										if(count($result)){
+										if(count($result)>0){
 											foreach($result as $row){
 												$data=strtotime($row['date_time']);
 												$ore_min=date("H:m",$data);
@@ -252,7 +269,6 @@
 														<div class='right'>".
 																"<p class='message_value'>".$row['mess_text']."</p> 
 																<span class='time-right'>".$ore_min."</span>";
-																//echo"<i class='fa fa-check-circle-o' aria-hidden='true'></i>";
 														echo"</div>
 													</td></tr>";
 												}											
@@ -262,13 +278,14 @@
 														$userID=$row['userID'];
 														$image_url="src/profile_pictures/".$row['image_url'];
 														echo"
-														<div class='propic_from_chat' id='propic_from_chat$userID'
+														<div class='propic_from_chat propic_from_chat$userID'
 															style='background-image:url(".
 																$image_url.");'>
 														</div> ";
 													}	
 													echo"<div class='left'>".
-															"<p class='message_value'>".$row['mess_text']."</p> 
+															"<p class='message_source'><b>".$row['nickname']."</b></p> 
+															<p class='message_value'>".$row['mess_text']."</p> 
 															<span class='time-left'>".$ore_min."</span>
 													</div>
 														</td></tr>";
@@ -286,8 +303,8 @@
 							if(isset($_GET['userID'])||isset($_GET['groupID'])){
 									echo "<footer class='send_form' id='footer_form' style='display:none;'>									
 											<textarea name='msg' placeholder='Write a message...' id='input_message'></textarea>
-											<button id='send_emoji' class='footer_btn' style='display:none;'><i class='fa fa-smile-o fa-2x'></i></button>
-											<button id='send_attachment' class='footer_btn' style='display:none;'><i class='fa fa-paperclip fa-2x'></i></button>
+											<button id='send_emoji' style='display:none;' class='footer_btn'><i class='fa fa-smile-o fa-2x'></i></button>
+											<button id='send_attachment' style='display:none;' class='footer_btn'><i class='fa fa-paperclip fa-2x'></i></button>
 											<button id='send_message' class='footer_btn'><i class='fa fa-send fa-2x'></i></button>
 										</footer>";
 								}				
@@ -297,14 +314,96 @@
 			</tr>
 		</table>
             <div class='overlay' id='overlay'>
-                <button onclick='chiudi()' style='background-color: Transparent; border:none; float: right'>
+                <button onclick='close()' style='background-color: Transparent; border:none; float: right'>
                     <i class="fa fa-times fa-2x" aria-hidden="true" style='color: white;'></i>
-					<form>
+				</button>   
+					<form class='overlay_menu' action='' id='searchForm' method='POST'>
+							<h1>Add someone or a group</h1>
+							<input type='text' name='search' placeholder='Insert the username or the group name'><br>
+							<input type='submit' name='search' value='Search'>
 					</form>
-                </button>      
+					<form class='overlay_menu' action='' id='createGroupForm' method='POST'  enctype="multipart/form-data">
+							<h1>How'd you like to name it?</h1>
+							<input type='text' name='search' placeholder='Insert the new group name'><br>
+           	 				<input id="file-upload" type="file" name="uploaded_image" accept="image/*" onchange="fileUploaded(this)">
+							<input type='submit' name='create' value='Create'>
+					</form>  
+					<?php
+						if(isset($_POST['search'])){
+							$search=$_POST['search'];
+							$search=$db->escapeString($search);
+							$query="SELECT userID AS ID,
+											username AS tag,
+											nickname AS name,
+											image_url
+											'user' AS type
+										FROM users
+									WHERE 
+										username LIKE '%$search%'
+									UNION
+									SELECT groupID AS ID.
+											grouptag AS tag,
+											group_name AS name,
+											'group' AS type
+										FROM groups
+									WHERE 
+										username LIKE '%$search%';";
+							$result=$db->query($query)->fetchAll();
+							if(count($result)>0){
+								echo"<div class='overlay_menu' id='searchResult'>
+									<h2>Results for: '$search'</h2>
+								<table>";
+									foreach ($result as $row) {
+										$ID=$row['ID'];
+										$tag=$row['tag'];
+										$name=$row['name'];
+										$type=$row['type'];
+										echo "<tr><td>
+													<div class='select_chat'>
+														<div class='select_chat'>";
+														echo"<div class='propic_from_list'";
+														echo"style='background-image:url(".
+																	$chatImage.");'>
+															</div> 
+															<p class='chat_name'>$name</p>
+														</div>
+													</a>											
+												</td></tr>";
+									}
+								echo"<table>
+								</div>";
+							}
+						}
+					?> 
             </div>  
 
 		<script>	
+			
+			function search(){
+				document.getElementById("overlay").style='display: block;';
+				document.getElementById("searchForm").style='display: block;';
+				document.getElementById("createGroupForm").style='display: none;';
+			}
+
+			function createGroup() {
+				document.getElementById("overlay").style='display: block;';
+				document.getElementById("searchForm").style='display: none;';
+				document.getElementById("createGroupForm").style='display: block;';
+			}
+			
+			function close(){
+				document.getElementById("overlay").style='display: none;';
+				document.getElementById("searchForm").style='display: none;';
+				document.getElementById("createGroupForm").style='display: none;';
+			}
+
+			function fileUploaded(input_file){
+                var val_uploaded_image=input_file.value;
+                var inizioNomeFile=val_uploaded_image.lastIndexOf("\\");
+                val_uploaded_image=val_uploaded_image.substr(inizioNomeFile+1);
+                document.getElementById("label_upload").innerHTML=val_uploaded_image;
+            }
+
 			function showOnlineUsers() {
 					var users_online='<?php
 											$users_online='';
@@ -340,7 +439,7 @@
 				var val_propic_from_chat;
 				var propic=document.getElementById("propic");
 				var propic_from_list=document.getElementById("propic_from_list"+id);
-				var propic_from_chat=document.getElementById("propic_from_chat"+id);
+				var propic_from_chat=document.getElementsByClassName("propic_from_chat"+id);
 				if(propic){
 					if(val_log=="online")
 						val_propic="#00ff33";					
@@ -354,6 +453,7 @@
 							?>)					
 						propic.style.border="solid 2.5px"+val_propic;						
 				}
+
 				if(propic_from_list){
 					if(val_log=="online")
 						val_propic_from_list="#00ff33";
@@ -361,15 +461,34 @@
 						val_propic_from_list="#333333";	
 					propic_from_list.style.border="solid 2.5px"+val_propic_from_list;	
 				}	
+
 				if(propic_from_chat){
-					if(val_log=="online")
-						val_propic_from_chat="#00ff33";
-					else
-						val_propic_from_chat="black";	
-					propic_from_chat.style.border="solid 2.5px"+val_propic_from_chat;	
+					for(var i=0;i<propic_from_chat.length;i++){
+						if(val_log=="online")
+							val_propic_from_chat="#00ff33";
+						else
+							val_propic_from_chat="#000000";	
+						propic_from_chat[i].style.border="solid 2.5px"+val_propic_from_chat;
+					}
 				}
 
 			}			
+
+			function incrementPrintCountOnline(){
+				var count= document.getElementById("count_online");
+				if(count){
+					var int_count= parseInt(count.textContent, 10)+1;
+					count.innerHTML=int_count;
+				}
+			}
+			
+			function decrementPrintCountOnline(){
+				var count= document.getElementById("count_online");
+				if(count){
+					var int_count= parseInt(count.textContent, 10)-1;
+					count.innerHTML=int_count;
+				}
+			}
 
 			function printLastSeen(id,val_log){	
 				var log=document.getElementById("log");
@@ -402,25 +521,42 @@
 				var message;
 				var source;
 				var icon='';
-
-				if(json.from_id==<?php echo"'$_SESSION[name]'"?>){
+				var stampa=false;
+				if(json.from_id==<?php echo"'$_SESSION[name]'"?>)
 					source="right";
-					//icon="<i class='fa fa-circle-o' aria-hidden='true'></i>";
-				}				
+								
 				else
 					source="left";
 				
 				message="<tr><td>";
-				if(json.from_id!=<?php echo "'$_SESSION[name]'";?>){
-					var url="src/profile_pictures/"+json.image_url;
-					message+="<div class='propic_from_chat' id='propic_from_chat$userID'";
-					message+="style='background-image:url("+url+");'></div>";
+				if(json.destination_type=='destination_group'){
+					if(source=='left'){
+						var url="src/profile_pictures/"+json.image_url;
+						message+="<div class='propic_from_chat' id='propic_from_chat$userID'";
+						message+="style='background-image:url("+url+"); border:2.5px solid #00ff33'></div>";
+					}
+					if(json.to_id==<?php
+										if(isset($_GET['groupID'])){ echo"'$_GET[groupID]'"; }
+										else { echo"'-1'";}
+									?>){
+						stampa=true;
+						}
+
 				}
+				else if(json.to_id==<?php
+										if(isset($_GET['userID'])){ echo"'$_GET[userID]'"; }
+										else { echo"'-1'";}
+									?>){
+						stampa=true;
+						}
 				message+="<div class='"+source+"'>";
+				if(source=='left')
+					message+="<p class='message_source'><b>"+json.from_nickname+"</b></p>";
 				message+="<p class='message_value'>"+json.msg+"</p>";
 				message+="<span class='time-"+source+"'>"+json.time+" </span>";
 				message+=icon+"</div></td></tr>";
-				document.getElementById("messages").innerHTML+=message;
+				if(source&&stampa)
+					document.getElementById("messages").innerHTML+=message;
 			}
 
 			function printPreview(json){
@@ -462,13 +598,16 @@
 									?>
 						})
 					);
-					console.log(chat_msg);
 					textarea.value='';
 					textarea.blur();
 					updateScroll();
 				}
 			}
-	
+			
+			function extendMessPreviews(mess_previews) {
+				for (var i=0, len=mess_previews.length|0; i<len; i=i+1|0)
+					mess_previews[i].style='width: 80vw;';
+			}
 
 			// Websocket			
 			var websocket_server = new WebSocket("ws://<?php echo $_SERVER['SERVER_NAME'];?>:8080/");
@@ -498,7 +637,6 @@
 				switch(json.type){
 					case 'chat':
 						printMessage(json);
-						console.log(json);
 						//printPreview(json);
 						updateScroll();
 						break;
@@ -507,12 +645,14 @@
 						var id=json.user_id;	
 						printLog(id,"online");
 						printLastSeen(id,"online");
+						incrementPrintCountOnline();
 						break;
 					
 					case 'disconnected':
 						var id=json.user_id;
 						printLog(id,"offline");
 						printLastSeen(id,"offline");
+						decrementPrintCountOnline();
 						break;
 					
 					case 'writing':
@@ -591,19 +731,23 @@
 				});
 			}
 
+
+
 			var propic=document.getElementById("propic");
 			var right_main_td=document.getElementById("right_main_td");
 			var left_main_td=document.getElementById("left_main_td");
 			var header_chats=document.getElementById("header_chats");
 			var chats=document.getElementById("chats");
+			var mess_previews=document.getElementsByClassName("mess_preview");
 			var footer_chats=document.getElementById("footer_chats");			
 			if(!propic){
 				if(document.documentElement.clientWidth<705){
 					right_main_td.style='display:none;';
-					left_main_td.style='width: 100vw;';
+					left_main_td.style='display:block;width: 100vw;';
 					header_chats.style='width: 100vw;';
 					chats.style='width: 100vw;';
 					footer_chats.style='width: 100vw;';
+					extendMessPreviews(mess_previews);
 				}
 			}
 			
