@@ -1,9 +1,6 @@
 <?php
     include "config.php";
-    $user=$db->escapeString($_POST['user']);
-    $nickname=$db->escapeString($_POST['nickname']);
-    $email=$db->escapeString($_POST['email']);
-    $pass=$db->escapeString($_POST['pass']);
+    $name=$db->escapeString($_POST['name']);
     $tmp_name=$_FILES['uploaded_image']['tmp_name'];
     $name=$_FILES['uploaded_image']['name'];
 
@@ -42,4 +39,4 @@
             );";
     $db->query($query);    
     header("Location:../index.php");
-?> 
+?>

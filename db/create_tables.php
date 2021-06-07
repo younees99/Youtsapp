@@ -62,7 +62,7 @@
         user_role ENUM('member','admin'),
         groupID INT(255),
         userID INT(255),
-        is_writing BOOLEAN NOT NULL DEFAULT 0;
+        is_typing BOOLEAN NOT NULL DEFAULT 0;
         FOREIGN KEY (userID) REFERENCES Users(userID),
         FOREIGN KEY (groupID) REFERENCES Groups(groupID)
     )engine=InnoDB";
@@ -75,7 +75,7 @@
         userID INT(255) NOT NULL,
         friendID INT(255) NOT NULL,
         last_message INT(255),
-        is_writing BOOLEAN NOT NULL DEFAULT 0;
+        is_typing BOOLEAN NOT NULL DEFAULT 0;
         FOREIGN KEY (userID) REFERENCES Users(userID),  
         FOREIGN KEY (friendID) REFERENCES Users(userID),
         FOREIGN KEY (last_message) REFERENCES Messages(messageID)

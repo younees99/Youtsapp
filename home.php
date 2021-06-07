@@ -17,7 +17,7 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=518">
+	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=999">
 	    <link rel="stylesheet" type="text/css" href="stile.css?version=548">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -112,9 +112,6 @@
 								?>
 						</table>												
 						<footer class='footer_chats' id='footer_chats'>
-							<a href="logout.php" class='iconlink'>
-								<i class="fa fa-sign-out fa-2x" aria-hidden="true" ></i>
-							</a>
 							<button class='iconbtn' onclick='search()'>
 								<i class="fa fa-plus fa-2x" aria-hidden="true"></i>
 							</button>
@@ -125,7 +122,7 @@
 							
 					</div>
 				</td>
-				<td id='right_main_td'>
+				<td class='right_main_td'>
 					<div id='main'>					
 							<?php
 
@@ -158,7 +155,7 @@
 								$chatID='';								
 								if(isset($_GET['userID'])){									
 									$query="SELECT 
-												nickname,image_url,is_writing,is_online
+												nickname,image_url,is_typing,is_online
 											FROM 
 												users U
 												JOIN 
@@ -169,10 +166,11 @@
 												friendID='$_SESSION[name]'
 											AND
 												U.userID='$_GET[userID]';";
-									$result=$db->query($query)->fetchAll();									
+									$result=$db->query($query)->fetchAll();	
+									$conta=0;								
 									foreach($result as $row) {
 										$nickname=$row['nickname'];
-										$is_writing=$row['is_writing'];
+										$is_typing=$row['is_typing'];
 										$image_url="src/profile_pictures/".$row['image_url'];
 										echo'<a href="home.php" id="backButton">
 											<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white; 
@@ -181,13 +179,35 @@
 										echo"<div id='propic' style='background-image:url(".$image_url.");'></div>
 										<p id='nickname'>$nickname</p>
 										<p id='log'>";
-										if($is_writing)
+										if($is_typing=='1')
 											echo"Is typing...";
 										else
 											echo printLastSeen($db);
 										echo"</p>";
+										$conta++;
 									}	
-									$chatID='userID';				
+									if($conta>0)
+										$chatID='userID';	
+									else{								
+										$query="SELECT 
+													nickname,image_url,is_online
+												FROM 
+													users U
+												WHERE
+													U.userID='$_GET[userID]';";
+										$result=$db->query($query)->fetchAll();	
+										$conta=0;								
+										foreach($result as $row) {
+											$nickname=$row['nickname'];
+											$image_url="src/profile_pictures/".$row['image_url'];
+											echo'<a href="home.php" id="backButton">
+												<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white; 
+												padding-top: 10px;"></i>
+												</a>';
+											echo"<div id='propic' style='background-image:url(".$image_url.");'></div>
+											<p id='nickname'>$nickname</p>";
+										}	
+									}		
 								}
 
 								elseif(isset($_GET['groupID'])){									
@@ -206,7 +226,6 @@
 									$result=$db->query($query)->fetchAll();
 									foreach($result as $row) {
 										$group_name=$row['group_name'];
-										//$is_writing=$row['is_writing'];
 										$image_url="src/profile_pictures/".$row['image_url'];
 										echo'<a href="home.php" id="backButton">
 											<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white;
@@ -225,7 +244,7 @@
 								}
 
 								echo"</header>";
-								echo"<div id='output' class='output'>
+								echo"<div id='output' class='output right_main_td'>
 										<table id='messages' width='100%'>";
 									if($chatID=='userID'){
 										$query="SELECT * 
@@ -283,9 +302,10 @@
 																$image_url.");'>
 														</div> ";
 													}	
-													echo"<div class='left'>".
-															"<p class='message_source'><b>".$row['nickname']."</b></p> 
-															<p class='message_value'>".$row['mess_text']."</p> 
+													echo "<div class='left'>";
+													if($chatID=='groupID')
+														echo "<p class='message_source'><b>".$row['nickname']."</b></p> ";
+													echo "<p class='message_value'>".$row['mess_text']."</p> 
 															<span class='time-left'>".$ore_min."</span>
 													</div>
 														</td></tr>";
@@ -293,17 +313,17 @@
 																						
 											}
 										}					
-										else
-											echo"<p class='print_text'>There is no message yet!<br>Start a coversation!<p>";
+										/*else
+											echo"<p class='print_text'>There is no message yet!<br>Start a coversation!<p>";*/
 										echo"</table></div>";
 									}									
-									else
-										echo"<p class='print_text'>Select a chat to start a conversation!<p>";
+									/*else
+										echo"<p class='print_text right_main_td' align='center'>Select a chat to start a conversation!<p>";*/
 									echo"</table></div>";
 							if(isset($_GET['userID'])||isset($_GET['groupID'])){
-									echo "<footer class='send_form' id='footer_form' style='display:none;'>									
+									echo "<footer class='send_form right_main_td' id='footer_form' style='display:none'>		
+											<button id='send_emoji' style='display:block; float:left;' class='footer_btn'><i class='fa fa-smile-o fa-2x'></i></button>							
 											<textarea name='msg' placeholder='Write a message...' id='input_message'></textarea>
-											<button id='send_emoji' style='display:none;' class='footer_btn'><i class='fa fa-smile-o fa-2x'></i></button>
 											<button id='send_attachment' style='display:none;' class='footer_btn'><i class='fa fa-paperclip fa-2x'></i></button>
 											<button id='send_message' class='footer_btn'><i class='fa fa-send fa-2x'></i></button>
 										</footer>";
@@ -314,87 +334,73 @@
 			</tr>
 		</table>
             <div class='overlay' id='overlay'>
-                <button onclick='close()' style='background-color: Transparent; border:none; float: right'>
-                    <i class="fa fa-times fa-2x" aria-hidden="true" style='color: white;'></i>
+                <button onclick='close()' id='closeBtn' style='background-color: Transparent; border:none; float: right'>
+                    <i class="fa fa-times fa-3x" aria-hidden="true" style='color: white;'></i>
 				</button>   
-					<form class='overlay_menu' action='' id='searchForm' method='POST'>
-							<h1>Add someone or a group</h1>
-							<input type='text' name='search' placeholder='Insert the username or the group name'><br>
-							<input type='submit' name='search' value='Search'>
+					<div class='box' id='searchForm'>
+							<h2>Add someone or a group</h2>
+							<input type='text' name='search' placeholder='Insert the username or the group name' onkeyup="showResults(this.value)">
+							<table id='tableResults' width='100%'>
+							</table>
 					</form>
-					<form class='overlay_menu' action='' id='createGroupForm' method='POST'  enctype="multipart/form-data">
-							<h1>How'd you like to name it?</h1>
-							<input type='text' name='search' placeholder='Insert the new group name'><br>
+					<form class='box' action='' id='createGroupForm' method='POST'  enctype="multipart/form-data">
+							<h2>How'd you like to name it?</h2>
+							<input type='text' name='name' placeholder='Insert the new group name'>
            	 				<input id="file-upload" type="file" name="uploaded_image" accept="image/*" onchange="fileUploaded(this)">
-							<input type='submit' name='create' value='Create'>
+							<label for="file-upload" id='label_upload' class='buttons_index'>
+								Upload group photo! <i class="fa fa-upload" aria-hidden="true"></i>
+							</label>
+							<input type='submit' class='buttons_index' name='create' value='Create'>
 					</form>  
-					<?php
-						if(isset($_POST['search'])){
-							$search=$_POST['search'];
-							$search=$db->escapeString($search);
-							$query="SELECT userID AS ID,
-											username AS tag,
-											nickname AS name,
-											image_url
-											'user' AS type
-										FROM users
-									WHERE 
-										username LIKE '%$search%'
-									UNION
-									SELECT groupID AS ID.
-											grouptag AS tag,
-											group_name AS name,
-											'group' AS type
-										FROM groups
-									WHERE 
-										username LIKE '%$search%';";
-							$result=$db->query($query)->fetchAll();
-							if(count($result)>0){
-								echo"<div class='overlay_menu' id='searchResult'>
-									<h2>Results for: '$search'</h2>
-								<table>";
-									foreach ($result as $row) {
-										$ID=$row['ID'];
-										$tag=$row['tag'];
-										$name=$row['name'];
-										$type=$row['type'];
-										echo "<tr><td>
-													<div class='select_chat'>
-														<div class='select_chat'>";
-														echo"<div class='propic_from_list'";
-														echo"style='background-image:url(".
-																	$chatImage.");'>
-															</div> 
-															<p class='chat_name'>$name</p>
-														</div>
-													</a>											
-												</td></tr>";
-									}
-								echo"<table>
-								</div>";
-							}
-						}
-					?> 
+					<form class='box' action='' id='profileForm' method='POST'  enctype="multipart/form-data">
+							<h2>Hi </h2>							
+							<a href="logout.php" class='iconlink'>
+								<i class="fa fa-sign-out fa-2x" aria-hidden="true" ></i>
+							</a>
+					</form>  
+					
             </div>  
 
 		<script>	
+			document.getElementById("closeBtn").addEventListener("click", close);
 			
+			function showResults(str) {
+				if (str.length == 0) {
+					document.getElementById("tableResults").innerHTML = "";
+					return;
+				} 
+				else {
+					var xmlhttp = new XMLHttpRequest();
+					xmlhttp.onreadystatechange = function() {
+						if (this.readyState == 4 && this.status == 200) 
+							document.getElementById("tableResults").innerHTML = this.responseText;
+						}
+					xmlhttp.open("GET", "db/search.php?name="+str+"&id=<?php echo $_SESSION['name']?>", true);
+					xmlhttp.send();
+				}
+			}
+			function openProfileMenu(){
+				document.getElementById("overlay").style='display: block;';
+				document.getElementById("searchForm").style='display: none;';
+				document.getElementById("createGroupForm").style='display: none;';
+				document.getElementById("profileForm").style='display: block;';
+			}
 			function search(){
 				document.getElementById("overlay").style='display: block;';
 				document.getElementById("searchForm").style='display: block;';
 				document.getElementById("createGroupForm").style='display: none;';
+				document.getElementById("profileForm").style='display: none;';
 			}
 
 			function createGroup() {
 				document.getElementById("overlay").style='display: block;';
 				document.getElementById("searchForm").style='display: none;';
 				document.getElementById("createGroupForm").style='display: block;';
+				document.getElementById("profileForm").style='display: none;';
 			}
 			
 			function close(){
 				document.getElementById("overlay").style='display: none;';
-				document.getElementById("searchForm").style='display: none;';
-				document.getElementById("createGroupForm").style='display: none;';
 			}
 
 			function fileUploaded(input_file){
@@ -440,6 +446,7 @@
 				var propic=document.getElementById("propic");
 				var propic_from_list=document.getElementById("propic_from_list"+id);
 				var propic_from_chat=document.getElementsByClassName("propic_from_chat"+id);
+
 				if(propic){
 					if(val_log=="online")
 						val_propic="#00ff33";					
@@ -522,8 +529,10 @@
 				var source;
 				var icon='';
 				var stampa=false;
-				if(json.from_id==<?php echo"'$_SESSION[name]'"?>)
+				if(json.from_id==<?php echo"'$_SESSION[name]'"?>){
 					source="right";
+					stampa=true;
+				}
 								
 				else
 					source="left";
@@ -543,20 +552,21 @@
 						}
 
 				}
-				else if(json.to_id==<?php
+				else if(json.from_id==<?php
 										if(isset($_GET['userID'])){ echo"'$_GET[userID]'"; }
 										else { echo"'-1'";}
 									?>){
 						stampa=true;
 						}
 				message+="<div class='"+source+"'>";
-				if(source=='left')
+				if(source=='left'&&json.destination_type=='destination_group')
 					message+="<p class='message_source'><b>"+json.from_nickname+"</b></p>";
 				message+="<p class='message_value'>"+json.msg+"</p>";
 				message+="<span class='time-"+source+"'>"+json.time+" </span>";
 				message+=icon+"</div></td></tr>";
-				if(source&&stampa)
-					document.getElementById("messages").innerHTML+=message;
+				if(source)
+					if(stampa)
+						document.getElementById("messages").innerHTML+=message;
 			}
 
 			function printPreview(json){
@@ -603,20 +613,16 @@
 					updateScroll();
 				}
 			}
-			
-			function extendMessPreviews(mess_previews) {
-				for (var i=0, len=mess_previews.length|0; i<len; i=i+1|0)
-					mess_previews[i].style='width: 80vw;';
-			}
 
 			// Websocket			
 			var websocket_server = new WebSocket("ws://<?php echo $_SERVER['SERVER_NAME'];?>:8080/");
-
+	
 			websocket_server.onopen = function(e){
 				document.getElementById("loading_div").style='display: none;';	
 				document.getElementById("main_table").style='display: block;';	
-				if(document.getElementById("footer_form"))
-					document.getElementById("footer_form").style='display: block;';	
+				if(document.getElementById("propic"))
+						document.getElementById("footer_form").style='display: block;';	
+
 				websocket_server.send(
 					JSON.stringify({
 						'type':'socket',
@@ -639,6 +645,7 @@
 						printMessage(json);
 						//printPreview(json);
 						updateScroll();
+						console.log(json);
 						break;
 					
 					case 'connected':
@@ -655,17 +662,22 @@
 						decrementPrintCountOnline();
 						break;
 					
-					case 'writing':
+					case 'typing':
 						if(json.from_id==<?php
-												if(isset($_GET["userID"])) 
-													echo"'$_GET[userID]'";
-												else
-													echo"-1";
-										?>)
-							log.innerHTML='Is typing...';
+												if(isset($_GET["userID"]))  echo"'$_GET[userID]'";
+												elseif(isset($_GET["groupID"])) echo"'$_GET[groupID]'";
+												else echo"-1";
+										?>){
+								if(json.source){
+									log.innerHTML=json.source+' is typing...';
+								}
+								else{
+									log.innerHTML='Is typing...';
+								}							
+						}
 						break;
 					
-					case 'not_writing':
+					case 'not_typing':
 						if(json.from_id==<?php
 												if(isset($_GET["userID"])) 
 													echo"'$_GET[userID]'";
@@ -697,60 +709,67 @@
 				});	
 			}
 			
-			// Events writing a message
+			// Events typing a message
 			if(textarea){
 				textarea.addEventListener('focus',function(e){
 					websocket_server.send(
 						JSON.stringify({
-							'type':'writing',
+							'type':'typing',
 							'from_id':<?php echo "'$_SESSION[name]'"; ?>,
 							'to_id':<?php 
 										if(isset($_GET['userID'])) 
 											echo"'$_GET[userID]'";
 										else
 											echo"'-1'"?>,
+							'destination_type':<?php
+												if(isset($_GET['userID']))
+													echo "'destination_user'";
+												elseif(isset($_GET['groupID']))
+													echo "'destination_group'";
+												else
+													echo "'-1'";
+												?>
 						})
 					);					
 				});
 			}
 
-			// Events stop writing a message
+			// Events stop typing a message
 			if(textarea){
 				textarea.addEventListener('blur',function(e){
 					websocket_server.send(
 						JSON.stringify({
-							'type':'not_writing',
+							'type':'not_typing',
 							'from_id':<?php echo "'$_SESSION[name]'"; ?>,
 							'to_id':<?php 
 										if(isset($_GET['userID'])) 
 											echo"'$_GET[userID]'";
 										else
 											echo"'-1'"?>,
+							'destination_type':<?php
+												if(isset($_GET['userID']))
+													echo "'destination_user'";
+												elseif(isset($_GET['groupID']))
+													echo "'destination_group'";
+												else
+													echo "'-1'";
+												?>
 						})
 					);					
 				});
 			}
 
 
-
-			var propic=document.getElementById("propic");
-			var right_main_td=document.getElementById("right_main_td");
-			var left_main_td=document.getElementById("left_main_td");
-			var header_chats=document.getElementById("header_chats");
-			var chats=document.getElementById("chats");
-			var mess_previews=document.getElementsByClassName("mess_preview");
-			var footer_chats=document.getElementById("footer_chats");			
-			if(!propic){
-				if(document.documentElement.clientWidth<705){
-					right_main_td.style='display:none;';
-					left_main_td.style='display:block;width: 100vw;';
-					header_chats.style='width: 100vw;';
-					chats.style='width: 100vw;';
-					footer_chats.style='width: 100vw;';
-					extendMessPreviews(mess_previews);
+			function displayNone(class_elements){
+				for(var i=0;i<class_elements.lenght;i++){
+					class_elements[i].style='display: none';
 				}
 			}
 			
+			function extendMessPreviews(mess_previews) {
+				for (var i=0, len=mess_previews.length|0; i<len; i=i+1|0)
+					mess_previews[i].style='width: 80vw;';
+			}
 		</script>
 		<?php
 			$db->close();

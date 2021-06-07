@@ -18,9 +18,9 @@
             <label for="file-upload" id='label_upload' class='buttons_index'>
                 Upload your photo! <i class="fa fa-upload" aria-hidden="true"></i>
             </label>
-            <input id="file-upload" type="file" name="uploaded_image" accept="image/*"/ onchange="fileUploaded(this)">
-            <input type='submit' name='ok' value='Iscriviti' class='buttons_index'>            
-            <a href='index.php' class="buttons_index">Sei già iscritto? Accedi!</a>
+            <input id="file-upload" type="file" name="uploaded_image" accept="image/*" onchange="fileUploaded(this)">
+            <input type='submit' name='ok' value='Sign-up' class='buttons_index'>            
+            <a href='index.php' class="buttons_index">Login!</a>
         </form>
         <script>
 

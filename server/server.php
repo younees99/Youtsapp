@@ -19,8 +19,8 @@
 			$this->clients = new \SplObjectStorage;
 			$this->db=new db("localhost","root","root");
 			$this->db->query("UPDATE users SET is_online='0';");
-			$this->db->query("UPDATE friends SET is_writing='0';");
-			$this->db->query("UPDATE groups_users SET is_writing='0';");
+			$this->db->query("UPDATE friends SET is_typing='0';");
+			$this->db->query("UPDATE groups_users SET is_typing='0';");
 		}
 
 		//A user opens the connection with the socket
@@ -36,8 +36,8 @@
 			echo"$result[username] disconnected\n";
 			$timestamp = date('Y-m-d H:i:s', strtotime("now"));
 			$this->db->query("UPDATE users SET last_seen='$timestamp',is_online='0' WHERE userID='$userID';");
-			$this->db->query("UPDATE friends SET is_writing='0' WHERE userID='$userID';");
-			$this->db->query("UPDATE groups_users SET is_writing='0' WHERE userID='$userID';");
+			$this->db->query("UPDATE friends SET is_typing='0' WHERE userID='$userID';");
+			$this->db->query("UPDATE groups_users SET is_typing='0' WHERE userID='$userID';");
 
 			//Send to the other users the disconnection information			
 			foreach ($this->users_ids as $user_id){
@@ -64,6 +64,27 @@
 					break;
 				}
 			}
+		}
+
+		public function sendRequest($last_id,$from_id,$to_id,$json_message){
+			$query="INSERT INTO friends (userID,friendID,last_message) VALUES(
+						'$last_id',
+						'$from_id',
+						'$to_id'
+					);";			
+			$this->db->query($query);
+			echo"ciao";
+				/*if(in_array($to_id, $this->users_ids)){
+					$this->variableConn(
+								array_search(
+									$to_id,
+									$this->users_ids
+									)
+								)->send(
+									$json_message						
+							);	
+				}	
+			}*/
 		}
 
 		public function onMessage(ConnectionInterface $from,  $data) {
@@ -104,7 +125,6 @@
 								VALUES ('$chat_msg','$from_id','$to_id');";
 					$this->db->query($query);					
 					$last_id=$this->db->getInsertId();
-					//If the destination is user and is online send him the message
 					if($destination_type=='destination_user'){
 						$query="UPDATE friends 
 									SET last_message='$last_id' 
@@ -112,17 +132,22 @@
 											userID='$from_id' AND friendID='$to_id'
 										OR
 											userID='$to_id' AND friendID='$from_id';";			
-						$this->db->query($query);
-						if(in_array($to_id, $this->users_ids)){
-							$this->variableConn(
-										array_search(
-											$to_id,
-											$this->users_ids
-											)
-										)->send(
-											$json_message						
-									);	
-						}	
+						try{
+							$this->db->query($query);
+							if(in_array($to_id, $this->users_ids)){
+								$this->variableConn(
+											array_search(
+												$to_id,
+												$this->users_ids
+												)
+											)->send(
+												$json_message						
+										);	
+							}	
+						}
+						catch(Exception $e){
+							$this->sendRequest($last_id,$from_id,$to_id,$json_message);
+						}
 					}
 					else{
 						$query="UPDATE groups 
@@ -151,59 +176,128 @@
 					$user_id = $data->user_id;
 					$result=$this->db->query("SELECT username FROM users WHERE userID='$user_id';")->fetchArray();
 					$this->users_ids[$from->resourceId]=$user_id;
-					//print_r($this->users_ids);
 					echo"$result[username]($user_id) just connected\n";
 					$query="UPDATE users SET is_online='1' WHERE userID='$user_id';";
 					$this->db->query($query);
 					// Output
-					foreach ($this->users_ids as $id_from_array){
-						$index=array_search($id_from_array,$this->users_ids);
-						$this->variableConn($index)->send(
-										json_encode(
-											array(
-												"type"=>"connected",
-												"user_id"=>$user_id
-											)
-										)						
-									);										
+					foreach ($this->users_ids as $id_from){
+						$index=array_search($id_from,$this->users_ids);
+						if($id_from!=$user_id){
+							$this->variableConn($index)->send(
+											json_encode(
+												array(
+													"type"=>"connected",
+													"user_id"=>$user_id
+												)
+											)						
+										);		
+						}								
 					}
 					break;
+
 						
-				case 'writing':
+				case 'typing':
 					$from_id = $data->from_id;
 					$to_id= $data->to_id;
-					$query="UPDATE friends SET is_writing='1' WHERE userID='$from_id' AND friendID='$to_id';";
-					$this->db->query($query);
-					
-					if(in_array($to_id, $this->users_ids)){
-						$this->variableConn(array_search($to_id,$this->users_ids))->send(
-									json_encode(
-										array(
-											"type"=>$type,
-											"from_id"=>$from_id,
-											"to_id"=>$to_id,
-										)
-									)
-								);	
-					}	
+					$destination_type= $data->destination_type;
+					if($destination_type=='destination_user'){
+						$query="UPDATE friends SET is_typing='1' WHERE userID='$from_id' AND friendID='$to_id';";
+						$this->db->query($query);	
+						if(in_array($to_id, $this->users_ids)){
+							$this->variableConn(
+										array_search(
+											$to_id,
+											$this->users_ids
+											)
+										)->send(
+											json_encode(
+												array(
+													"type"=>$type,
+													"from_id"=>$from_id
+												)
+										)							
+									);	
+						}	
+					}
+					else{
+						$query="UPDATE groups_users SET is_typing='1' WHERE userID='$from_id' AND groupID='$to_id';";
+						$this->db->query($query);	
+						$query="SELECT userID FROM groups_users WHERE groupID='$to_id';";
+						$result=$this->db->query($query)->fetchAll();
+						foreach($result as $row){
+							$userID=$row['userID'];
+							if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
+								$query="SELECT nickname FROM users WHERE userID='$userID';";
+								$result=$this->db->query($query)->fetchAll();
+								$this->variableConn(
+											array_search(
+												$userID,
+												$this->users_ids
+												)
+											)->send(
+												json_encode(
+													array(
+														"type"=>$type,
+														"from_id"=>$to_id,
+														"source"=>$source
+													)
+											)						
+										);	
+							}
+						}
+					}		
 					break;
 
-				case 'not_writing':
+				case 'not_typing':
 					$from_id = $data->from_id;
 					$to_id= $data->to_id;
-					$query="UPDATE friends SET is_writing='0' WHERE userID='$from_id' AND friendID='$to_id';";
-					
-					if(in_array($to_id, $this->users_ids)){
-						$this->variableConn(array_search($to_id,$this->users_ids))->send(
-									json_encode(
-										array(
-											"type"=>$type,
-											"from_id"=>$from_id,
-											"to_id"=>$to_id,
-										)
-									)
-								);	
-					}	
+					$destination_type= $data->destination_type;
+					if($destination_type=='destination_user'){
+						$query="UPDATE friends SET is_typing='0' WHERE userID='$from_id' AND friendID='$to_id';";
+						$this->db->query($query);	
+						if(in_array($to_id, $this->users_ids)){
+							$this->variableConn(
+										array_search(
+											$to_id,
+											$this->users_ids
+											)
+										)->send(
+											json_encode(
+												array(
+													"type"=>$type,
+													"from_id"=>$from_id
+												)
+										)							
+									);	
+						}	
+					}
+					else{
+						$query="UPDATE groups_users SET is_typing='0' WHERE userID='$from_id' AND groupID='$to_id';";
+						$this->db->query($query);	
+						$query="SELECT userID FROM groups_users WHERE groupID='$to_id';";
+						$result=$this->db->query($query)->fetchAll();
+						foreach($result as $row){
+							$userID=$row['userID'];
+							if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
+								$query="SELECT nickname FROM users WHERE userID='$userID';";
+								$result=$this->db->query($query)->fetchAll();
+								$this->variableConn(
+											array_search(
+												$userID,
+												$this->users_ids
+												)
+											)->send(
+												json_encode(
+													array(
+														"type"=>$type,
+														"from_id"=>$to_id,
+														"source"=>$source
+													)
+											)						
+										);	
+							}
+						}
+					}			
 					break;
 							
 			}
