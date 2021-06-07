@@ -17,7 +17,7 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=999">
+	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=123">
 	    <link rel="stylesheet" type="text/css" href="stile.css?version=548">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -27,9 +27,8 @@
 			<i class="fa fa-circle-o-notch fa-spin fa-3x" aria-hidden="true"></i>
 			<p style="font-size: 28px;">Connection...</p>
 		</div>
-		<table id='main_table' style='display: none;'>
-			<tr>
-				<td id='left_main_td'>
+		<div id='main_div' style='display: none;'>
+				<div id='left_main_div'>
 					<div id='side_menu'>
 						<header class='header_chats' id='header_chats'> 
 							<a href='home.php' style='color:white; text-decoration:none;'>
@@ -83,8 +82,9 @@
 											$chatName=$row['chatName'];
 											$chatImage="src/profile_pictures/".$row['chatImage'];	
 											$mess_text='Start a conversation';
-											if(isset($row['mess_text']))
-												$mess_text=$row['mess_text'];
+											if(isset($row['mess_text'])){
+												$mess_text=htmlspecialchars($row['mess_text']);
+											}
 											$date_time='';
 											if(isset($row['date_time'])){
 												$date_time=$row['date_time'];
@@ -121,8 +121,8 @@
 						</footer>
 							
 					</div>
-				</td>
-				<td class='right_main_td'>
+				</div>
+				<div class='right_main_div' id='right_main_div'>
 					<div id='main'>					
 							<?php
 
@@ -286,7 +286,7 @@
 													echo "
 													<tr><td>
 														<div class='right'>".
-																"<p class='message_value'>".$row['mess_text']."</p> 
+																"<p class='message_value'>".htmlspecialchars($row['mess_text'])."</p> 
 																<span class='time-right'>".$ore_min."</span>";
 														echo"</div>
 													</td></tr>";
@@ -305,7 +305,7 @@
 													echo "<div class='left'>";
 													if($chatID=='groupID')
 														echo "<p class='message_source'><b>".$row['nickname']."</b></p> ";
-													echo "<p class='message_value'>".$row['mess_text']."</p> 
+													echo "<p class='message_value'>".htmlspecialchars($row['mess_text'])."</p> 
 															<span class='time-left'>".$ore_min."</span>
 													</div>
 														</td></tr>";
@@ -330,8 +330,7 @@
 								}				
 							?>
 					</div>
-				</td>
-			</tr>
+				</div>
 		</table>
             <div class='overlay' id='overlay'>
                 <button onclick='close()' id='closeBtn' style='background-color: Transparent; border:none; float: right'>
@@ -619,7 +618,7 @@
 	
 			websocket_server.onopen = function(e){
 				document.getElementById("loading_div").style='display: none;';	
-				document.getElementById("main_table").style='display: block;';	
+				document.getElementById("main_div").style='display: block;';	
 				if(document.getElementById("propic"))
 						document.getElementById("footer_form").style='display: block;';	
 
@@ -759,17 +758,6 @@
 				});
 			}
 
-
-			function displayNone(class_elements){
-				for(var i=0;i<class_elements.lenght;i++){
-					class_elements[i].style='display: none';
-				}
-			}
-			
-			function extendMessPreviews(mess_previews) {
-				for (var i=0, len=mess_previews.length|0; i<len; i=i+1|0)
-					mess_previews[i].style='width: 80vw;';
-			}
 		</script>
 		<?php
 			$db->close();

@@ -214,6 +214,10 @@ button.select_chat{
     padding:0;
 }
 
+a.select_chat{
+  text-decoration: none;
+}
+
 div.select_chat{
     border:0;
     background-color:#333333;
@@ -275,7 +279,7 @@ div.select_chat{
 
 .send_form{
     position: fixed;
-    right: 3px;
+    right: 0;
     bottom:0;
     height: 6vh;
     width: 80vw;
@@ -301,7 +305,7 @@ div.select_chat{
   display: inline-block;
 }
 
-#main_table{
+#main_div{
   height: 100%;
   width: 100%;
   position: fixed;
@@ -402,12 +406,14 @@ div.select_chat{
   width: 80px;
 }
 
-.right_main_td{
+.right_main_div{
   display: block;
+  float:right;
 }
 
-#left_main_td{
+#left_main_div{
   width:20%;
+  float: left;
 }
 
 
@@ -417,7 +423,7 @@ div.select_chat{
     margin-bottom: 1px;
   }
 
-  #left_main_td{
+  #left_main_div{
     width: 100vw;
   }
   
