@@ -2,6 +2,7 @@ body{
     margin:0;
     padding:0;
 }
+
 a{
   cursor: default;
 }
@@ -510,7 +511,6 @@ div.select_chat{
   background-color: #81b4ad;
   border-radius: 10px;
 }
-
 
 ::-webkit-scrollbar {
   width: 8px;

@@ -341,7 +341,7 @@
 							<input type='text' name='search' placeholder='Insert the username or the group name' onkeyup="showResults(this.value)">
 							<table id='tableResults' width='100%'>
 							</table>
-					</form>
+					</div>
 					<form class='box' action='' id='createGroupForm' method='POST'  enctype="multipart/form-data">
 							<h2>How'd you like to name it?</h2>
 							<input type='text' name='name' placeholder='Insert the new group name'>
@@ -378,6 +378,7 @@
 					xmlhttp.send();
 				}
 			}
+
 			function openProfileMenu(){
 				document.getElementById("overlay").style='display: block;';
 				document.getElementById("searchForm").style='display: none;';
