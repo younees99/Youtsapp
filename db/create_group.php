@@ -1,6 +1,7 @@
 <?php
     include "config.php";
     $name=$db->escapeString($_POST['name']);
+    $tag=$db->escapeString($_POST['tag']);
     $tmp_name=$_FILES['uploaded_image']['tmp_name'];
     $name=$_FILES['uploaded_image']['name'];
 
@@ -22,21 +23,12 @@
         }
     }
 
-    $query="INSERT INTO users(username,nickname,password,email,image_url) VALUES
-                ('$user',
-                '$nickname',
-                MD5('$pass'),
-                '$email',
+    $query="INSERT INTO groups(grouptag,group_name,image_url) VALUES
+                ('$name',
+                '$tag',
                 '$file_name');
     ";
     $db->query($query);   
-    $last_id=$db->getInsertId(); 
-    $query="INSERT INTO groups_users (user_role,groupID,userID) VALUES
-            (
-                'member',
-                '1',
-                '$last_id'
-            );";
-    $db->query($query);    
-    header("Location:../index.php");
+    $last_id=$db->getInsertId();  
+    header("Location:../home.php?groupID=$last_id");
 ?>

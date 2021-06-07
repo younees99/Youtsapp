@@ -3,27 +3,35 @@
     $search=$_GET['name'];
     $id=$_GET['id'];
     $search=$db->escapeString($search);
-    $query="SELECT DISTINCT userID AS ID,
+    $query="SELECT U.userID AS ID,
                     username AS tag,
                     nickname AS name,
                     image_url,
+                    is_online,
                     'user' AS result_type,
-                    is_online                 
-                FROM users
-
+                    MAX(since) AS since
+                FROM users U 
+                    LEFT JOIN friends F 
+                        ON (U.userID=F.friendID)
             WHERE 
                 username LIKE '%$search%'
-                AND userID!=$id
+                AND U.userID!=$id
+            GROUP BY id
             UNION
-            SELECT groupID AS ID,
+            SELECT GU.groupID AS ID,
                     grouptag AS tag,
                     group_name AS name,
                     image_url,
+                    '0'AS is_online,
                     'group' AS result_type,
-                    'nope' AS is_online
-                FROM groups 
+                    MAX(since) AS since
+                FROM groups G
+                    LEFT JOIN groups_users GU
+                        ON (G.groupID=GU.groupID)
             WHERE 
-                grouptag LIKE '%$search%';";
+                grouptag LIKE '%$search%'
+                AND GU.userID!=$id
+            GROUP BY id;";
     $result=$db->query($query)->fetchAll();
     if(count($result)>0){
             foreach ($result as $row) {
@@ -40,15 +48,16 @@
                                 echo "userID=".$ID;
                             else
                                 echo "groupID=".$ID;
-                            echo"'>
+                            echo"' sty>
                                 <div class='select_chat'>";
                                     echo"<div class='propic_from_list'";
                                     echo"style='background-image:url(".
                                                 $image_url.");";
                                     if($result_type=='user'&&$is_online)
                                         echo"border: solid 2.5px #00ff33";
-                                    echo"'>
-                                        </div> 
+                                    echo"'>";
+                                    if(!isset($row['since']))
+                                    echo"</div> 
                                         <p class='chat_name'>$name</p>
                                     </div>
                                 </div>

@@ -343,8 +343,9 @@
 							</table>
 					</div>
 					<form class='box' action='' id='createGroupForm' method='POST'  enctype="multipart/form-data">
-							<h2>How'd you like to name it?</h2>
+							<h2>Create a new group</h2>
 							<input type='text' name='name' placeholder='Insert the new group name'>
+							<input type='text' name='tag' placeholder='Insert the new group tag'>
            	 				<input id="file-upload" type="file" name="uploaded_image" accept="image/*" onchange="fileUploaded(this)">
 							<label for="file-upload" id='label_upload' class='buttons_index'>
 								Upload group photo! <i class="fa fa-upload" aria-hidden="true"></i>
