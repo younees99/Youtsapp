@@ -10,8 +10,8 @@
                     is_online,
                     'user' AS result_type,
                     MAX(since) AS since
-                FROM users U 
-                    LEFT JOIN friends F 
+                FROM friends F 
+                    LEFT JOIN users U 
                         ON (U.userID=F.friendID)
             WHERE 
                 username LIKE '%$search%'
