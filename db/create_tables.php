@@ -17,7 +17,7 @@
     //Creating GROUPS table
     $query='CREATE TABLE IF NOT EXISTS Groups( 
         groupID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-        grouptag VARCHAR(255) NOT NULL,
+        grouptag VARCHAR(255) NOT NULLc,
         founded TIMESTAMP NOT NULL,
         group_name VARCHAR(255) NOT NULL,
         image_url VARCHAR(255),
@@ -62,7 +62,7 @@
         user_role ENUM('member','admin'),
         groupID INT(255),
         userID INT(255),
-        is_typing BOOLEAN NOT NULL DEFAULT 0;
+        is_typing BOOLEAN NOT NULL DEFAULT 0,
         FOREIGN KEY (userID) REFERENCES Users(userID),
         FOREIGN KEY (groupID) REFERENCES Groups(groupID)
     )engine=InnoDB";
