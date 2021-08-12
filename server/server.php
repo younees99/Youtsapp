@@ -17,7 +17,7 @@
 
 		public function __construct() {
 			$this->clients = new \SplObjectStorage;
-			$this->db=new db("localhost","root","root");
+			$this->db=new db("localhost","root");
 			$this->db->query("UPDATE users SET is_online='0';");
 			$this->db->query("UPDATE friends SET is_typing='0';");
 			$this->db->query("UPDATE groups_users SET is_typing='0';");
