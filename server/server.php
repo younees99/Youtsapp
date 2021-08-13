@@ -18,9 +18,9 @@
 		public function __construct() {
 			$this->clients = new \SplObjectStorage;
 			$this->db=new db("localhost","root");
-			$this->db->query("UPDATE users SET is_online='0';");
-			$this->db->query("UPDATE friends SET is_typing='0';");
-			$this->db->query("UPDATE groups_users SET is_typing='0';");
+			$this->db->query("UPDATE Users SET is_online='0';");
+			$this->db->query("UPDATE Friends SET is_typing='0';");
+			$this->db->query("UPDATE Groups_users SET is_typing='0';");
 		}
 
 		//A user opens the connection with the socket
@@ -35,9 +35,9 @@
 			$result=$this->db->query("SELECT username FROM users WHERE userID='$userID';")->fetchArray();
 			echo"$result[username] disconnected\n";
 			$timestamp = date('Y-m-d H:i:s', strtotime("now"));
-			$this->db->query("UPDATE users SET last_seen='$timestamp',is_online='0' WHERE userID='$userID';");
-			$this->db->query("UPDATE friends SET is_typing='0' WHERE userID='$userID';");
-			$this->db->query("UPDATE groups_users SET is_typing='0' WHERE userID='$userID';");
+			$this->db->query("UPDATE Users SET last_seen='$timestamp',is_online='0' WHERE userID='$userID';");
+			$this->db->query("UPDATE Friends SET is_typing='0' WHERE userID='$userID';");
+			$this->db->query("UPDATE Groups_users SET is_typing='0' WHERE userID='$userID';");
 
 			//Send to the other users the disconnection information			
 			foreach ($this->users_ids as $user_id){
@@ -67,7 +67,7 @@
 		}
 
 		public function sendRequest($last_id,$from_id,$to_id,$json_message){
-			$query="INSERT INTO friends (userID,friendID,last_message) VALUES(
+			$query="INSERT INTO Friends (userID,friendID,last_message) VALUES(
 						'$last_id',
 						'$from_id',
 						'$to_id'
@@ -174,7 +174,7 @@
 
 				case 'socket':
 					$user_id = $data->user_id;
-					$result=$this->db->query("SELECT username FROM users WHERE userID='$user_id';")->fetchArray();
+					$result=$this->db->query("SELECT username FROM Users WHERE userID='$user_id';")->fetchArray();
 					$this->users_ids[$from->resourceId]=$user_id;
 					echo"$result[username]($user_id) just connected\n";
 					$query="UPDATE users SET is_online='1' WHERE userID='$user_id';";

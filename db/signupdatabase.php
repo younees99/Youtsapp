@@ -25,7 +25,7 @@
         }
     }
 
-    $query="INSERT INTO users(username,nickname,password,email,image_url) VALUES
+    $query="INSERT INTO Users(username,nickname,password,email,image_url) VALUES
                 ('$user',
                 '$nickname',
                 MD5('$pass'),
@@ -34,7 +34,7 @@
     ";
     $db->query($query);   
     $last_id=$db->getInsertId(); 
-    $query="INSERT INTO groups_users (user_role,groupID,userID) VALUES
+    $query="INSERT INTO Groups_users (user_role,groupID,userID) VALUES
             (
                 'member',
                 '1',
