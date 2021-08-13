@@ -7,7 +7,7 @@
 		public $query_count = 0;
 
 		public function __construct($dbhost = 'localhost', $dbuser = 'root', $dbname = '', $charset = 'utf8mb4') {
-			$this->connection = new mysqli($dbhost, $dbuser, $dbpass);
+			$this->connection = new mysqli($dbhost, $dbuser);
 			$this->connection->query("create database if not exists youtsapp;");
 			$this->connection->query("use youtsapp;");
 
