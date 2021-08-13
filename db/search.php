@@ -10,8 +10,8 @@
                     is_online,
                     'user' AS result_type,
                     MAX(since) AS since
-                FROM friends F 
-                    LEFT JOIN users U 
+                FROM Friends F 
+                    LEFT JOIN Users U 
                         ON (U.userID=F.friendID)
             WHERE 
                 username LIKE '%$search%'
@@ -25,8 +25,8 @@
                     '0'AS is_online,
                     'group' AS result_type,
                     MAX(since) AS since
-                FROM groups G
-                    LEFT JOIN groups_users GU
+                FROM Groups G
+                    LEFT JOIN Groups_users GU
                         ON (G.groupID=GU.groupID)
             WHERE 
                 grouptag LIKE '%$search%'

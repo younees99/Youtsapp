@@ -6,7 +6,7 @@
 	$pass=$_POST['pass'];  
 	$user_escape=$db->escapeString($user);
 
-	$query="SELECT * FROM users WHERE username='$user_escape' OR email='$user_escape';"; 
+	$query="SELECT * FROM Users WHERE username='$user_escape' OR email='$user_escape';"; 
 		
 	$result=$db->query($query);
 	if($result->numRows()>0){
