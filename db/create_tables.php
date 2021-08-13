@@ -17,7 +17,7 @@
     //Creating GROUPS table
     $query='CREATE TABLE IF NOT EXISTS Groups( 
         groupID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-        grouptag VARCHAR(255) NOT NULLc,
+        grouptag VARCHAR(255) NOT NULL,
         founded TIMESTAMP NOT NULL,
         group_name VARCHAR(255) NOT NULL,
         image_url VARCHAR(255),
@@ -34,23 +34,23 @@
         destination_user INT(255),
         destination_group INT(255),
         mess_status ENUM("sent","recieved","read") NOT NULL,
-        FOREIGN KEY (source_user) REFERENCES users(userID),  
+        FOREIGN KEY (source_user) REFERENCES Users(userID),  
         FOREIGN KEY (destination_user) REFERENCES Users(userID),
         FOREIGN KEY (destination_group) REFERENCES Groups(groupID)
     )engine=InnoDB';
     $db->query($query);
 
     //Adding charset for emojis
-    $query='ALTER TABLE messages CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;';
+    $query='ALTER TABLE Messages CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;';
     $db->query($query);
     
-    $query='ALTER TABLE messages MODIFY mess_text TEXT CHARSET utf8mb4;';
+    $query='ALTER TABLE Messages MODIFY mess_text TEXT CHARSET utf8mb4;';
     $db->query($query);
 
 
     //Adding last_message foreign key in group table
     $query='ALTER TABLE  Groups
-        ADD CONSTRAINT  FOREIGN KEY (last_message) REFERENCES messages(messageID)';
+        ADD CONSTRAINT  FOREIGN KEY (last_message) REFERENCES Messages(messageID)';
     $db->query($query);
     
     //Adding  foreign keys in messages
@@ -83,11 +83,11 @@
     $db->query($query);  
 
     //Creating global group    
-    $query="INSERT INTO Groups (group_name,image_url) VALUES('Global','global.png');";
+    $query="INSERT INTO Groups (group_name,image_url,grouptag) VALUES('Global','global.png','global');";
     $db->query($query);  
 
     //Creating admin account
-    $query="INSERT INTO users (username,nickname,password,email,image_url) VALUES
+    $query="INSERT INTO Users (username,nickname,password,email,image_url) VALUES
         (
             'admin',
             'Admin',
@@ -97,7 +97,7 @@
         );";
     $db->query($query);  
 
-    $query="INSERT INTO groups_users(user_role,groupID,userID) VALUES (
+    $query="INSERT INTO Groups_users(user_role,groupID,userID) VALUES (
         'admin',
         '1',
         '1'
