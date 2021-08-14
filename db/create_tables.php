@@ -91,10 +91,11 @@
         (
             'admin',
             'Admin',
-            '28e6748557abadd2ec3cdf89493e5397',
+            '79e6c925cc97fca2de5bf975565647e3',
             'admin@youtsapp.it',
             'king_crown'
         );";
+    // password: SDjn45$%43
     $db->query($query);  
 
     $query="INSERT INTO Groups_users(user_role,groupID,userID) VALUES (

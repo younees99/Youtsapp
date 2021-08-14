@@ -126,7 +126,7 @@
 					$this->db->query($query);					
 					$last_id=$this->db->getInsertId();
 					if($destination_type=='destination_user'){
-						$query="UPDATE friends 
+						$query="UPDATE Friends 
 									SET last_message='$last_id' 
 										WHERE 
 											userID='$from_id' AND friendID='$to_id'
