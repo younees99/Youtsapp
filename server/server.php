@@ -32,7 +32,7 @@
 		public function onClose(ConnectionInterface $conn) {
 			// Output
 			$userID=$this->users_ids[$conn->resourceId];
-			$result=$this->db->query("SELECT username FROM users WHERE userID='$userID';")->fetchArray();
+			$result=$this->db->query("SELECT username FROM Users WHERE userID='$userID';")->fetchArray();
 			echo"$result[username] disconnected\n";
 			$timestamp = date('Y-m-d H:i:s', strtotime("now"));
 			$this->db->query("UPDATE Users SET last_seen='$timestamp',is_online='0' WHERE userID='$userID';");
@@ -98,7 +98,7 @@
 					$to_id= $data->to_id;
 					$time= $data->time;
 					$destination_type= $data->destination_type;	
-					$query="SELECT image_url,nickname FROM users WHERE userID='$from_id';";			
+					$query="SELECT image_url,nickname FROM Users WHERE userID='$from_id';";			
 					$result=$this->db->query($query)->fetchAll();
 					foreach ($result as $row) {
 						$image_url=$row['image_url'];
@@ -121,7 +121,7 @@
 					$from->send($json_message);	
 					
 					
-					$query="INSERT INTO messages(mess_text,source_user,$destination_type) 
+					$query="INSERT INTO Messages(mess_text,source_user,$destination_type) 
 								VALUES ('$chat_msg','$from_id','$to_id');";
 					$this->db->query($query);					
 					$last_id=$this->db->getInsertId();
@@ -150,11 +150,11 @@
 						}
 					}
 					else{
-						$query="UPDATE groups 
+						$query="UPDATE Groups 
 									SET last_message='$last_id' 
 										WHERE groupID='$to_id';";			
 						$this->db->query($query);
-						$query="SELECT userID FROM groups_users WHERE groupID='$to_id';";
+						$query="SELECT userID FROM Groups_users WHERE groupID='$to_id';";
 						$result=$this->db->query($query)->fetchAll();
 						foreach($result as $row){
 							$userID=$row['userID'];
@@ -177,7 +177,7 @@
 					$result=$this->db->query("SELECT username FROM Users WHERE userID='$user_id';")->fetchArray();
 					$this->users_ids[$from->resourceId]=$user_id;
 					echo"$result[username]($user_id) just connected\n";
-					$query="UPDATE users SET is_online='1' WHERE userID='$user_id';";
+					$query="UPDATE Users SET is_online='1' WHERE userID='$user_id';";
 					$this->db->query($query);
 					// Output
 					foreach ($this->users_ids as $id_from){
@@ -201,7 +201,7 @@
 					$to_id= $data->to_id;
 					$destination_type= $data->destination_type;
 					if($destination_type=='destination_user'){
-						$query="UPDATE friends SET is_typing='1' WHERE userID='$from_id' AND friendID='$to_id';";
+						$query="UPDATE Friends SET is_typing='1' WHERE userID='$from_id' AND friendID='$to_id';";
 						$this->db->query($query);	
 						if(in_array($to_id, $this->users_ids)){
 							$this->variableConn(
@@ -220,14 +220,14 @@
 						}	
 					}
 					else{
-						$query="UPDATE groups_users SET is_typing='1' WHERE userID='$from_id' AND groupID='$to_id';";
+						$query="UPDATE Groups_users SET is_typing='1' WHERE userID='$from_id' AND groupID='$to_id';";
 						$this->db->query($query);	
-						$query="SELECT userID FROM groups_users WHERE groupID='$to_id';";
+						$query="SELECT userID FROM Groups_users WHERE groupID='$to_id';";
 						$result=$this->db->query($query)->fetchAll();
 						foreach($result as $row){
 							$userID=$row['userID'];
 							if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
-								$query="SELECT nickname FROM users WHERE userID='$userID';";
+								$query="SELECT nickname FROM Users WHERE userID='$userID';";
 								$result=$this->db->query($query)->fetchAll();
 								$this->variableConn(
 											array_search(
@@ -253,7 +253,7 @@
 					$to_id= $data->to_id;
 					$destination_type= $data->destination_type;
 					if($destination_type=='destination_user'){
-						$query="UPDATE friends SET is_typing='0' WHERE userID='$from_id' AND friendID='$to_id';";
+						$query="UPDATE Friends SET is_typing='0' WHERE userID='$from_id' AND friendID='$to_id';";
 						$this->db->query($query);	
 						if(in_array($to_id, $this->users_ids)){
 							$this->variableConn(
@@ -272,14 +272,14 @@
 						}	
 					}
 					else{
-						$query="UPDATE groups_users SET is_typing='0' WHERE userID='$from_id' AND groupID='$to_id';";
+						$query="UPDATE Groups_users SET is_typing='0' WHERE userID='$from_id' AND groupID='$to_id';";
 						$this->db->query($query);	
-						$query="SELECT userID FROM groups_users WHERE groupID='$to_id';";
+						$query="SELECT userID FROM Groups_users WHERE groupID='$to_id';";
 						$result=$this->db->query($query)->fetchAll();
 						foreach($result as $row){
 							$userID=$row['userID'];
 							if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
-								$query="SELECT nickname FROM users WHERE userID='$userID';";
+								$query="SELECT nickname FROM Users WHERE userID='$userID';";
 								$result=$this->db->query($query)->fetchAll();
 								$this->variableConn(
 											array_search(
@@ -305,7 +305,7 @@
 
 		public function onError(ConnectionInterface $conn, \Exception $e) {			
 			$userID=$this->users_ids[$conn->resourceId];
-			$result=$this->db->query("SELECT username FROM users WHERE userID='$userID';")->fetchArray();
+			$result=$this->db->query("SELECT username FROM Users WHERE userID='$userID';")->fetchArray();
 			echo"$result[username] disconnected for an error: ".$e."\n";
 		}
 	}

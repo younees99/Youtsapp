@@ -48,12 +48,12 @@
 													mess_text,
 													date_time,
 													'user' AS chat_type
-												FROM friends F 
-													JOIN users U
+												FROM Friends F 
+													JOIN Users U
 														ON F.userID=U.userID
-													LEFT JOIN users FU
+													LEFT JOIN Users FU
 														ON FU.userID=friendID
-													LEFT JOIN messages M
+													LEFT JOIN Messages M
 														ON F.last_message=M.messageID
 												WHERE U.userID='$_SESSION[name]'
 											UNION
@@ -63,12 +63,12 @@
 													mess_text,
 													date_time,
 													'group' AS chat_type
-												FROM groups_users GU
-													JOIN users U
+												FROM Groups_users GU
+													JOIN Users U
 														ON GU.userID=U.userID
-													LEFT JOIN groups G
+													LEFT JOIN Groups G
 														ON GU.groupID=G.groupID 
-													LEFT JOIN messages M
+													LEFT JOIN Messages M
 														ON G.last_message=M.messageID
 												WHERE U.userID='$_SESSION[name]'
 											ORDER BY date_time DESC;";
@@ -128,7 +128,7 @@
 
 								function printLastSeen($db){	
 									if(isset($_GET['userID'])){
-										$query="SELECT last_seen FROM users WHERE userID='$_GET[userID]';";
+										$query="SELECT last_seen FROM Users WHERE userID='$_GET[userID]';";
 										$result=$db->query($query);
 										$row=$result->fetchArray();
 										$last_seen=$row['last_seen'];
@@ -157,9 +157,9 @@
 									$query="SELECT 
 												nickname,image_url,is_typing,is_online
 											FROM 
-												users U
+												Users U
 												JOIN 
-													friends F
+													Friends F
 														ON
 															U.userID=F.userID
 											WHERE 
@@ -192,7 +192,7 @@
 										$query="SELECT 
 													nickname,image_url,is_online
 												FROM 
-													users U
+													Users U
 												WHERE
 													U.userID='$_GET[userID]';";
 										$result=$db->query($query)->fetchAll();	
@@ -214,9 +214,9 @@
 									$query="SELECT 
 												group_name,image_url
 											FROM 
-												groups G
+												Groups G
 												JOIN 
-													groups_users GU
+													Groups_users GU
 														ON
 															GU.groupID=G.groupID
 											WHERE 
@@ -235,7 +235,7 @@
 										<p id='nickname'>$group_name</p>
 										<p id='log'> Online users:
 										<span id='count_online'>";
-										$result=$db->query("SELECT COUNT(*) as online_users FROM users WHERE is_online='1' AND userID!='$_SESSION[name]';")->fetchArray();
+										$result=$db->query("SELECT COUNT(*) as online_users FROM Users WHERE is_online='1' AND userID!='$_SESSION[name]';")->fetchArray();
 										echo $result['online_users'];										
 										echo"</span>
 										</p>";
@@ -248,9 +248,9 @@
 										<table id='messages' width='100%'>";
 									if($chatID=='userID'){
 										$query="SELECT * 
-													FROM messages M
+													FROM Messages M
 														JOIN
-															users U 
+															Users U 
 															ON
 																U.userID=M.source_user
 													WHERE 
@@ -261,9 +261,9 @@
 									}
 									elseif($chatID=='groupID'){
 										$query="SELECT * 
-													FROM messages M
+													FROM Messages M
 														JOIN
-															users U 
+															Users U 
 															ON
 																U.userID=M.source_user
 													WHERE 
@@ -415,8 +415,8 @@
 					var users_online='<?php
 											$users_online='';
 											$result=$db->query("SELECT U.userID 
-																	FROM users U  
-																		JOIN friends F
+																	FROM Users U  
+																		JOIN Friends F
 																			ON U.userID=F.userID
 																	WHERE is_online='1';")->fetchAll();
 											foreach ($result as $row) {

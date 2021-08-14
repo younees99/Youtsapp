@@ -83,7 +83,7 @@
     $db->query($query);  
 
     //Creating global group    
-    $query="INSERT INTO Groups (group_name,image_url,grouptag) VALUES('Global','global.png','global');";
+    $query="INSERT INTO Groups (group_name,image_url,grouptag) VALUES('Global','global_group.png','global');";
     $db->query($query);  
 
     //Creating admin account
