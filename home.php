@@ -313,12 +313,12 @@
 																						
 											}
 										}					
-										/*else
-											echo"<p class='print_text'>There is no message yet!<br>Start a coversation!<p>";*/
+										else
+											echo"<p class='print_text'>There is no message yet!<br>Start a coversation!<p>";
 										echo"</table></div>";
 									}									
-									/*else
-										echo"<p class='print_text right_main_td' align='center'>Select a chat to start a conversation!<p>";*/
+									else
+										echo"<p class='print_text right_main_td' align='center'>Select a chat to start a conversation!<p>";
 									echo"</table></div>";
 							if(isset($_GET['userID'])||isset($_GET['groupID'])){
 									echo "<footer class='send_form right_main_td' id='footer_form' style='display:none'>		
