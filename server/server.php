@@ -97,7 +97,9 @@
 					$chat_msg = $this->db->escapeString($data->chat_msg);
 					$to_id= $data->to_id;
 					$time= $data->time;
-					$destination_type= $data->destination_type;	
+					$destination_type= $data->destination_type;						
+					
+					
 					$query="SELECT image_url,nickname FROM Users WHERE userID='$from_id';";			
 					$result=$this->db->query($query)->fetchAll();
 					foreach ($result as $row) {
@@ -117,15 +119,23 @@
 										)
 									);
 					
-					//Send back the message to print it in live
-					$from->send($json_message);	
-					
-					
 					$query="INSERT INTO Messages(mess_text,source_user,$destination_type) 
 								VALUES ('$chat_msg','$from_id','$to_id');";
 					$this->db->query($query);					
 					$last_id=$this->db->getInsertId();
 					if($destination_type=='destination_user'){
+						$query="SELECT COUNT(messageID) AS messages_count FROM Messages WHERE date_time=CURDATE() AND source_user='$from_id' AND destination_user='$to_id';";
+						$result=$this->db->query($query);		
+						$count=$result->fetchAll();
+						$count_int=intval($count);
+						if($count_int==0)				
+										array(
+											"type"=>"date",
+											"date"=>date("F d")
+										);
+											
+														
+												
 						$query="UPDATE Friends 
 									SET last_message='$last_id' 
 										WHERE 
@@ -144,12 +154,38 @@
 												$json_message						
 										);	
 							}	
+							if(isset($json_date)){
+								if(in_array($to_id, $this->users_ids)){
+									$this->variableConn(
+												array_search(
+													$to_id,
+													$this->users_ids
+													)
+												)->send(
+													$json_date					
+											);	
+								}	
+							}
+								
 						}
 						catch(Exception $e){
 							$this->sendRequest($last_id,$from_id,$to_id,$json_message);
 						}
 					}
-					else{
+					else{ 
+						$query="SELECT COUNT(messageID) AS messages_count FROM Messages WHERE date_time=CURDATE() AND source_user='$from_id' AND destination_group='$to_id';";
+						$result=$this->db->query($query);						
+						$count=$result->fetchAll();
+						$count_int=intval($count);
+						if($count_int>0){
+							$json_date=json_encode(
+											array(
+												"type"=>"date",
+												"date"=>date('F d')
+											)
+										);
+						}	
+						
 						$query="UPDATE Groups 
 									SET last_message='$last_id' 
 										WHERE groupID='$to_id';";			
@@ -168,8 +204,25 @@
 												$json_message						
 										);	
 							}
+							if(isset($json_date)){
+								if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
+									$this->variableConn(
+												array_search(
+													$userID,
+													$this->users_ids
+													)
+												)->send(
+													$json_message						
+											);	
+								}	
+							}
+							
 						}
-					}					
+					}
+					
+					//Send back the message to print it in live
+					$from->send($json_message);			
+
 					break;
 
 				case 'socket':

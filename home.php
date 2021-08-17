@@ -687,6 +687,20 @@
 										?>)
 							log.innerHTML='Online';
 						break;
+					
+					case 'date':
+						if(json.from_id==<?php
+												if(isset($_GET["userID"])) 
+													echo"'$_GET[userID]'";
+												else
+													echo"-1";
+										?>)
+							{
+							var date="<tr><td align='center'><p class='print_date'>"+json.date+"</p></td></tr>";
+														
+							document.getElementById("messages").innerHTML+=date;
+						}
+						break;
 				}
 			}
 
