@@ -696,8 +696,7 @@
 													echo"-1";
 										?>)
 							{
-							var date="<tr><td align='center'><p class='print_date'>"+json.date+"</p></td></tr>";
-														
+							var date="<tr><td align='center'><p class='print_date'>"+json.date+"</p></td></tr>";														
 							document.getElementById("messages").innerHTML+=date;
 						}
 						break;

@@ -13,7 +13,6 @@
 		private $db;
 		protected $clients;
 		protected $users_ids = array();
-		private $color;
 
 		public function __construct() {
 			$this->clients = new \SplObjectStorage;
@@ -67,23 +66,23 @@
 		}
 
 		public function sendRequest($last_id,$from_id,$to_id,$json_message){
+			/*
 			$query="INSERT INTO Friends (userID,friendID,last_message) VALUES(
 						'$last_id',
 						'$from_id',
 						'$to_id'
 					);";			
 			$this->db->query($query);
-			echo"ciao";
-				/*if(in_array($to_id, $this->users_ids)){
-					$this->variableConn(
-								array_search(
-									$to_id,
-									$this->users_ids
-									)
-								)->send(
-									$json_message						
-							);	
-				}	
+			if(in_array($to_id, $this->users_ids)){
+				$this->variableConn(
+							array_search(
+								$to_id,
+								$this->users_ids
+								)
+							)->send(
+								$json_message						
+						);	
+			}	
 			}*/
 		}
 
@@ -128,11 +127,13 @@
 						$result=$this->db->query($query);		
 						$count=$result->fetchAll();
 						$count_int=intval($count);
-						if($count_int==0)				
+						if($count_int==0)	
+							$json_date=json_encode(			
 										array(
 											"type"=>"date",
 											"date"=>date("F d")
-										);
+										)
+									);
 											
 														
 												
@@ -177,7 +178,7 @@
 						$result=$this->db->query($query);						
 						$count=$result->fetchAll();
 						$count_int=intval($count);
-						if($count_int>0){
+						if($count_int==0){
 							$json_date=json_encode(
 											array(
 												"type"=>"date",
@@ -212,7 +213,7 @@
 													$this->users_ids
 													)
 												)->send(
-													$json_message						
+													$json_date						
 											);	
 								}	
 							}
@@ -222,6 +223,8 @@
 					
 					//Send back the message to print it in live
 					$from->send($json_message);			
+					if(isset($json_date))
+						$from->send($json_date);
 
 					break;
 

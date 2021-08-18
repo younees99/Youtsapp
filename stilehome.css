@@ -259,7 +259,7 @@ div.select_chat{
   background-position: center center;
   background-repeat: no-repeat;
   float: left;
-  border: solid 2.5px black;
+  border: solid 2.5px #333333;
 }
 
 .time_preview{
