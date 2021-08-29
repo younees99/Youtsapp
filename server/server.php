@@ -56,6 +56,7 @@
 			$this->clients->detach($conn);
 		}
 
+		//Method that gets the connection variable from the user index
 		public function variableConn($index){
 			foreach ($this->clients as $client) {
 				if($index==$client->resourceId){
@@ -65,6 +66,7 @@
 			}
 		}
 
+		//Method to send a Friend request
 		public function sendRequest($last_id,$from_id,$to_id,$json_message){
 			/*
 			$query="INSERT INTO Friends (userID,friendID,last_message) VALUES(
@@ -82,7 +84,7 @@
 							)->send(
 								$json_message						
 						);	
-			}	
+				}	
 			}*/
 		}
 
@@ -98,13 +100,11 @@
 					$time= $data->time;
 					$destination_type= $data->destination_type;						
 					
-					
 					$query="SELECT image_url,nickname FROM Users WHERE userID='$from_id';";			
-					$result=$this->db->query($query)->fetchAll();
-					foreach ($result as $row) {
-						$image_url=$row['image_url'];
-						$from_nickname=$row['nickname'];						
-					}
+					$result=$this->db->query($query);
+					$row=$result->fetchArray();
+					$image_url=$row['image_url'];
+					$from_nickname=$row['nickname'];			
 					$json_message=json_encode(
 										array(
 											"type"=>$type,
@@ -118,24 +118,31 @@
 										)
 									);
 					
+
 					$query="INSERT INTO Messages(mess_text,source_user,$destination_type) 
 								VALUES ('$chat_msg','$from_id','$to_id');";
 					$this->db->query($query);					
 					$last_id=$this->db->getInsertId();
+
 					if($destination_type=='destination_user'){
-						$query="SELECT COUNT(messageID) AS messages_count FROM Messages WHERE date_time=CURDATE() AND source_user='$from_id' AND destination_user='$to_id';";
-						$result=$this->db->query($query);		
-						$count=$result->fetchAll();
-						$count_int=intval($count);
-						if($count_int==0)	
+						$query="SELECT COUNT(messageID) 
+										AS messages_count
+									FROM Messages 
+								WHERE 
+									DATE(date_time)=CURDATE() 
+									AND source_user='$from_id' 
+									AND destination_user='$to_id';";
+						$result=$this->db->query($query);				
+						$count=$result->fetchArray();
+						if($count['messages_count']=='1'){
 							$json_date=json_encode(			
 										array(
 											"type"=>"date",
 											"date"=>date("F d")
 										)
 									);
-											
-														
+										
+						}						
 												
 						$query="UPDATE Friends 
 									SET last_message='$last_id' 
@@ -143,18 +150,8 @@
 											userID='$from_id' AND friendID='$to_id'
 										OR
 											userID='$to_id' AND friendID='$from_id';";			
-						try{
-							$this->db->query($query);
-							if(in_array($to_id, $this->users_ids)){
-								$this->variableConn(
-											array_search(
-												$to_id,
-												$this->users_ids
-												)
-											)->send(
-												$json_message						
-										);	
-							}	
+						
+							$this->db->query($query);	
 							if(isset($json_date)){
 								if(in_array($to_id, $this->users_ids)){
 									$this->variableConn(
@@ -167,18 +164,29 @@
 											);	
 								}	
 							}
-								
-						}
-						catch(Exception $e){
-							$this->sendRequest($last_id,$from_id,$to_id,$json_message);
-						}
+							if(in_array($to_id, $this->users_ids)){
+								$this->variableConn(
+											array_search(
+												$to_id,
+												$this->users_ids
+												)
+											)->send(
+												$json_message						
+										);	
+							}				
 					}
+
 					else{ 
-						$query="SELECT COUNT(messageID) AS messages_count FROM Messages WHERE date_time=CURDATE() AND source_user='$from_id' AND destination_group='$to_id';";
+						$query="SELECT COUNT(messageID) 
+										AS messages_count 
+									FROM Messages 
+								WHERE 
+									DATE(date_time)=CURDATE() 
+									AND source_user='$from_id' 
+									AND destination_group='$to_id';";
 						$result=$this->db->query($query);						
-						$count=$result->fetchAll();
-						$count_int=intval($count);
-						if($count_int==0){
+						$count=$result->fetchArray();
+						if($count['messages_count']=='1'){
 							$json_date=json_encode(
 											array(
 												"type"=>"date",
@@ -195,16 +203,6 @@
 						$result=$this->db->query($query)->fetchAll();
 						foreach($result as $row){
 							$userID=$row['userID'];
-							if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
-								$this->variableConn(
-											array_search(
-												$userID,
-												$this->users_ids
-												)
-											)->send(
-												$json_message						
-										);	
-							}
 							if(isset($json_date)){
 								if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
 									$this->variableConn(
@@ -217,14 +215,24 @@
 											);	
 								}	
 							}
+							if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
+								$this->variableConn(
+											array_search(
+												$userID,
+												$this->users_ids
+												)
+											)->send(
+												$json_message						
+										);	
+							}
 							
 						}
 					}
 					
-					//Send back the message to print it in live
-					$from->send($json_message);			
+					//Send back the message to print it in live	
 					if(isset($json_date))
 						$from->send($json_date);
+					$from->send($json_message);		
 
 					break;
 
@@ -354,7 +362,7 @@
 							}
 						}
 					}			
-					break;
+					break;				
 							
 			}
 		}

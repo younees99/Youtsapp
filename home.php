@@ -118,6 +118,9 @@
 							<button class='iconbtn' onclick='createGroup()'>
 								<i class="fa fa-users fa-2x" aria-hidden="true"></i>
 							</button>
+							<button class='iconbtn'>
+								<i class="fa fa-moon-o fa-2x" aria-hidden="true"></i>
+							</button>
 						</footer>
 							
 					</div>
@@ -646,7 +649,6 @@
 						printMessage(json);
 						//printPreview(json);
 						updateScroll();
-						console.log(json);
 						break;
 					
 					case 'connected':
@@ -689,16 +691,8 @@
 						break;
 					
 					case 'date':
-						if(json.from_id==<?php
-												if(isset($_GET["userID"])) 
-													echo"'$_GET[userID]'";
-												else
-													echo"-1";
-										?>)
-							{
-							var date="<tr><td align='center'><p class='print_date'>"+json.date+"</p></td></tr>";														
-							document.getElementById("messages").innerHTML+=date;
-						}
+						var date="<tr><td align='center'><p class='print_date'>"+json.date+"</p></td></tr>";														
+						document.getElementById("messages").innerHTML+=date;
 						break;
 				}
 			}
