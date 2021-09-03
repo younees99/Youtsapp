@@ -10,7 +10,7 @@ a{
 .output{
     width: 80vw;
     top: 59px;
-    bottom: 6vh;
+    bottom: 2.5em;
     position:fixed;
     overflow-y:scroll;
     overflow-x:hidden;
@@ -59,7 +59,7 @@ h1{
 
 .footer_btn{
   float: right;
-  margin: 1vh auto;
+  margin: 0.5em auto;
   background-color: transparent;
   border: 0;
   outline: none;
@@ -68,7 +68,7 @@ h1{
 }
 
 .footer_btn:hover{
-  transform: scale(1.5);
+  transform: scale(1.25);
 }
 
 #backButton{  
@@ -90,7 +90,7 @@ h1{
 #chats{
   position: fixed;
   overflow-y: auto;
-  width: 19vw;
+  width: 20vw;
   top: 28px;
 }
 
@@ -120,7 +120,7 @@ h1{
 }
 
 .header_chats{ 
-  width: 19vw;
+  width: 20vw;
   position: fixed;
   top: 0; 
   display: flex;
@@ -129,7 +129,7 @@ h1{
 
 .footer_chats{  
   background-color: #333333;
-  width: 19vw;
+  width: 20vw;
   position: fixed;
   bottom: 0;
   display: flex;
@@ -233,6 +233,10 @@ div.select_chat{
     overflow: hidden;
 }
 
+td.select_chat :hover{
+  background-color: #39393a;
+}
+
 
 .propic_from_list{
   width: 50px;
@@ -259,11 +263,11 @@ div.select_chat{
   background-position: center center;
   background-repeat: no-repeat;
   float: left;
-  border: solid 2.5px #333333;
+  border: solid 2.5px #000000;
 }
 
 .time_preview{
-  font-size: 9px;
+  font-size: 12px;
   color: #c5c4c4;
   float: right;
 }
@@ -282,7 +286,7 @@ div.select_chat{
     position: fixed;
     right: 0;
     bottom:0;
-    height: 6vh;
+    height: 2.5em;
     width: 80vw;
     background-color: #191919;
 }
@@ -409,7 +413,8 @@ div.select_chat{
 
 .right_main_div{
   display: block;
-  float:right;
+  right: 0;
+  position: absolute;
 }
 
 #left_main_div{

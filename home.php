@@ -90,7 +90,7 @@
 												$date_time=$row['date_time'];
 												$date_time=date('H:i', strtotime($date_time));
 											}
-											echo "<tr><td>
+											echo "<tr><td class='select_chat'>
 													<a class='select_chat'
 													href='$_SERVER[PHP_SELF]?$chat_type=$chatID'>
 														<div class='select_chat'>";
@@ -124,216 +124,226 @@
 						</footer>
 							
 					</div>
-				</div>
-				<div class='right_main_div' id='right_main_div'>
-					<div id='main'>					
-							<?php
+				</div>				
+					<?php
+						if(isset($_GET['groupID'])||isset($_GET['userID'])){
+							echo"
+							<div class='right_main_div' id='right_main_div'>
+								<div id='main'>	";
+									function printLastSeen($db){	
+										if(isset($_GET['userID'])){
+											$query="SELECT last_seen FROM Users WHERE userID='$_GET[userID]';";
+											$result=$db->query($query);
+											$row=$result->fetchArray();
+											$last_seen=$row['last_seen'];
+											$year=date('Y', strtotime($last_seen));
+											$current_year=date('Y');
+											$month=date('F', strtotime($last_seen));
+											$current_month=date('F');
+											$day=date('l', strtotime($last_seen));
+											$current_day=date('l');
+											if($year!=$current_year)
+												$print_last_seen=date('l j F Y', strtotime($last_seen));
+											elseif ($month!=$current_month) 
+												$print_last_seen=date('l j F', strtotime($last_seen));
+											elseif ($day!=$current_day) 
+												$print_last_seen=date('l j H:i', strtotime($last_seen));										
+											else
+												$print_last_seen="Today at ".date('H:i', strtotime($last_seen));										
+											$print_last_seen="Last seen: ".$print_last_seen;
+											return $print_last_seen;
+										}									
+									}
 
-								function printLastSeen($db){	
-									if(isset($_GET['userID'])){
-										$query="SELECT last_seen FROM Users WHERE userID='$_GET[userID]';";
-										$result=$db->query($query);
-										$row=$result->fetchArray();
-										$last_seen=$row['last_seen'];
-										$year=date('Y', strtotime($last_seen));
-										$current_year=date('Y');
-										$month=date('F', strtotime($last_seen));
-										$current_month=date('F');
-										$day=date('l', strtotime($last_seen));
-										$current_day=date('l');
-										if($year!=$current_year)
-											$print_last_seen=date('l j F Y', strtotime($last_seen));
-										elseif ($month!=$current_month) 
-											$print_last_seen=date('l j F', strtotime($last_seen));
-										elseif ($day!=$current_day) 
-											$print_last_seen=date('l j H:i', strtotime($last_seen));										
-										else
-											$print_last_seen="Today at ".date('H:i', strtotime($last_seen));										
-										$print_last_seen="Last seen: ".$print_last_seen;
-										return $print_last_seen;
-									}									
-								}
-
-								echo"<header id='header_chat'>";
-								$chatID='';								
-								if(isset($_GET['userID'])){									
-									$query="SELECT 
-												nickname,image_url,is_typing,is_online
-											FROM 
-												Users U
-												JOIN 
-													Friends F
-														ON
-															U.userID=F.userID
-											WHERE 
-												friendID='$_SESSION[name]'
-											AND
-												U.userID='$_GET[userID]';";
-									$result=$db->query($query)->fetchAll();	
-									$conta=0;								
-									foreach($result as $row) {
-										$nickname=$row['nickname'];
-										$is_typing=$row['is_typing'];
-										$image_url="src/profile_pictures/".$row['image_url'];
-										echo'<a href="home.php" id="backButton">
-											<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white; 
-											padding-top: 10px;"></i>
-											</a>';
-										echo"<div id='propic' style='background-image:url(".$image_url.");'></div>
-										<p id='nickname'>$nickname</p>
-										<p id='log'>";
-										if($is_typing=='1')
-											echo"Is typing...";
-										else
-											echo printLastSeen($db);
-										echo"</p>";
-										$conta++;
-									}	
-									if($conta>0)
-										$chatID='userID';	
-									else{								
+									echo"<header id='header_chat'>";
+									$chatID='';								
+									if(isset($_GET['userID'])){									
 										$query="SELECT 
-													nickname,image_url,is_online
+													nickname,image_url,is_typing,is_online
 												FROM 
 													Users U
-												WHERE
+													JOIN 
+														Friends F
+															ON
+																U.userID=F.userID
+												WHERE 
+													friendID='$_SESSION[name]'
+												AND
 													U.userID='$_GET[userID]';";
 										$result=$db->query($query)->fetchAll();	
 										$conta=0;								
 										foreach($result as $row) {
 											$nickname=$row['nickname'];
+											$is_typing=$row['is_typing'];
 											$image_url="src/profile_pictures/".$row['image_url'];
 											echo'<a href="home.php" id="backButton">
 												<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white; 
 												padding-top: 10px;"></i>
 												</a>';
 											echo"<div id='propic' style='background-image:url(".$image_url.");'></div>
-											<p id='nickname'>$nickname</p>";
+											<p id='nickname'>$nickname</p>
+											<p id='log'>";
+											if($is_typing=='1')
+												echo"Is typing...";
+											else
+												echo printLastSeen($db);
+											echo"</p>";
+											$conta++;
 										}	
-									}		
-								}
-
-								elseif(isset($_GET['groupID'])){									
-									$query="SELECT 
-												group_name,image_url
-											FROM 
-												Groups G
-												JOIN 
-													Groups_users GU
-														ON
-															GU.groupID=G.groupID
-											WHERE 
-												GU.userID='$_SESSION[name]'
-											AND
-												G.groupID='$_GET[groupID]';";
-									$result=$db->query($query)->fetchAll();
-									foreach($result as $row) {
-										$group_name=$row['group_name'];
-										$image_url="src/profile_pictures/".$row['image_url'];
-										echo'<a href="home.php" id="backButton">
-											<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white;
-											padding-top: 10px;"></i>
-											</a>';
-										echo"<div id='propic' style='background-image:url(".$image_url.");'></div>
-										<p id='nickname'>$group_name</p>
-										<p id='log'> Online users:
-										<span id='count_online'>";
-										$result=$db->query("SELECT COUNT(*) as online_users FROM Users WHERE is_online='1' AND userID!='$_SESSION[name]';")->fetchArray();
-										echo $result['online_users'];										
-										echo"</span>
-										</p>";
-									}				
-									$chatID='groupID';				
-								}
-
-								echo"</header>";
-								echo"<div id='output' class='output right_main_td'>
-										<table id='messages' width='100%'>";
-									if($chatID=='userID'){
-										$query="SELECT * 
-													FROM Messages M
-														JOIN
-															Users U 
-															ON
-																U.userID=M.source_user
-													WHERE 
-														(source_user='$_SESSION[name]' OR destination_user='$_SESSION[name]') 
-														AND 
-														(source_user='$_GET[userID]' OR destination_user='$_GET[userID]') 
-												ORDER BY date_time;";
+										if($conta>0)
+											$chatID='userID';	
+										else{								
+											$query="SELECT 
+														nickname,image_url,is_online
+													FROM 
+														Users U
+													WHERE
+														U.userID='$_GET[userID]';";
+											$result=$db->query($query)->fetchAll();	
+											$conta=0;								
+											foreach($result as $row) {
+												$nickname=$row['nickname'];
+												$image_url="src/profile_pictures/".$row['image_url'];
+												echo'<a href="home.php" id="backButton">
+													<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white; 
+													padding-top: 10px;"></i>
+													</a>';
+												echo"<div id='propic' style='background-image:url(".$image_url.");'></div>
+												<p id='nickname'>$nickname</p>";
+											}	
+										}		
 									}
-									elseif($chatID=='groupID'){
-										$query="SELECT * 
-													FROM Messages M
-														JOIN
-															Users U 
+
+									elseif(isset($_GET['groupID'])){									
+										$query="SELECT 
+													group_name,image_url
+												FROM 
+													Groups G
+													JOIN 
+														Groups_users GU
 															ON
-																U.userID=M.source_user
-													WHERE 
-														destination_group='$_GET[groupID]'
-												ORDER BY date_time;";
-									}
-									if($chatID!=''){
+																GU.groupID=G.groupID
+												WHERE 
+													GU.userID='$_SESSION[name]'
+												AND
+													G.groupID='$_GET[groupID]';";
 										$result=$db->query($query)->fetchAll();
-										$month_day='';
-										if(count($result)>0){
-											foreach($result as $row){
-												$data=strtotime($row['date_time']);
-												$ore_min=date("H:m",$data);
-												if($month_day!=date("F d",$data)){
-													setlocale(LC_TIME,'ita');
-													$month_day=date("F d",$data);
-													echo"<tr><td align='center'><p class='print_date'>$month_day</p></td></tr>";
-												}
-												if($row['source_user']==$_SESSION['name']){
-													echo "
-													<tr><td>
-														<div class='right'>".
-																"<p class='message_value'>".htmlspecialchars($row['mess_text'])."</p> 
-																<span class='time-right'>".$ore_min."</span>";
-														echo"</div>
-													</td></tr>";
-												}											
-												else{
-													echo "<tr><td>";
-													if($chatID=='groupID'){
-														$userID=$row['userID'];
-														$image_url="src/profile_pictures/".$row['image_url'];
-														echo"
-														<div class='propic_from_chat propic_from_chat$userID'
-															style='background-image:url(".
-																$image_url.");'>
-														</div> ";
-													}	
-													echo "<div class='left'>";
-													if($chatID=='groupID')
-														echo "<p class='message_source'><b>".$row['nickname']."</b></p> ";
-													echo "<p class='message_value'>".htmlspecialchars($row['mess_text'])."</p> 
-															<span class='time-left'>".$ore_min."</span>
-													</div>
+										foreach($result as $row) {
+											$group_name=$row['group_name'];
+											$image_url="src/profile_pictures/".$row['image_url'];
+											echo'<a href="home.php" id="backButton">
+												<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white;
+												padding-top: 10px;"></i>
+												</a>';
+											echo"<div id='propic' style='background-image:url(".$image_url.");'></div>
+											<p id='nickname'>$group_name</p>
+											<p id='log'> Online users:
+											<span id='count_online'>";
+											$result=$db->query("SELECT COUNT(*) as online_users FROM Users WHERE is_online='1' AND userID!='$_SESSION[name]';")->fetchArray();
+											echo $result['online_users'];										
+											echo"</span>
+											</p>";
+										}				
+										$chatID='groupID';				
+									}
+									echo"</header>";
+									echo"<div id='output' class='output right_main_td'>
+											<table id='messages' width='100%'>";
+										if($chatID=='userID'){
+											$query="SELECT * 
+														FROM Messages M
+															JOIN
+																Users U 
+																ON
+																	U.userID=M.source_user
+														WHERE 
+															(source_user='$_SESSION[name]' OR destination_user='$_SESSION[name]') 
+															AND 
+															(source_user='$_GET[userID]' OR destination_user='$_GET[userID]') 
+													ORDER BY date_time;";
+										}
+										elseif($chatID=='groupID'){
+											$query="SELECT * 
+														FROM Messages M
+															JOIN
+																Users U 
+																ON
+																	U.userID=M.source_user
+														WHERE 
+															destination_group='$_GET[groupID]'
+													ORDER BY date_time;";
+										}
+										if($chatID!=''){
+											$result=$db->query($query)->fetchAll();
+											$month_day='';
+											if(count($result)>0){
+												foreach($result as $row){
+													$data=strtotime($row['date_time']);
+													$ore_min=date("H:m",$data);
+													if($month_day!=date("F d",$data)){
+														setlocale(LC_TIME,'ita');
+														$month_day=date("F d",$data);
+														echo"<tr><td align='center'><p class='print_date'>$month_day</p></td></tr>";
+													}
+													if($row['source_user']==$_SESSION['name']){
+														echo "
+														<tr><td>
+															<div class='right'>".
+																	"<p class='message_value'>".htmlspecialchars($row['mess_text'])."</p> 
+																	<span class='time-right'>".$ore_min."</span>";
+															echo"</div>
 														</td></tr>";
+													}											
+													else{
+														echo "<tr><td>";
+														if($chatID=='groupID'){
+															$userID=$row['userID'];
+															$image_url="src/profile_pictures/".$row['image_url'];
+															$is_online=$row['is_online'];
+															$border="#000000";
+															if($is_online)
+																$border="";
+															echo"
+															<div class='propic_from_chat propic_from_chat$userID'
+																style='background-image:url(".
+																	$image_url.");'>
+															</div> ";
+														}	
+														echo "<div class='left'>";
+														if($chatID=='groupID')
+															echo "<p class='message_source'><b>".$row['nickname']."</b></p> ";
+														echo "<p class='message_value'>".htmlspecialchars($row['mess_text'])."</p> 
+																<span class='time-left'>".$ore_min."</span>
+														</div>
+															</td></tr>";
+													}
+																							
 												}
-																						
-											}
-										}					
+											}					
+											else
+												echo"<p class='print_text'>There is no message yet!<br>Start a coversation!<p>";
+											echo"</table></div>";
+										}									
 										else
-											echo"<p class='print_text'>There is no message yet!<br>Start a coversation!<p>";
+											echo"<p class='print_text right_main_td' align='center'>Select a chat to start a conversation!<p>";
 										echo"</table></div>";
-									}									
-									else
-										echo"<p class='print_text right_main_td' align='center'>Select a chat to start a conversation!<p>";
-									echo"</table></div>";
-							if(isset($_GET['userID'])||isset($_GET['groupID'])){
-									echo "<footer class='send_form right_main_td' id='footer_form' style='display:none'>		
-											<button id='send_emoji' style='display:block; float:left;' class='footer_btn'><i class='fa fa-smile-o fa-2x'></i></button>							
-											<textarea name='msg' placeholder='Write a message...' id='input_message'></textarea>
-											<button id='send_attachment' style='display:none;' class='footer_btn'><i class='fa fa-paperclip fa-2x'></i></button>
-											<button id='send_message' class='footer_btn'><i class='fa fa-send fa-2x'></i></button>
-										</footer>";
-								}				
-							?>
-					</div>
-				</div>
+										echo "<footer class='send_form right_main_td' id='footer_form' style='display:none'>		
+												<button id='send_emoji' style='display:block; float:left;' class='footer_btn'><i class='fa fa-smile-o fa-2x'></i></button>							
+												<textarea name='msg' placeholder='Write a message...' id='input_message'></textarea>
+												<button id='send_attachment' style='display:none;' class='footer_btn'><i class='fa fa-paperclip fa-2x'></i></button>
+												<button id='send_message' class='footer_btn'><i class='fa fa-send fa-2x'></i></button>
+											</footer>
+											</div>
+										</div>";			
+								}
+								else{
+									echo"<style>
+										#right_main_div{
+											display:none;
+										}
+									</style>";
+								}
+					?>
 		</table>
             <div class='overlay' id='overlay'>
                 <button onclick='close()' id='closeBtn' style='background-color: Transparent; border:none; float: right'>

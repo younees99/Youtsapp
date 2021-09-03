@@ -130,8 +130,16 @@
 									FROM Messages 
 								WHERE 
 									DATE(date_time)=CURDATE() 
-									AND source_user='$from_id' 
-									AND destination_user='$to_id';";
+									AND 
+										(
+											(source_user='$from_id' 
+												AND 
+											destination_user='$to_id')
+										OR
+											(source_user='$to_id' 
+												AND 
+											destination_user='$from_id')
+										);";
 						$result=$this->db->query($query);				
 						$count=$result->fetchArray();
 						if($count['messages_count']=='1'){
@@ -182,7 +190,6 @@
 									FROM Messages 
 								WHERE 
 									DATE(date_time)=CURDATE() 
-									AND source_user='$from_id' 
 									AND destination_group='$to_id';";
 						$result=$this->db->query($query);						
 						$count=$result->fetchArray();
