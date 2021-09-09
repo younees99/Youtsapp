@@ -405,7 +405,7 @@
 
 			function createGroup() {
 				document.getElementById("overlay").style='display: block;';
-				document.getElementById("searchForm").manager-linux-x64.runstyle='display: none;';
+				document.getElementById("searchForm").style='display: none;';
 				document.getElementById("createGroupForm").style='display: block;';
 				document.getElementById("profileForm").style='display: none;';
 			}
