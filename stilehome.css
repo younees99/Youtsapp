@@ -8,7 +8,7 @@ a{
 }
 
 .output{
-    width: 80vw;
+    width: 60vw;
     top: 59px;
     bottom: 2.5em;
     position:fixed;
@@ -26,7 +26,7 @@ a{
 
 #main{
   height: 100vh;
-  width: 80vw;
+  width: 60vw;
   background-color: black;
   margin:0;
 }
@@ -36,19 +36,19 @@ h1{
     color:white;
 }
 
+
+
 #input_message{  
-    width: 66vw; 
-    padding-left: 4px;
-    height: 100%;
+    width:100%;
+    height: auto;
+    padding-top: 12px;
     resize: none;
     background-color: #191919;
     color:white;
-    float: left;
-    position: relative;
     border-radius: 0px;
-    margin: 2px auto;
     border: none;
     overflow-y: auto;
+    overflow: hidden;
     outline: none;
     word-wrap: break-word
 }
@@ -59,7 +59,8 @@ h1{
 
 .footer_btn{
   float: right;
-  margin: 0.5em auto;
+  margin: 0.5em;
+  height: fit-content;
   background-color: transparent;
   border: 0;
   outline: none;
@@ -90,7 +91,7 @@ h1{
 #chats{
   position: fixed;
   overflow-y: auto;
-  width: 20vw;
+  width: 40vw;
   top: 28px;
 }
 
@@ -120,7 +121,7 @@ h1{
 }
 
 .header_chats{ 
-  width: 20vw;
+  width: 40vw;
   position: fixed;
   top: 0; 
   display: flex;
@@ -129,15 +130,14 @@ h1{
 
 .footer_chats{  
   background-color: #333333;
-  width: 20vw;
+  width: 40vw;
   position: fixed;
   bottom: 0;
   display: flex;
   justify-content: space-between;
 }
 
-.message_value{
-  
+.message_value{  
   margin:0;
 }
 
@@ -287,7 +287,7 @@ td.select_chat :hover{
     right: 0;
     bottom:0;
     height: 2.5em;
-    width: 80vw;
+    width: 60vw;
     background-color: #191919;
 }
 
@@ -424,6 +424,18 @@ td.select_chat :hover{
 
 
 @media screen  and (max-width: 704px) {
+  .right_main_div{
+    display: none;
+  }
+
+  .right{
+    max-width: 60vw;
+  }
+
+  .left{
+    max-width: 60vw;
+  }
+  
   #footer_form{
     width: 100vw;
     margin-bottom: 1px;
@@ -456,9 +468,6 @@ td.select_chat :hover{
     width:100vw;
   }
   
-  #input_message{
-    width:72vw;
-  }
   #backButton{
     display:block;
   }
