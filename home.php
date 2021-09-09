@@ -17,8 +17,7 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="stilehome.css?version=123">
-	    <link rel="stylesheet" type="text/css" href="stile.css?version=548">
+	    <link rel="stylesheet" type="text/css" href="style.css?version=123">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	</head>
@@ -406,7 +405,7 @@
 
 			function createGroup() {
 				document.getElementById("overlay").style='display: block;';
-				document.getElementById("searchForm").style='display: none;';
+				document.getElementById("searchForm").manager-linux-x64.runstyle='display: none;';
 				document.getElementById("createGroupForm").style='display: block;';
 				document.getElementById("profileForm").style='display: none;';
 			}

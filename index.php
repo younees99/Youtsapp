@@ -9,7 +9,7 @@
     <head>
         <meta charset="utf-8">
         <title>Login</title>
-        <link rel="stylesheet" type="text/css" href="stile.css?version=25">
+        <link rel="stylesheet" type="text/css" href="style.css?version=25">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>

@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <title>Sign-up</title>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link rel="stylesheet" type="text/css" href="stile.css?version=25">
+        <link rel="stylesheet" type="text/css" href="style.css?version=25">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
