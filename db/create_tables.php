@@ -71,7 +71,7 @@
     //Creating FRIENDS table
     $query="CREATE TABLE IF NOT EXISTS Friends(
         friendshipID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-        since TIMESTAMP NOT NULL,
+        since TIMESTAMP NULL,
         userID INT(255) NOT NULL,
         friendID INT(255) NOT NULL,
         last_message INT(255),

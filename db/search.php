@@ -56,7 +56,6 @@
                                     if($result_type=='user'&&$is_online)
                                         echo"border: solid 2.5px #00ff33";
                                     echo"'>";
-                                    if(!isset($row['since']))
                                     echo"</div> 
                                         <p class='chat_name'>$name</p>
                                     </div>

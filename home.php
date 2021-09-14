@@ -19,7 +19,7 @@
 		<title>Home</title>
 	    <link rel="stylesheet" type="text/css" href="style.css?version=123">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
 	</head>
 	<body>		
 		<div id="loading_div" style='display:block;' class='box'>
@@ -281,11 +281,12 @@
 													$month_day=date("F d",$data);
 													echo"<tr><td align='center'><p class='print_date'>$month_day</p></td></tr>";
 												}
+												$message=htmlspecialchars(str_replace("/n","<br>",$row['mess_text']));
 												if($row['source_user']==$_SESSION['name']){
 													echo "
 													<tr><td>
 														<div class='right'>".
-																"<p class='message_value'>".htmlspecialchars($row['mess_text'])."</p> 
+																"<p class='message_value'>".$message."</p> 
 																<span class='time-right'>".$ore_min."</span>";
 														echo"</div>
 													</td></tr>";
@@ -308,7 +309,7 @@
 													echo "<div class='left'>";
 													if($chatID=='groupID')
 														echo "<p class='message_source'><b>".$row['nickname']."</b></p> ";
-													echo "<p class='message_value'>".htmlspecialchars($row['mess_text'])."</p> 
+													echo "<p class='message_value'>".$message."</p> 
 															<span class='time-left'>".$ore_min."</span>
 													</div>
 														</td></tr>";
@@ -540,6 +541,7 @@
 				var source;
 				var icon='';
 				var stampa=false;
+				console.log(json.from_id);
 				if(json.from_id==<?php echo"'$_SESSION[name]'"?>){
 					source="right";
 					stampa=true;
@@ -552,7 +554,7 @@
 				if(json.destination_type=='destination_group'){
 					if(source=='left'){
 						var url="src/profile_pictures/"+json.image_url;
-						message+="<div class='propic_from_chat' id='propic_from_chat$userID'";
+						message+="<div class='propic_from_chat propic_from_chat"+json.from_id+"'";
 						message+="style='background-image:url("+url+"); border:2.5px solid #00ff33'></div>";
 					}
 					if(json.to_id==<?php
@@ -678,12 +680,12 @@
 												elseif(isset($_GET["groupID"])) echo"'$_GET[groupID]'";
 												else echo"-1";
 										?>){
-								if(json.source){
+								if(json.source)
 									log.innerHTML=json.source+' is typing...';
-								}
-								else{
+								
+								else
 									log.innerHTML='Is typing...';
-								}							
+														
 						}
 						break;
 					
