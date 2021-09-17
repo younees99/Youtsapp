@@ -121,7 +121,7 @@ h1{
 
 
 
-#input_message{  
+.input_message{  
     width:100%;
     height: auto;
     padding-top: 12px;
@@ -136,8 +136,12 @@ h1{
     word-wrap: break-word
 }
 
-#input_message:focus{
+.input_message:focus{
   border:none;
+}
+
+.input_message:first-letter{
+  text-transform: capitalize
 }
 
 .footer_btn{
@@ -225,10 +229,12 @@ h1{
 }
 
 
+
+
 .right {
   position: relative;
   background: #4ba38a;
-  text-align: right;
+  text-align: left;
   padding: 5px 10px;
   border-radius: 6px;
   float: right;

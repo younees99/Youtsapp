@@ -17,9 +17,10 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="style.css?version=123">
+	    <link rel="stylesheet" type="text/css" href="style.css?version=456">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
+  		<link href="emoji-picker/lib/css/emoji.css" rel="stylesheet">
 	</head>
 	<body>		
 		<div id="loading_div" style='display:block;' class='box'>
@@ -324,12 +325,16 @@
 									else
 										echo"<p class='print_text right_main_td' align='center'>Select a chat to start a conversation!<p>";
 									echo"</table></div>";
-									echo "<footer class='send_form right_main_td' id='footer_form' style='display:none'>		
-											<button id='send_emoji' style='display:block; float:left;' class='footer_btn'><i class='fa fa-smile-o fa-2x'></i></button>							
-											<textarea name='msg' placeholder='Write a message...' contenteditable id='input_message'></textarea>
+									echo "<footer class='send_form right_main_td' id='footer_form' style='display:none'>								
+											<textarea name='msg' placeholder='Write a message...' 
+														class='form-control textarea-control input_message'
+														id='input_message'
+														contenteditable data-emojiable='true'
+														data-emoji-input='unicode'></textarea>
 											<button id='send_attachment' class='footer_btn'><i class='fa fa-paperclip fa-2x'></i></button>
 											<button id='send_message' class='footer_btn'><i class='fa fa-send fa-2x'></i></button>
-										</footer>";	
+										</footer>";											
+									//<button id='send_emoji' style='display:block; float:left;' class='footer_btn'><i class='fa fa-smile-o fa-2x'></i></button>	
 							?>
 						</div>
 					</div>
@@ -777,8 +782,12 @@
 					);					
 				});
 			}
-
 		</script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+ 		<script src="emoji-picker/lib/js/config.js"></script>
+		<script src="emoji-picker/lib/js/util.js"></script>
+		<script src="emoji-picker/lib/js/jquery.emojiarea.js"></script>
+		<script src="emoji-picker/lib/js/emoji-picker.js"></script>
 		<?php
 			$db->close();
 		?>

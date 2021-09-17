@@ -58,6 +58,7 @@
                                     echo"'>";
                                     echo"</div> 
                                         <p class='chat_name'>$name</p>
+                                        <p class='log'>$name</p>
                                     </div>
                                 </div>
                             </a>											
