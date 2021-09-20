@@ -115,13 +115,12 @@ a{
 }
 
 h1{
-    background-color: #6495ed;
     color:white;
 }
 
 
 
-.input_message{  
+#input_message{  
     width:100%;
     height: auto;
     padding-top: 12px;
@@ -136,11 +135,11 @@ h1{
     word-wrap: break-word
 }
 
-.input_message:focus{
+#input_message:focus{
   border:none;
 }
 
-.input_message:first-letter{
+#input_message:first-letter{
   text-transform: capitalize
 }
 

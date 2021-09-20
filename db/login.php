@@ -15,7 +15,7 @@
 			header("Location: ../error.php?error=pass&pass=".md5($pass)."&db_pass=$row[password]");		
 		else{
 			$_SESSION['name']=$row['userID'];
-			header("Location:../home.php");
+			header("Location:../index.php");
 		}
 	}
 	else
