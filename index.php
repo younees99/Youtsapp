@@ -779,13 +779,13 @@
 				});
 			}
 		</script>
-		<script src="node_modules/fg-emoji-picker/fgEmojiPicker.js"></script>
+		<script src="fg-emoji-picker/fgEmojiPicker.js"></script>
 		<script>
 			const emojiPicker = new FgEmojiPicker({
 				trigger: ['button'],
 				removeOnSelection: false,
 				closeButton: true,
-				dir: 'node_modules/fg-emoji-picker/',
+				dir: 'fg-emoji-picker/',
 				position: ['top', 'left'],
 				preFetch: true,
 				insertInto: document.getElementById("input_message"),
