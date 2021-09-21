@@ -30,7 +30,7 @@
 				<div id='left_main_div'>
 					<div id='side_menu'>
 						<header class='header_chats' id='header_chats'> 
-							<a href='home.php' style='color:white; text-decoration:none;'>
+							<a href='index.php' style='color:white; text-decoration:none;'>
 								<p class='youtsapp'>
 									Youtsapp
 								</p>
@@ -172,7 +172,7 @@
 										$nickname=$row['nickname'];
 										$is_typing=$row['is_typing'];
 										$image_url="src/profile_pictures/".$row['image_url'];
-										echo'<a href="home.php" id="backButton">
+										echo'<a href="index.php" id="backButton">
 											<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white; 
 											padding-top: 10px;"></i>
 											</a>';
@@ -200,7 +200,7 @@
 										foreach($result as $row) {
 											$nickname=$row['nickname'];
 											$image_url="src/profile_pictures/".$row['image_url'];
-											echo'<a href="home.php" id="backButton">
+											echo'<a href="index.php" id="backButton">
 												<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white; 
 												padding-top: 10px;"></i>
 												</a>';
@@ -227,7 +227,7 @@
 									foreach($result as $row) {
 										$group_name=$row['group_name'];
 										$image_url="src/profile_pictures/".$row['image_url'];
-										echo'<a href="home.php" id="backButton">
+										echo'<a href="index.php" id="backButton">
 											<i class="fa fa-chevron-left fa-2x" aria-hidden="true" style="color: white;
 											padding-top: 10px;"></i>
 											</a>';
@@ -782,13 +782,13 @@
 		<script src="node_modules/fg-emoji-picker/fgEmojiPicker.js"></script>
 		<script>
 			const emojiPicker = new FgEmojiPicker({
-				trigger: ['send_emoji'],
+				trigger: ['button'],
 				removeOnSelection: false,
 				closeButton: true,
-				dir: 'node_modules/fg-emoji-picker',
-				position: ['bottom', 'right'],
+				dir: 'node_modules/fg-emoji-picker/',
+				position: ['top', 'left'],
 				preFetch: true,
-				insertInto: document.querySelector('textarea'),
+				insertInto: document.getElementById("input_message"),
 				emit(obj, triggerElement) {
 					console.log(obj, triggerElement);
 				}
