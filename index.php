@@ -365,10 +365,13 @@
 							<input type='submit' class='buttons_index' name='create' value='Create'>
 					</form>  
 					<form class='box' action='' id='profileForm' method='POST'  enctype="multipart/form-data">
-							<h2>Hi </h2>							
-							<a href="logout.php" class='iconlink'>
+						<?php
+							$user = $db->query("SELECT * FROM Users WHERE userID='$_SESSION[name]';")->fetchArray();
+							echo'<h2>Hi '.$user['nickname'].' (@'.$user['username'].') </h2>							
+							<a href="logout.php" class="iconlink">
 								<i class="fa fa-sign-out fa-2x" aria-hidden="true" ></i>
-							</a>
+							</a>';
+						?>							
 					</form>  
 					
             </div>  
@@ -646,10 +649,10 @@
 				showOnlineUsers();
 				updateScroll();	
 			};
-				
+			/*	
 			websocket_server.onerror = function(e) {
 				window.location="error.php?error=conn";
-			}
+			}*/
 
 			//Printing a message when i recieve it
 			websocket_server.onmessage = function(e){
@@ -782,7 +785,7 @@
 		<script src="fg-emoji-picker/fgEmojiPicker.js"></script>
 		<script>
 			const emojiPicker = new FgEmojiPicker({
-				trigger: ['button'],
+				trigger: ['button#send_emoji'],
 				removeOnSelection: false,
 				closeButton: true,
 				dir: 'fg-emoji-picker/',
