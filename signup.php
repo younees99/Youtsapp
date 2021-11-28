@@ -22,6 +22,6 @@
             <input type='submit' name='ok' value='Sign-up' class='buttons_index'>            
             <a href='index.php' class="buttons_index">Login!</a>
         </form>
-        <script src="script/signup_control.js"></script>
+        <script src="scripts/signup_control.js"></script>
     </body>
 </html>
