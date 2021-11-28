@@ -7,7 +7,7 @@
 	use Ratchet\Http\HttpServer;
 	use Ratchet\WebSocket\WsServer;
 	require_once '../vendor/autoload.php';
-	require '../db/db.php';
+	require '../db/create_tables.php';
 
 	class Chat implements MessageComponentInterface {
 		private $db;
