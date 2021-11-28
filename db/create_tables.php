@@ -93,7 +93,7 @@
             'Admin',
             '79e6c925cc97fca2de5bf975565647e3',
             'admin@youtsapp.it',
-            'king_crown'
+            'king_crown.jpg'
         );";
     // password: SDjn45$%43
     $db->query($query);  

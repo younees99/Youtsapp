@@ -393,15 +393,15 @@
                             ?>';
 
 			var to_user_id = '<?php
-                                            if(isset($_GET['userID']))
-                                                echo $_GET['userID'];
-                                            else
-                                                echo"-1";
-                                        ?>';
+									if(isset($_GET['userID']))
+										echo $_GET['userID'];
+									else
+										echo"-1";
+								?>';
 
 			var to_groud_id = '<?php
                             if(isset($_GET['groupID'])) 
-								echo"'$_GET[groupID]'";
+								echo $_GET['groupID'];
                             else 
 								echo"-1";
                         ?>';	
@@ -412,24 +412,24 @@
 
 			var to_id = '<?php 
                             if(isset($_GET['userID'])) 
-                                echo"'$_GET[userID]'";
+                                echo $_GET['userID'];
                             elseif(isset($_GET['groupID']))
-                                echo"'$_GET[groupID]'";
+                                echo $_GET['groupID'];
                             else
                                 echo"-1"
                         ?>';
 			
 			var destination_type = '<?php
 										if(isset($_GET['userID']))
-											echo "'destination_user'";
+											echo "destination_user";
 										elseif(isset($_GET['groupID']))
-											echo "'destination_group'";
+											echo "destination_group";
 										else
 											echo "-1";
                                     ?>';
 			
 			var server_name = '<?php echo $_SERVER['SERVER_NAME']?>';
-			
+
 			function printLastSeen(id,val_log){	
 				var log=document.getElementById("log");
 				if(log){
