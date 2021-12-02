@@ -41,5 +41,5 @@
                 '$last_id'
             );";
     $db->query($query);    
-    header("Location:../index.php");
+    //header("Location:../index.php");
 ?> 

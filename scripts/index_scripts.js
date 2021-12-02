@@ -162,12 +162,6 @@ function printPreview(json){
                 
 }
 
-function getTime(){
-    var today = new Date();
-    var time = today.getHours + ":" + today.getMinutes;
-    return time;
-}
-
 function sendMessage(){
     var chat_msg = inputmessage.value;
     if(chat_msg.length>1){
@@ -177,8 +171,7 @@ function sendMessage(){
                 'from_id':session_id,
                 'to_id':to_id,
                 'chat_msg':chat_msg.trim(),
-                'destination_type':destination_type,
-                'time': getTime()
+                'destination_type':destination_type
             })
         );
         inputmessage.value='';

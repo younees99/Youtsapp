@@ -7,7 +7,7 @@
 	use Ratchet\Http\HttpServer;
 	use Ratchet\WebSocket\WsServer;
 	require_once '../vendor/autoload.php';
-	require '../db/create_tables.php';
+	require '../db/config.php';
 
 	class Chat implements MessageComponentInterface {
 		private $db;
@@ -97,7 +97,7 @@
 					$from_id = $data->from_id;
 					$chat_msg = $this->db->escapeString($data->chat_msg);
 					$to_id= $data->to_id;
-					$time= $data->time;
+					$time= date('H:i', strtotime("now"));
 					$destination_type= $data->destination_type;						
 					
 					$query="SELECT image_url,nickname FROM Users WHERE userID='$from_id';";			

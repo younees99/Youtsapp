@@ -399,7 +399,7 @@
 										echo"-1";
 								?>';
 
-			var to_groud_id = '<?php
+			var to_group_id = '<?php
                             if(isset($_GET['groupID'])) 
 								echo $_GET['groupID'];
                             else 
