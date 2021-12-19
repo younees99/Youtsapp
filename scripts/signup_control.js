@@ -64,12 +64,12 @@ function checkEqualPass(pass,conf_pass){
 
 
 function checkPassword(pass){
-    valida=passwordValida(pass.value);               
+    valida=validPassword(pass.value);               
     colorBorders(valida,pass);
     return valida;
 }
 
-function passwordValida(password) {
+function validPassword(password) {
     var re= new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*\.\,\'])(?=.{8,})");
     console.log(re.test(password));
     return re.test(password);

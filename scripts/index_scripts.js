@@ -1,3 +1,5 @@
+document.getElementById("closeBtn").addEventListener("click", close);
+
 function showResults(str) {
     if (str.length == 0) {
         document.getElementById("tableResults").innerHTML = "";

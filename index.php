@@ -377,7 +377,6 @@
             </div>  
 		
 		<script>
-			document.getElementById("closeBtn").addEventListener("click", close);
 			var users_online = '<?php
                                 $users_online='';
                                 $result=$db->query("SELECT U.userID 

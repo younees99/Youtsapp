@@ -10,6 +10,7 @@
         <div class='box'>
             <h1>Error</h1>
             <?php
+                $href = "index.php";
                 switch ($_GET['error']) {
                     case 'user':
                         echo"<p style='color:white'>
@@ -24,6 +25,14 @@
                         echo"<p style='color:white'>
                                 File not uploaded!
                             </p>";
+                        $href='singup.php';
+                        break;
+                    
+                    case 'ext':
+                        echo"<p style='color:white'>
+                                Extention not supported
+                            </p>";
+                        $href='singup.php';
                         break;
 
                     case'pass':
@@ -37,19 +46,10 @@
                                 Connection failed!
                             </p>";
                         break;
-
-                    case 'db':
-                        echo"<p style='color:white'>";
-                        if(isset($_GET['tabella']))
-                            echo"Sql error: $_GET[tabella]:<br>";
-                        echo"      $_GET[erroredb]
-                            </p>";
-                        break;
                 }
-                echo"
-                        <a href='index.php' class='buttons_index' id='log_in'>
+                echo"<a href='$href' class='buttons_index' id='log_in'>
                         Try again!
-                        </a>";
+                    </a>";
             ?>
             
         </div>
