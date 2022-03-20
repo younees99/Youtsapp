@@ -5,7 +5,6 @@
     $search=$db->escapeString($search);
     $query="SELECT U.userID AS ID,
                     username AS tag,
-                    nickname AS name,
                     image_url,
                     is_online,
                     'user' AS result_type,
@@ -20,7 +19,6 @@
             UNION
             SELECT GU.groupID AS ID,
                     grouptag AS tag,
-                    group_name AS name,
                     image_url,
                     '0'AS is_online,
                     'group' AS result_type,
@@ -39,7 +37,6 @@
                 $result_type=$row['result_type'];
                 $ID=$row['ID'];
                 $tag=$row['tag'];
-                $name=$row['name'];
                 $image_url="src/profile_pictures/".$row['image_url'];
                 $type=$row['result_type'];
                 echo "<tr><td>
@@ -57,8 +54,7 @@
                                         echo"border: solid 2.5px #00ff33";
                                     echo"'>";
                                     echo"</div> 
-                                        <p class='chat_name'>$name</p>
-                                        <p class='log'>$name</p>
+                                        <p class='chat_name'>$tag</p>
                                     </div>
                                 </div>
                             </a>											

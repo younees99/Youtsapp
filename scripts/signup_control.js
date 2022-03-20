@@ -1,6 +1,5 @@
 function validaForm(form){       
     user=form["user"];
-    nickname=form["nickname"];
     email=form["email"];
     pass=form["pass"];
     conf_pass=form["conf_pass"];     
@@ -8,23 +7,15 @@ function validaForm(form){
 
     valid_user=checkUser(user);
 
-    valid_name=checkNickname(nome);
-
     valid_email=checkEmail(email);
     
     valid_pass=checkPassword(pass);
 
     equal_pass=checkEqualPass(pass,conf_pass);
 
-    valid_form=valid_user&&checkNickname&&valid_email&&valid_pass&&equal_pass;
+    valid_form=valid_user&&valid_email&&valid_pass&&equal_pass;
 
     return valid_form;
-}
-
-function checkNickname(nickname){
-    check=validNickame(nickname.value);      
-    colorBorders(check,nickname);
-    return check;
 }
 
 function checkUser(user){
@@ -36,11 +27,6 @@ function checkUser(user){
 function validUser(user) {
     var re= new RegExp("^[A-Za-z][A-Za-z0-9_-]{4,32}$");
     return re.test(user);
-}
-
-function validNickame(nome){
-    var re= new RegExp("^[A-Za-z][A-Za-z0-9_ ]{1,100}$");
-    return re.test(nome);
 }
 
 function checkEqualPass(pass,conf_pass){

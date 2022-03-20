@@ -11,7 +11,7 @@ function showResults(str) {
             if (this.readyState == 4 && this.status == 200) 
                 document.getElementById("tableResults").innerHTML = this.responseText;
             }
-        xmlhttp.open("GET", "db/search.php?name="+str+"&id=<?php echo $_SESSION['name']?>", true);
+        xmlhttp.open("GET", "db/search.php?name="+str+"&id="+session_id, true);
         xmlhttp.send();
     }
 }

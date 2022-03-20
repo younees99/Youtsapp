@@ -1,7 +1,6 @@
 <?php
     include "config.php";
     $user=$db->escapeString($_POST['user']);
-    $nickname=$db->escapeString($_POST['nickname']);
     $email=$db->escapeString($_POST['email']);
     $pass=$db->escapeString($_POST['pass']);
     $tmp_name=$_FILES['uploaded_image']['tmp_name'];
@@ -22,13 +21,12 @@
             echo $tmp_name;
             echo "<br>";
             echo dirname(__FILE__);
-            /*if(!move_uploaded_file($tmp_name,"..\\src\\profile_pictures\\$file_name"))
+            if(!move_uploaded_file($tmp_name,"..\\src\\profile_pictures\\$file_name"))
                 header("Location: ../error.php?error=file");
             
             else{
-                $query="INSERT INTO Users(username,nickname,password,email,image_url) VALUES
+                $query="INSERT INTO Users(username,password,email,image_url) VALUES
                     ('$user',
-                    '$nickname',
                     MD5('$pass'),
                     '$email',
                     '$file_name');
@@ -42,7 +40,7 @@
                             '$last_id'
                         );";
                 $db->query($query); 
-            }*/
+            }
         }
         else{
             header("Location: ../error.php?error=ext");
