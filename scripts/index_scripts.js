@@ -1,5 +1,3 @@
-document.getElementById("closeBtn").addEventListener("click", close);
-
 function showResults(str) {
     if (str.length == 0) {
         document.getElementById("tableResults").innerHTML = "";
@@ -9,12 +7,33 @@ function showResults(str) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) 
-                document.getElementById("tableResults").innerHTML = this.responseText;
+                loadSearch(JSON.parse(this.responseText))
             }
-        xmlhttp.open("GET", "db/search.php?name="+str+"&id="+session_id, true);
+        xmlhttp.open("GET", "db/ajax_requests.php?name="+str+"&id="+session_id+"choice='search'", true);
         xmlhttp.send();
     }
 }
+
+function requestConversation(chat_type,chatID){
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200)
+            loadConversation(JSON.parse(this.responseText))
+        }
+    xmlhttp.open("GET", "db/ajax_requests.php?chat_type="+chat_type+"&chatID="+chatID+"&id="+session_id+"choice='conv'", true);
+    xmlhttp.send();
+}
+
+function requestHeader(chat_type,chatID){
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) 
+            loadHeader(JSON.parse(this.responseText),chat_type)
+        }
+    xmlhttp.open("GET", "db/ajax_requests.php?chat_type="+chat_type+"&chatID="+chatID+"&id="+session_id+"choice='head'", true);
+    xmlhttp.send();
+}
+
 
 function openProfileMenu(){
     document.getElementById("overlay").style='display: block;';
@@ -48,12 +67,11 @@ function fileUploaded(input_file){
 }
 
 function showOnlineUsers() {
-        var array_users=users_online.split(",");
-        if(array_users){
-            for (let index = 0; index < array_users.length; index++) {
-                printLog(array_users[index],"online");
-                if(array_users[index]==to_user_id)
-                    printLastSeen(array_users[index],"online");
+        if(users_online){
+            for (let index = 0; index < users_online.length; index++) {
+                printLog(users_online[index],"online");
+                if(users_online[index]==to_user_id)
+                    printLastSeen(users_online[index],"online");
                 }	
         }
 }
@@ -148,7 +166,7 @@ function printMessage(json){
             
     message+="<div class='"+source+"'>";
     if(source=='left'&&json.destination_type=='destination_group')
-        message+="<p class='message_source'><b>"+json.from_nickname+"</b></p>";
+        message+="<p class='message_source'><b>"+json.from_username+"</b></p>";
     message+="<p class='message_value'>"+json.msg+"</p>";
     message+="<span class='time-"+source+"'>"+json.time+" </span>";
     message+=icon+"</div></td></tr>";
@@ -260,7 +278,7 @@ var button=document.getElementById("send_message");
 //Events sending a message
 if(inputmessage){
     inputmessage.addEventListener('keyup',function(e){
-        if(e.keyCode==13 && !e.shiftKey){
+        if(!e.shiftKey){
             sendMessage();
             updateScroll();
         }
@@ -302,15 +320,118 @@ if(inputmessage){
         );					
     });
 }
-const emojiPicker = new FgEmojiPicker({
-    trigger: ['button#send_emoji'],
-    removeOnSelection: false,
-    closeButton: true,
-    dir: 'fg-emoji-picker/',
-    position: ['top', 'left'],
-    preFetch: true,
-    insertInto: document.getElementById("input_message"),
-    emit(obj, triggerElement) {
-        console.log(obj, triggerElement);
+
+function printLastSeen(id,val_log){	
+    var log=document.getElementById("log");
+    if(log){
+        if(id==to_user_id){
+        if(val_log=="online")			
+            log.innerHTML="Online";
+        else
+            log.innerHTML=last_seen;		
+        }	
+    }				
+}
+
+function loadChats(jsonChats){
+    var print_chats = "";    
+    for(let chat of jsonChats){								
+        chatID = chat.chatID;
+        chat_type = chat.chat_type;	
+        chatName = chat.chatName;	
+        chatImage = "../src/profile_pictures/"+chat.chatImage;	
+        mess_text=chat.mess_text;	
+        date = new Date(chat.date_time)
+        date_time= date.getHours() + ":" + date.getMinutes();	
+
+        print_chats += "<li class='select_chat'>";
+        print_chats += "<button class='select_chat'";
+        print_chats += "onClick='requestConversation("+chat_type+","+chatID+")'>";
+        print_chats += "<div class='select_chat'>";
+        print_chats += "<div class='propic_from_list'";
+        if(chat_type=='user')
+            print_chats += "id='propic_from_list"+chatID+"'";
+        print_chats += "style='background-image:url(\""+chatImage+"\");'>";
+        print_chats += "</div> ";
+        print_chats += "<p class='chat_name'>"+chatName+"</p>";
+        print_chats += "<span class='mess_preview'>"+mess_text+"</span>";
+        print_chats += "<span class='time_preview'>"+date_time+"</span>";
+        print_chats += "</div></button></li>";
     }
-});
+    document.getElementById("chats").innerHTML = print_chats;
+}
+
+
+function loadConversation(jsonMessages){
+    var print_conversation = "";
+    for(let message of jsonMessages){
+
+    }
+
+    document.getElementById("output").innerHTML = this.responseText;
+}
+
+function loadHeader(json,chat_type){
+    var print_conversation = "";
+    if(chat_type == "user"){
+        username = json.username;
+        image_url = "../src/profile_pictures/" + json.image_url;
+        is_typing = !!json.is_typing;
+        is_online = json.is_online;
+        last_seen = json.last_seen;
+        
+        print_conversation += '<button onClick="exitChat()" id="backButton">';
+        print_conversation += '<i class="fa fa-chevron-left fa-2x" aria-hidden="true" ';
+        print_conversation += 'style="color: white;padding-top: 10px;"></i></button>';
+        print_conversation += "<div id='propic' style='background-image:url("+image_url;
+        print_conversation += ");'></div><p id='username'>"+username+"</p><p id='log'>";
+        if(is_typing)
+            print_conversation += 'Is typing...';
+        else
+            print_conversation += last_seen;
+        print_conversation += '</p>';
+    }
+    else{
+        group_name = json.username;
+        image_url = "../src/profile_pictures/" + json.image_url;
+        online_users = json.online_users;
+        
+        print_conversation += '<button onClick="exitChat()" id="backButton">';
+        print_conversation += '<i class="fa fa-chevron-left fa-2x" aria-hidden="true" ';
+        print_conversation += 'style="color: white;padding-top: 10px;"></i></button>';
+        print_conversation += "<div id='propic' style='background-image:url("+image_url;
+        print_conversation += ");'></div><p id='username'>"+username+"</p><p id='log'>";
+        print_conversation += 'Online users: <span id="count_online">'+online_users;
+        print_conversation += '</span></p>';
+    }
+
+    document.getElementById("header_chat").innerHTML = this.responseText;
+}
+
+//function printLastSeen(dateTime){}
+         
+function loadSearch(jsonChats) {
+    var print_chats = "";    
+    for(let chat of jsonChats){								
+        chatID = chat.chatID;
+        chat_type = chat.chat_type;	
+        chatName = chat.chatName;	
+        chatImage = "../src/profile_pictures/"+chat.chatImage;	
+        mess_text=chat.mess_text;	
+        date = new Date(chat.date_time)
+        date_time= date.getHours() + ":" + date.getMinutes();	
+
+        print_chats += "<li class='select_chat'>";
+        print_chats += "<button class='select_chat'";
+        print_chats += "onClick='requestConversation("+chat_type+","+chatID+"); close();'>";
+        print_chats += "<div class='select_chat'>";
+        print_chats += "<div class='propic_from_list' ";
+        print_chats += "style='background-image:url(\""+chatImage+"\");'>";
+        print_chats += "</div> ";
+        print_chats += "<p class='chat_name'>"+chatName+"</p>";
+        print_chats += "</div></button></li>";
+    }
+    if(jsonChats.length==0)
+        print_chats = 'No group or user found';
+    document.getElementById("tableResults").innerHTML = print_chats;
+}

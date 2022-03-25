@@ -100,17 +100,17 @@
 					$time= date('H:i', strtotime("now"));
 					$destination_type= $data->destination_type;						
 					
-					$query="SELECT image_url,nickname FROM Users WHERE userID='$from_id';";			
+					$query="SELECT image_url,username FROM Users WHERE userID='$from_id';";			
 					$result=$this->db->query($query);
 					$row=$result->fetchArray();
 					$image_url=$row['image_url'];
-					$from_nickname=$row['nickname'];			
+					$from_username=$row['username'];			
 					$json_message=json_encode(
 										array(
 											"type"=>$type,
 											"msg"=>$chat_msg,
 											"from_id"=>$from_id,
-											"from_nickname"=>$from_nickname,
+											"from_username"=>$from_username,
 											"to_id"=>$to_id,
 											"destination_type"=>$destination_type,
 											"image_url"=>$image_url,
@@ -298,7 +298,7 @@
 						foreach($result as $row){
 							$userID=$row['userID'];
 							if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
-								$query="SELECT nickname FROM Users WHERE userID='$userID';";
+								$query="SELECT username FROM Users WHERE userID='$userID';";
 								$result=$this->db->query($query)->fetchAll();
 								$this->variableConn(
 											array_search(
@@ -350,7 +350,7 @@
 						foreach($result as $row){
 							$userID=$row['userID'];
 							if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
-								$query="SELECT nickname FROM Users WHERE userID='$userID';";
+								$query="SELECT username FROM Users WHERE userID='$userID';";
 								$result=$this->db->query($query)->fetchAll();
 								$this->variableConn(
 											array_search(

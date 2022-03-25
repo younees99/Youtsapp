@@ -28,7 +28,7 @@
     $query="CREATE TABLE IF NOT EXISTS `Messages`( 
         messageID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
         date_time TIMESTAMP NOT NULL,
-        mess_text VARCHAR(255) NOT NULL,
+        mess_text TEXT CHARSET utf8mb NOT NULL,
         source_user INT(255),
         destination_user INT(255),
         destination_group INT(255),
@@ -41,9 +41,6 @@
 
     //Adding charset for emojis
     $query="ALTER TABLE `Messages` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;";
-    $db->query($query);
-    
-    $query="ALTER TABLE `Messages` MODIFY mess_text TEXT CHARSET utf8mb4;";
     $db->query($query);
 
 

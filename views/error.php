@@ -47,7 +47,7 @@
                             </p>";
                         break;
                 }
-                echo"<a href='$href' class='buttons_index' id='log_in'>
+                echo"<a href='../$href' class='buttons_index' id='log_in'>
                         Try again!
                     </a>";
             ?>

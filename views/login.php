@@ -14,7 +14,7 @@
     </head>
     <body>
         <p id='youtsapp'>YOUTSAPP</p>
-        <form class='box' action='db/login.php' method='POST'>
+        <form class='box' action='../db/login.php' method='POST'>
             <h1>Login</h1>
             <input type='text' name='user' placeholder='Username or email' maxlength="32">
             <input type='password' name='pass' placeholder='Password' maxlength="16">
