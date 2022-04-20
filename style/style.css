@@ -92,10 +92,10 @@ a{
 
 .output{
     width: 60vw;
-    top: 59px;
+    top: 70px;
     bottom: 2.5em;
     position:fixed;
-    overflow-y:scroll;
+    overflow-y:hidden;
     overflow-x:hidden;
 }
 
@@ -118,7 +118,9 @@ h1{
     color:white;
 }
 
-
+.class, #messages{
+  display: none;
+}
 
 #input_message{  
     width:100%;
@@ -179,6 +181,13 @@ h1{
   overflow-y: auto;
   width: 40vw;
   top: 28px;
+  padding: 0;
+  margin: 0;
+}
+
+.chat{
+  display: table;
+  width: 60vw;
 }
 
 .chat_name{ 
@@ -227,8 +236,9 @@ h1{
   margin:0;
 }
 
-
-
+li{
+  margin: 10px 0;
+}
 
 .right {
   position: relative;
@@ -297,17 +307,7 @@ h1{
   text-decoration: none;
 }
 
-button.select_chat{  
-    border:none;
-    background-color: #333333;
-    padding:0;
-}
-
-a.select_chat{
-  text-decoration: none;
-}
-
-div.select_chat{
+button.select_chat{
     border:0;
     background-color:#333333;
     padding: 5px 0px 5px 0px;
@@ -353,11 +353,17 @@ td.select_chat :hover{
   float: left;
   border: solid 2.5px #000000;
 }
-
+#profile_image{
+  border-color: #191919;
+}
 .time_preview{
   font-size: 12px;
   color: #c5c4c4;
   float: right;
+}
+
+td#profile_table{
+  text-align: center;
 }
 
 .mess_preview{
@@ -470,6 +476,10 @@ ul {
   display: none;
 }
 
+tr#messages{
+  display: table;
+}
+
 .overlay_menu{
   width: 300px;
   padding: 14px 10px;
@@ -509,11 +519,14 @@ ul {
   position: absolute;
 }
 
-#left_main_div{
-  width:20%;
-  float: left;
+.button__badge {
+  background-color: #fa3e3e;
+  border-radius: 50%;
+  color: white;
+ 
+  padding: 1px 3px;
+  font-size: 10px;
 }
-
 
 @media screen  and (max-width: 704px) {
   .right_main_div{

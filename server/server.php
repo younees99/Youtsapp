@@ -68,11 +68,10 @@
 
 		//Method to send a Friend request
 		public function sendRequest($last_id,$from_id,$to_id,$json_message){
-			/*
 			$query="INSERT INTO Friends (userID,friendID,last_message) VALUES(
-						'$last_id',
 						'$from_id',
-						'$to_id'
+						'$to_id',
+						'$last_id'
 					);";			
 			$this->db->query($query);
 			if(in_array($to_id, $this->users_ids)){
@@ -84,8 +83,7 @@
 							)->send(
 								$json_message						
 						);	
-				}	
-			}*/
+				}		
 		}
 
 		public function onMessage(ConnectionInterface $from,  $data) {
@@ -95,7 +93,7 @@
 			switch ($type) {
 				case 'chat':
 					$from_id = $data->from_id;
-					$chat_msg = $this->db->escapeString($data->chat_msg);
+					$mess_text = $this->db->escapeString($data->mess_text);
 					$to_id= $data->to_id;
 					$time= date('H:i', strtotime("now"));
 					$destination_type= $data->destination_type;						
@@ -108,10 +106,10 @@
 					$json_message=json_encode(
 										array(
 											"type"=>$type,
-											"msg"=>$chat_msg,
+											"mess_text"=>$mess_text,
 											"from_id"=>$from_id,
-											"from_username"=>$from_username,
 											"to_id"=>$to_id,
+											"from_username"=>$from_username,
 											"destination_type"=>$destination_type,
 											"image_url"=>$image_url,
 											"time"=>$time
@@ -119,39 +117,12 @@
 									);
 					
 
-					$query="INSERT INTO Messages(mess_text,source_user,$destination_type) 
-								VALUES ('$chat_msg','$from_id','$to_id');";
+					$query="INSERT INTO Messages(mess_text,source_user,destination_$destination_type) 
+								VALUES ('$mess_text','$from_id','$to_id');";
 					$this->db->query($query);					
 					$last_id=$this->db->getInsertId();
 
-					if($destination_type=='destination_user'){
-						$query="SELECT COUNT(messageID) 
-										AS messages_count
-									FROM Messages 
-								WHERE 
-									DATE(date_time)=CURDATE() 
-									AND 
-										(
-											(source_user='$from_id' 
-												AND 
-											destination_user='$to_id')
-										OR
-											(source_user='$to_id' 
-												AND 
-											destination_user='$from_id')
-										);";
-						$result=$this->db->query($query);				
-						$count=$result->fetchArray();
-						if($count['messages_count']=='1'){
-							$json_date=json_encode(			
-										array(
-											"type"=>"date",
-											"date"=>date("F d")
-										)
-									);
-										
-						}						
-												
+					if($destination_type=='destination_user'){				
 						$query="UPDATE Friends 
 									SET last_message='$last_id' 
 										WHERE 
@@ -184,24 +155,7 @@
 							}				
 					}
 
-					else{ 
-						$query="SELECT COUNT(messageID) 
-										AS messages_count 
-									FROM Messages 
-								WHERE 
-									DATE(date_time)=CURDATE() 
-									AND destination_group='$to_id';";
-						$result=$this->db->query($query);						
-						$count=$result->fetchArray();
-						if($count['messages_count']=='1'){
-							$json_date=json_encode(
-											array(
-												"type"=>"date",
-												"date"=>date('F d')
-											)
-										);
-						}	
-						
+					else{ 						
 						$query="UPDATE Groups 
 									SET last_message='$last_id' 
 										WHERE groupID='$to_id';";			
@@ -210,18 +164,6 @@
 						$result=$this->db->query($query)->fetchAll();
 						foreach($result as $row){
 							$userID=$row['userID'];
-							if(isset($json_date)){
-								if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
-									$this->variableConn(
-												array_search(
-													$userID,
-													$this->users_ids
-													)
-												)->send(
-													$json_date						
-											);	
-								}	
-							}
 							if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
 								$this->variableConn(
 											array_search(
@@ -284,7 +226,9 @@
 											json_encode(
 												array(
 													"type"=>$type,
-													"from_id"=>$from_id
+													"from_id"=>$from_id,
+													"to_id"=>$to_id,
+													"destination_type"=>$destination_type
 												)
 										)							
 									);	
@@ -310,7 +254,8 @@
 													array(
 														"type"=>$type,
 														"from_id"=>$to_id,
-														"source"=>$source
+														"to_id"=>$to_id,
+														"destination_type"=>$destination_type
 													)
 											)						
 										);	
@@ -336,7 +281,8 @@
 											json_encode(
 												array(
 													"type"=>$type,
-													"from_id"=>$from_id
+													"from_id"=>$from_id,
+													"destination_type"=>$destination_type
 												)
 										)							
 									);	
@@ -361,8 +307,8 @@
 												json_encode(
 													array(
 														"type"=>$type,
-														"from_id"=>$to_id,
-														"source"=>$source
+														"from_id"=>$from_id,
+														"destination_type"=>$destination_type
 													)
 											)						
 										);	

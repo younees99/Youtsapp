@@ -32,7 +32,7 @@
         source_user INT(255),
         destination_user INT(255),
         destination_group INT(255),
-        mess_status ENUM('sent','recieved','read') NOT NULL,
+        is_read tinyint NOT NULL DEFAULT 0,
         FOREIGN KEY (source_user) REFERENCES Users(userID),  
         FOREIGN KEY (destination_user) REFERENCES Users(userID),
         FOREIGN KEY (destination_group) REFERENCES Groups(groupID)

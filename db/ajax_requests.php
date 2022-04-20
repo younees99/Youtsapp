@@ -1,11 +1,15 @@
 <?php
+	session_start();
     include 'config.php';
+    $id = $_SESSION['name'];
     $choice = $_GET['choice'];
+    $choice=$db->escapeString($choice);
+    $query = '';
     switch ($choice) {
         case 'head':
             $chatID = $_GET['chatID'];
+            $chatID=$db->escapeString($chatID);
             $chat_type = $_GET['chat_type'];
-            $id = $_GET['id'];
             if($chat_type == "user"){									
                 $query="SELECT 
                             username,image_url,is_typing,is_online,last_seen
@@ -20,9 +24,16 @@
                             AND
                                 U.userID='$chatID';";
             }
-            elseif($chat_type == "group"){
+            elseif($chat_type="group"){
                 $query="SELECT 
-                            group_name,image_url
+                            group_name,image_url, (
+                                    SELECT COUNT(*) as online_users 
+                                        FROM Users 
+                                        WHERE 
+                                            is_online='1' 
+                                        AND
+                                            userID!='$id'
+                            ) AS online_users
                             FROM 
                                 Groups G
                                 JOIN 
@@ -30,53 +41,14 @@
                                         ON
                                             GU.groupID=G.groupID
                             WHERE 
-                                GU.userID='id'
+                                GU.userID='$id'
                             AND
-                                G.groupID='$chatID'
-                    UNION
-                    SELECT 
-                            COUNT(*) as online_users 
-                            FROM Users 
-                            WHERE 
-                                is_online='1' 
-                            AND
-                                userID!='$id'; ";
-            }            
-            break;
-
-        case 'conv':
-            $chatID = $_GET['chatID'];
-            $chat_type = $_GET['chat_type'];
-            $id = $_GET['id'];
-            if($chat_type=='user'){
-                $query="SELECT * 
-                            FROM Messages M
-                                JOIN
-                                    Users U 
-                                    ON
-                                        U.userID=M.source_user
-                            WHERE 
-                                (source_user='$id' OR destination_user='$id') 
-                                AND 
-                                (source_user='$chatID' OR destination_user='$chatID') 
-                        ORDER BY date_time;";
-            }
-            elseif($chat_type=='group'){
-                $query="SELECT * 
-                            FROM Messages M
-                                JOIN
-                                    Users U 
-                                    ON
-                                        U.userID=M.source_user
-                            WHERE 
-                                destination_group='$chatID'
-                        ORDER BY date_time;";
+                                G.groupID='$chatID';";
             }            
             break;
 
         case 'search':
             $search=$_GET['name'];
-            $id=$_GET['id'];
             $search=$db->escapeString($search);
             $query="SELECT U.userID AS ID,
                             username AS tag,
