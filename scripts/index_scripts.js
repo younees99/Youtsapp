@@ -64,18 +64,23 @@ function loadChat(jsonChat){
 
 function printMessage(message){
     console.log(message);
-    mess_text= message.mess_text.replace(/(\r\n|\r|\n)/g, '<br>');
+    mess_text= message.mess_text.replace("\\n","\n");
     chat_type = message.destination_type;
     from_id = message.from_id;
     to_id = message.to_id;
     time = message.time;
+    messages_id = message.messages_id;
     print_message = '';
+    destination = to_id;
 
     if(from_id == session_id){
-        print_message += "<tr><td><div class='right'> <p class='message_value'>"+mess_text+"</p>";
-        print_message += "<span class='time-right'>"+time+"</span></div></td></tr>";
-    }    
+        print_message += "<tr><td><div id='message_"+messages_id+"' class='right'> <p class='message_value'>"+mess_text+"</p>";
+        print_message += "<span class='time-right'>"+time+"</span>";           
+        print_message += '<i class="fa fa-circle-o" aria-hidden="true"></i></div></td></tr>';     
+    } 
+
     else{
+        destination = from_id;
         print_message += "<tr><td>";
         if(chat_type == 'group'){
             user = message.from_id;
@@ -85,13 +90,15 @@ function printMessage(message){
             print_message += "style='background-image:url(" +image_url+");";
             print_message += "border:2.5px solid #333333'></div>";
         }
-        print_message += "<div class='left'>";
+        print_message += "<div id='message_"+messages_id+"' class='left'>";
         if(chat_type == 'group')
             print_message += "<p class='message_source'><b>"+username+"</b></p>";
         print_message += "<p class='message_value'>"+mess_text+"</p>";
-        print_message += "<span class='time-right'>"+time+"</span></div></td></tr>";
+        print_message += "<span class='time-right'>"+time+"</span>";
+        print_message += '</div></td></tr>';
     }
-    document.getElementById("chat"+chat_type+"_"+to_id).innerHTML+=print_message;
+
+    document.getElementById("chat"+chat_type+"_"+destination).innerHTML+=print_message;
 }
 
 function showConversation(chat_type,chatID){
@@ -115,12 +122,9 @@ function showConversation(chat_type,chatID){
     to_id = chatID;
     destination_type = chat_type;
     var intFrameWidth = window.innerWidth;
-    if(intFrameWidth<704){
-        if(document.getElementById("left_main_div") != null)
-            document.getElementById("left_main_div").style.display = 'none';
+    if(intFrameWidth<704)
         if(document.getElementById("right_main_div") != null)
-            document.getElementById("right_main_div").style.display = 'block';
-    }    
+            document.getElementById("right_main_div").style.display = 'block';   
     updateScroll();
 }
 
@@ -140,14 +144,16 @@ function showHeader(jsonHeader,chat_type){
             print_header += "<div id='propic' style='background-image:url("+image_url+");";
             if(is_online)
                 print_header += "border:2.5px solid #00ff33";
-            print_header += "'></div><p id='username'>"+username+"</p><p id='log'>";
+            print_header += "'></div>";
+            print_header += "<table id='header_table'><tr><td>";
+            print_header += "<p id='username'>"+username+"</p></td></tr><tr><td><p id='log'>";
             if(is_typing)
                 print_header += 'Is typing...';
             else if(is_online)
                 print_header += "Online";
             else
                 print_header += last_seen;
-            print_header += '</p>';
+            print_header += '</p></td></tr></table>';
         }
         else{
             group_name = json.group_name;
@@ -158,9 +164,11 @@ function showHeader(jsonHeader,chat_type){
             print_header += '<i class="fa fa-chevron-left fa-2x" aria-hidden="true" ';
             print_header += 'style="color: white;padding-top: 10px;"></i></button>';
             print_header += "<div id='propic' style='background-image:url("+image_url;
-            print_header += ");'></div><p id='username'>"+group_name+"</p><p id='log'>";
+            print_header += ");'></div>";
+            print_header += "<table id='header_table'><tr><td><p id='username'>"+group_name+"</p></td></tr>";
+            print_header += "<tr><td><p id='log'>";
             print_header += 'Online users: <span id="count_online">'+online_users;
-            print_header += '</span></p>';
+            print_header += '</span></p></td></tr></table>';
         }
     }
     if(document.getElementById("header_chat") != null){
@@ -264,8 +272,7 @@ function exitChat(){
 }
 
 function closeOverlay(){
-    if(document.getElementById("overlay") != null)
-        document.getElementById("overlay").style='display: none;';
+    document.getElementById("overlay").style='display: none;';
 }
 
 function fileUploaded(input_file){
@@ -314,7 +321,9 @@ function printLog(id,online) {
         }
     }
 
-}			
+}	
+
+
 
 function incrementPrintCountOnline(){
     var count= document.getElementById("count_online");
@@ -340,7 +349,13 @@ function updateScroll(){
     }
 }
 
-
+function printTyping(id,type,is_typing){
+    if(document.getElementById("chat_"+type+"_"+id) != null){
+        if(is_typing)
+            document.getElementById("chat_"+type+"_"+id)
+    }
+        
+}
 
 function printPreview(message){
     var mess_text = message.mess_text;
@@ -398,39 +413,44 @@ websocket_server.onmessage = function(e){
     switch(json.type){
         case 'chat':
             printMessage(json);
-            //printPreview(json);
+            printPreview(json);
             updateScroll();
             break;
         
         case 'connected':
             var id=json.user_id;	
-            printLog(id,true);
-            printLastSeen(id,true);
-            incrementPrintCountOnline();
+            if(destination_type == 'user'){
+                printLog(id,true);
+                printLastSeen(id,true);
+            }
+            else            
+                incrementPrintCountOnline();
             break;
         
         case 'disconnected':
-            var id=json.user_id;
-            printLog(id,false);
-            printLastSeen(id,false);
-            decrementPrintCountOnline();
+            var id = json.user_id;
+            if(destination_type == 'user'){
+                printLog(id,false);
+                printLastSeen(id,false);
+            }
+            else
+                decrementPrintCountOnline();
             break;
         
         case 'typing': 
-            if(json.from_id == to_id && json.destination_type == destination_type){
-                log.innerHTML='Online';
-                console.log("c");           
-            }
+            var id = json.from_id;
+            var type = json.destination_type;
+            if(id == to_id && type == destination_type && destination_type == 'user')
+                log.innerHTML='is writinig..';       
+            printTyping(id,type,true);
             break;
         
         case 'not_typing':
-            if(json.from_id== to_id && json.destination_type == destination_type)
-                log.innerHTML='Online';
-            break;
-        
-        case 'date':
-            var date="<td><tr><p class='print_date'>"+json.date+"</p></td></tr>";														
-            document.getElementById("messages").innerHTML+=date;
+            var id = json.from_id;
+            var type = json.destination_type;
+            if(id== to_id && type == destination_type && destination_type == 'user')
+                log.innerHTML='Online';   
+            printTyping(id,type,false);
             break;
     }
 }

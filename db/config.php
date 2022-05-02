@@ -9,7 +9,7 @@
 
     // Creating a database
     // The database is called youtsapp
-    $sql = "CREATE DATABASE youtsapp";
+    $sql = "CREATE DATABASE IF NOT EXISTS youtsapp;";
 	mysqli_query($link,$sql);
     
     include 'db.php';

@@ -234,6 +234,17 @@ h1{
 
 .message_value{  
   margin:0;
+  white-space: pre-wrap;
+}
+
+.chat_table{
+  table-layout: fixed;
+  width: calc(100% - 55px);
+}
+
+#header_table{
+  table-layout: fixed;
+  width: calc(100% - 50px);
 }
 
 li{
@@ -446,9 +457,14 @@ ul {
   list-style-type: none;
 }
 
+#username,#log{
+  margin: 0;
+  text-align: center;
+}
+
 #propic{  
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   background-size: cover;
   object-fit:cover;
   border-radius:50%;
@@ -520,12 +536,12 @@ tr#messages{
 }
 
 .button__badge {
-  background-color: #fa3e3e;
+  background-color: #085af2;
   border-radius: 50%;
   color: white;
  
-  padding: 1px 3px;
-  font-size: 10px;
+  padding: 1px 5px;
+  font-size: 12px;
 }
 
 @media screen  and (max-width: 704px) {
@@ -575,6 +591,20 @@ tr#messages{
   
   #backButton{
     display:block;
+  }
+
+  .chat{
+    width: 100vw;
+  }
+  
+  #header_table{
+    width: calc(100% - 81.05px);
+  }
+}
+
+@media screen  and (min-width: 705px) {
+  #left_main_div{
+    display: block;
   }
 }
 

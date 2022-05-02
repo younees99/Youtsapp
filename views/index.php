@@ -69,35 +69,36 @@
 						ON GU.groupID=G.groupID 
 					LEFT JOIN Messages M
 						ON G.last_message=M.messageID
-				WHERE U.userID='$_SESSION[name]'
-			ORDER BY date_time DESC;";			
+				WHERE U.userID='$_SESSION[name]';";			
 	$result = $db->query($query);
 	$chats = $result->fetchAll();
 
 	//Query to fetch all messages from all chats of the user	
 	function queryConversation($chat_type,$chatID,$db,$id){
 		if($chat_type=="user"){
-			$query="SELECT * 
-						FROM Messages M
-							JOIN
-								Users U 
-								ON
-									U.userID=M.source_user
-						WHERE 
-							(source_user='$id' OR destination_user='$id') 
-							AND 
-							(source_user='$chatID' OR destination_user='$chatID') 
+			$query="SELECT *,
+						ROW_NUMBER() OVER(ORDER BY date_time ASC) AS message_number
+							FROM Messages M
+								JOIN
+									Users U 
+									ON
+										U.userID=M.source_user
+							WHERE 
+								(source_user='$id' OR destination_user='$id') 
+								AND 
+								(source_user='$chatID' OR destination_user='$chatID') 
 					ORDER BY date_time;";
 		}
 		elseif($chat_type=="group"){
-			$query="SELECT * 
-						FROM Messages M
-							JOIN
-								Users U 
-								ON
-									U.userID=M.source_user
-						WHERE 
-							destination_group='$chatID'
+			$query="SELECT * ,
+						ROW_NUMBER() OVER(ORDER BY date_time ASC) AS message_number
+							FROM Messages M
+								JOIN
+									Users U 
+									ON
+										U.userID=M.source_user
+							WHERE 
+								destination_group='$chatID'
 					ORDER BY date_time;";
 		}
 		$result = $db->query($query);
@@ -115,7 +116,7 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="../style/style.css?version=555">
+	    <link rel="stylesheet" type="text/css" href="../style/style.css?version=710">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
 		<script>
@@ -178,20 +179,42 @@
 									$border = "#00ff33";
 								?>
 								border:2.5px solid <?=$border;?>'></div>
-								<p class='chat_name'><?=$chatName;?></p>
-								<span class='mess_preview'  id='mess_preview_<?=$chat_type;?>_<?=$chatID;?>'><?=$mess_text;?></span>
-								<span class="button__badge" id='unread_mess_<?=$chat_type;?>_<?=$chatID;?>'><?=$count_unread;?></span>
-								<span class='time_preview'  id='time_preview_<?=$chat_type;?>_<?=$chatID;?>'><?php
-									$print_time = '';
-									if($date == date("d/m",$today))
-										$print_time = $time;
-									elseif($year == date("Y",$today))
-										$print_time = $date;
-									else
-										$print_time = $full_date;
-									echo $print_time;
-								?></span>
-								
+								<table class='chat_table'>
+									<tr>
+										<td>
+										<p class='chat_name'><?=$chatName;?></p>
+										</td>
+										<td width='38px'>
+											<span class='time_preview'  id='time_preview_<?=$chat_type;?>_<?=$chatID;?>'>
+											<?php
+												$print_time = '';
+												if($date == date("d/m",$today))
+													$print_time = $time;
+												elseif($year == date("Y",$today))
+													$print_time = $date;
+												else
+													$print_time = $full_date;
+												echo $print_time;
+											?></span>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<span class='mess_preview'  id='mess_preview_<?=$chat_type;?>_<?=$chatID;?>'><?=$mess_text;?></span>
+										</td>
+										<td>
+										<span class="button__badge" id='unread_mess_<?=$chat_type;?>_<?=$chatID;?>'
+										<?php
+											if($count_unread == 0):
+										?>
+											style='display: none;'
+										<?php
+											endif;
+										?>
+										><?=$count_unread;?></span>
+										</td>
+									</tr>
+								</table>									
 							</button>
 						</li>
 					<?php		
@@ -227,7 +250,9 @@
 										$date = date("d/m",$date_time);
 										$full_date = date("d/m/Y",$date_time);
 										$source_user = $message['source_user'];	
+										$message_number = $message['message_number'];	
 										$mess_text = $message['mess_text'];
+										$is_read = $message['is_read'];
 
 									?>
 									<?php if($month_day!=date("F d",$date_time)):
@@ -238,32 +263,46 @@
 									$mess_text=htmlspecialchars(str_replace("/n","<br>",$mess_text));
 									if($source_user==$_SESSION['name']):?>
 										<tr><td>
-											<div class='right'>
+											<div id='message_<?= $message_number;?>' class='right'>
 													<p class='message_value'><?=$mess_text;?></p> 
 													<span class='time-right'><?=$time?></span>
+													<?php
+														if($is_read):
+													?>
+														<i class="fa fa-check-circle-o" aria-hidden="true"></i>
+													<?php
+														else:
+													?>
+														<i class="fa fa-circle-o" aria-hidden="true"></i>
+													<?php
+														endif;
+													?>
 											</div>
 										</td></tr>
 									<?php else: ?>
 										<tr><td>
-											<?php if($chat_type=='group'):
+											<?php
 												$username=$message["username"];
 												$image_url="../src/profile_pictures/".$message["image_url"];
 												$is_online=$message['is_online'];
 												$border="#333333";
-												if($is_online) $border="#00ff33";
+												if($is_online) 
+													$border="#00ff33";
+												if($chat_type=='group'):
 											?>													
 											<div class='propic_from_chat propic_from_chat<?=$chatID?>'
 												style='background-image:url(<?=$image_url?>);border:2.5px solid <?= $border?>'>
 											</div>
 											<?php endif;?>	
-											<div class='left'>
-											<?php if($chat_type=='group'):?>
-												<p class='message_source'><b><?=$username?></b></p>
+											<div id='message_<?= $message_number;?>' class='left'>	
+												<?php if($chat_type=='group'): ?>						
+													<p class='message_source'><b><?=$username?></b></p>
+												<?php endif; ?>
 												<p class='message_value'><?=$mess_text?></p> 
 												<span class='time-left'><?=$time?></span>
 											</div>
 										</td></tr>
-											<?php endif;
+											<?php
 										endif;
 									?>
 								<?php endforeach; ?>
@@ -363,7 +402,21 @@
 					
             </div>  
 			
-		<script src="../scripts/index_scripts.js?t=444"></script>
+		<script src="../scripts/index_scripts.js?t=734"></script>
+		<!--<script src="../fg-emoji-picker/fgEmojiPicker.js"></script>
+		<script>
+			const emojiPicker = new FgEmojiPicker({
+				trigger: ['send_emoji'],
+				removeOnSelection: false,
+				closeButton: true,
+				position: ['top', 'right'],
+				preFetch: true,
+				insertInto: document.querySelector('input_message'),
+				emit(obj, triggerElement) {
+					console.log(obj, triggerElement);
+				}
+			});
+		</script>-->
 		<?php
 			$db->close();
 		?>

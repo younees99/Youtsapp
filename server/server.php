@@ -94,15 +94,21 @@
 				case 'chat':
 					$from_id = $data->from_id;
 					$mess_text = $this->db->escapeString($data->mess_text);
-					$to_id= $data->to_id;
-					$time= date('H:i', strtotime("now"));
-					$destination_type= $data->destination_type;						
+					$to_id = $data->to_id;
+					$time = date('H:i', strtotime("now"));
+					$destination_type = $data->destination_type;						
 					
-					$query="SELECT image_url,username FROM Users WHERE userID='$from_id';";			
-					$result=$this->db->query($query);
-					$row=$result->fetchArray();
-					$image_url=$row['image_url'];
-					$from_username=$row['username'];			
+					$query = "SELECT image_url,username FROM Users WHERE userID='$from_id';";			
+					$result = $this->db->query($query);
+					$row = $result->fetchArray();
+					$image_url = $row['image_url'];
+					$from_username = $row['username'];										
+
+					$query="INSERT INTO Messages(mess_text,source_user,destination_$destination_type) 
+								VALUES ('$mess_text','$from_id','$to_id');";
+					$this->db->query($query);					
+					$last_id=$this->db->getInsertId();
+
 					$json_message=json_encode(
 										array(
 											"type"=>$type,
@@ -112,17 +118,13 @@
 											"from_username"=>$from_username,
 											"destination_type"=>$destination_type,
 											"image_url"=>$image_url,
-											"time"=>$time
+											"time"=>$time,
+											"messages_id"=>$last_id
 										)
 									);
-					
 
-					$query="INSERT INTO Messages(mess_text,source_user,destination_$destination_type) 
-								VALUES ('$mess_text','$from_id','$to_id');";
-					$this->db->query($query);					
-					$last_id=$this->db->getInsertId();
 
-					if($destination_type=='destination_user'){				
+					if($destination_type=='user'){				
 						$query="UPDATE Friends 
 									SET last_message='$last_id' 
 										WHERE 
@@ -213,7 +215,7 @@
 					$from_id = $data->from_id;
 					$to_id= $data->to_id;
 					$destination_type= $data->destination_type;
-					if($destination_type=='destination_user'){
+					if($destination_type=='user'){
 						$query="UPDATE Friends SET is_typing='1' WHERE userID='$from_id' AND friendID='$to_id';";
 						$this->db->query($query);	
 						if(in_array($to_id, $this->users_ids)){
@@ -268,7 +270,7 @@
 					$from_id = $data->from_id;
 					$to_id= $data->to_id;
 					$destination_type= $data->destination_type;
-					if($destination_type=='destination_user'){
+					if($destination_type=='user'){
 						$query="UPDATE Friends SET is_typing='0' WHERE userID='$from_id' AND friendID='$to_id';";
 						$this->db->query($query);	
 						if(in_array($to_id, $this->users_ids)){
