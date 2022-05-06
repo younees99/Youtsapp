@@ -17,35 +17,37 @@
 	date_default_timezone_set('Europe/Berlin');
 
 	//Query to fetch the chat list for the user's friends and groups
-	$query="SELECT	friendID AS chatID,
-					FU.username AS chatName,
-					FU.image_url AS chatImage,
-					mess_text,
-					date_time,
-					FU.is_online,
-					'user' AS chat_type,
-					(SELECT COUNT(*) 
-						FROM Messages M
-							JOIN
-								Users U 
-								ON
-									U.userID=M.source_user
-						WHERE 
-							(source_user='$_SESSION[name]' OR destination_user='$_SESSION[name]') 
-							AND 
-							(source_user=chatID OR destination_user=chatID)
-							AND is_read=0)
-					AS count_unread
-				FROM Friends F 
-					JOIN Users U
-						ON F.userID=U.userID
-					LEFT JOIN Users FU
-						ON FU.userID=friendID
-					LEFT JOIN Messages M
-						ON F.last_message=M.messageID
-				WHERE U.userID='$_SESSION[name]'
-			UNION
-			SELECT	G.groupID AS chatID,
+	$query="SELECT *
+				FROM(
+				SELECT	friendID AS chatID,
+						FU.username AS chatName,
+						FU.image_url AS chatImage,
+						mess_text,
+						date_time,
+						FU.is_online,
+						'user' AS chat_type,
+						(SELECT COUNT(*) 
+							FROM Messages M
+								JOIN
+									Users U 
+									ON
+										U.userID=M.source_user
+							WHERE 
+								(source_user='$_SESSION[name]' OR destination_user='$_SESSION[name]') 
+								AND 
+								(source_user=chatID OR destination_user=chatID)
+								AND is_read=0)
+						AS count_unread
+					FROM Friends F 
+						JOIN Users U
+							ON F.userID=U.userID
+						LEFT JOIN Users FU
+							ON FU.userID=friendID
+						LEFT JOIN Messages M
+							ON F.last_message=M.messageID
+					WHERE U.userID='$_SESSION[name]'
+				UNION
+				SELECT	G.groupID AS chatID,
 					group_name AS chatName,
 					G.image_url AS chatImage,
 					mess_text,
@@ -69,7 +71,9 @@
 						ON GU.groupID=G.groupID 
 					LEFT JOIN Messages M
 						ON G.last_message=M.messageID
-				WHERE U.userID='$_SESSION[name]';";			
+				WHERE U.userID='$_SESSION[name]'
+				) a
+			ORDER BY date_time DESC;";			
 	$result = $db->query($query);
 	$chats = $result->fetchAll();
 
@@ -402,7 +406,7 @@
 					
             </div>  
 			
-		<script src="../scripts/index_scripts.js?t=734"></script>
+		<script src="../scripts/index_scripts.js?t=123"></script>
 		<!--<script src="../fg-emoji-picker/fgEmojiPicker.js"></script>
 		<script>
 			const emojiPicker = new FgEmojiPicker({

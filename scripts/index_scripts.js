@@ -63,15 +63,13 @@ function loadChat(jsonChat){
 }
 
 function printMessage(message){
-    console.log(message);
     mess_text= message.mess_text.replace("\\n","\n");
     chat_type = message.destination_type;
     from_id = message.from_id;
-    to_id = message.to_id;
+    message_to_id = message.to_id;
     time = message.time;
     messages_id = message.messages_id;
     print_message = '';
-    destination = to_id;
 
     if(from_id == session_id){
         print_message += "<tr><td><div id='message_"+messages_id+"' class='right'> <p class='message_value'>"+mess_text+"</p>";
@@ -80,7 +78,7 @@ function printMessage(message){
     } 
 
     else{
-        destination = from_id;
+        message_to_id = from_id;
         print_message += "<tr><td>";
         if(chat_type == 'group'){
             user = message.from_id;
@@ -98,7 +96,9 @@ function printMessage(message){
         print_message += '</div></td></tr>';
     }
 
-    document.getElementById("chat"+chat_type+"_"+destination).innerHTML+=print_message;
+    if(document.getElementById("chat"+chat_type+"_"+message_to_id) != null)
+        document.getElementById("chat"+chat_type+"_"+message_to_id).innerHTML+=print_message;
+    console.log("chat"+chat_type+"_"+message_to_id);
 }
 
 function showConversation(chat_type,chatID){
@@ -121,6 +121,7 @@ function showConversation(chat_type,chatID){
         document.getElementById("output").style.overflowY='scroll';
     to_id = chatID;
     destination_type = chat_type;
+    console.log("Selected "+chat_type+" id "+chatID);
     var intFrameWidth = window.innerWidth;
     if(intFrameWidth<704)
         if(document.getElementById("right_main_div") != null)
@@ -325,6 +326,8 @@ function printLog(id,online) {
 
 
 
+
+
 function incrementPrintCountOnline(){
     var count= document.getElementById("count_online");
     if(count){
@@ -367,7 +370,6 @@ function printPreview(message){
 
 function sendMessage(){
     var mess_text = inputmessage.value;
-    console.log(destination_type);
     if(mess_text.length>1){
         websocket_server.send(
             JSON.stringify({
@@ -409,7 +411,6 @@ websocket_server.onerror = function(e) {
 websocket_server.onmessage = function(e){
     var json = JSON.parse(e.data);
     console.log(json); 
-    console.log(to_id+"\n"+destination_type);    
     switch(json.type){
         case 'chat':
             printMessage(json);
@@ -433,6 +434,7 @@ websocket_server.onmessage = function(e){
                 printLog(id,false);
                 printLastSeen(id,false);
             }
+
             else
                 decrementPrintCountOnline();
             break;
@@ -487,7 +489,7 @@ if(inputmessage){
                     'destination_type': destination_type
                 });
         websocket_server.send(json);	
-        console.log(json);			
+        console.log("writing message to "+destination_type+" "+to_id);
     });
 }
 
@@ -500,8 +502,8 @@ if(inputmessage){
             'to_id':to_id,
             'destination_type':destination_type
         });
-        websocket_server.send(json);		
-        console.log(json);			
+        websocket_server.send(json);	
+        console.log("not writing message to "+destination_type+" "+to_id);
     });
 }
 
