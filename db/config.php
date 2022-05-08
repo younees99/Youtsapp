@@ -1,5 +1,5 @@
 <?php    	
-	//Creating database for first time use	
+	//Creating the connection to the DMMS
 	$link = mysqli_connect("127.0.0.1", "root");
 
     // Check connection

@@ -1,5 +1,6 @@
 function validaForm(form){       
     user=form["user"];
+    nickname=form["nickname"];
     email=form["email"];
     pass=form["pass"];
     conf_pass=form["conf_pass"];     
@@ -7,13 +8,15 @@ function validaForm(form){
 
     valid_user=checkUser(user);
 
+    valid_nickname=checkNickname(nickname);
+
     valid_email=checkEmail(email);
     
     valid_pass=checkPassword(pass);
 
     equal_pass=checkEqualPass(pass,conf_pass);
 
-    valid_form=valid_user&&valid_email&&valid_pass&&equal_pass;
+    valid_form=valid_user&&valid_email&&valid_pass&&equal_pass&&valid_nickname;
 
     return valid_form;
 }
@@ -25,8 +28,23 @@ function checkUser(user){
 }
 
 function validUser(user) {
-    var re= new RegExp("^[A-Za-z][A-Za-z0-9_-]{4,32}$");
+    var re= new RegExp("^[A-Za-z][A-Za-z0-9_-]{6,32}$");
     return re.test(user);
+}
+
+
+function checkNickname(nickname){
+    check=validNickname(nickname.value);               
+    colorBorders(check,nickname);
+    return check;
+}
+
+function validNickname(nickname) {
+    var result;
+    nickname = nickname.trim();
+    if(nickname.length<6 || nickname>30)
+        result = false;
+    return result;
 }
 
 function checkEqualPass(pass,conf_pass){

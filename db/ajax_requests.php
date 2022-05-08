@@ -48,37 +48,54 @@
             break;
 
         case 'search':
-            $search=$_GET['name'];
-            $search=$db->escapeString($search);
-            $query="SELECT U.userID AS ID,
-                            username AS tag,
+            $search = $_GET['name'];
+            $search = $db->escapeString($search);
+            $search = strtolower($search);
+            $query="SELECT U.userID AS chatID,
+                            username AS chat_tag,
+                            nickname AS chat_name,
                             image_url,
                             is_online,
-                            'user' AS result_type,
+                            'user' AS chat_type,
                             MAX(since) AS since
                         FROM Friends F 
                             LEFT JOIN Users U 
                                 ON (U.userID=F.friendID)
                     WHERE 
-                        username LIKE '%$search%'
-                        AND U.userID!=$id
-                    GROUP BY id
+                        LOWER(username) LIKE '$search%'
+                        AND U.userID!='$id'
+                    GROUP BY chatID
                     UNION
-                    SELECT GU.groupID AS ID,
-                            grouptag AS tag,
+                    SELECT GU.groupID AS chatID,
+                            grouptag AS chat_tag,
+                            group_name AS chat_name,
                             image_url,
                             '0'AS is_online,
-                            'group' AS result_type,
+                            'group' AS chat_type,
                             MAX(since) AS since
                         FROM Groups G
                             LEFT JOIN Groups_users GU
                                 ON (G.groupID=GU.groupID)
                     WHERE 
-                        grouptag LIKE '%$search%'
-                        AND GU.userID!=$id
-                    GROUP BY id;";
+                        LOWER(grouptag) LIKE '$search%'
+                    GROUP BY chatID;";
     
             break;
+            case 'available_tag':
+                $tag = $_GET['tag'];
+                $tag = $db->escapeString($tag);
+                $query = "SELECT COUNT(*)
+                            FROM
+                                Users U
+                            WHERE
+                                U.username = '$tag'
+                        UNION
+                        SELECT
+                            FROM
+                                Groups G
+                            WHERE
+                                G.grouptag = '$tag';";
+                break;
     }
     $result=$db->query($query)->fetchAll();
     echo json_encode($result);

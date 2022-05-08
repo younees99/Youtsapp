@@ -212,9 +212,14 @@
 
 						
 				case 'typing':
-					$from_id = $data->from_id;
+					$from_id = $data->from_id;					
 					$to_id= $data->to_id;
 					$destination_type= $data->destination_type;
+					$query = "SELECT username FROM Users WHERE userID='$from_id';";			
+					$result = $this->db->query($query);
+					$row = $result->fetchArray();
+					$from_username = $row['username'];										
+
 					if($destination_type=='user'){
 						$query="UPDATE Friends SET is_typing='1' WHERE userID='$from_id' AND friendID='$to_id';";
 						$this->db->query($query);	
@@ -257,6 +262,7 @@
 														"type"=>$type,
 														"from_id"=>$to_id,
 														"to_id"=>$to_id,
+														"from_username"=>$from_username,
 														"destination_type"=>$destination_type
 													)
 											)						
@@ -270,6 +276,11 @@
 					$from_id = $data->from_id;
 					$to_id= $data->to_id;
 					$destination_type= $data->destination_type;
+					$query = "SELECT username FROM Users WHERE userID='$from_id';";			
+					$result = $this->db->query($query);
+					$row = $result->fetchArray();
+					$from_username = $row['username'];	
+
 					if($destination_type=='user'){
 						$query="UPDATE Friends SET is_typing='0' WHERE userID='$from_id' AND friendID='$to_id';";
 						$this->db->query($query);	
@@ -284,6 +295,7 @@
 												array(
 													"type"=>$type,
 													"from_id"=>$from_id,
+													"to_id"=>$to_id,
 													"destination_type"=>$destination_type
 												)
 										)							
@@ -298,8 +310,6 @@
 						foreach($result as $row){
 							$userID=$row['userID'];
 							if(in_array($userID, $this->users_ids)&&$userID!=$from_id){
-								$query="SELECT username FROM Users WHERE userID='$userID';";
-								$result=$this->db->query($query)->fetchAll();
 								$this->variableConn(
 											array_search(
 												$userID,
@@ -310,6 +320,8 @@
 													array(
 														"type"=>$type,
 														"from_id"=>$from_id,
+														"to_id"=>$to_id,
+														"from_username"=>$from_username,
 														"destination_type"=>$destination_type
 													)
 											)						
@@ -317,15 +329,83 @@
 							}
 						}
 					}			
-					break;				
+					break;	
 							
+				case 'read':
+					$from_id = $data->from_id;
+					$to_id= $data->to_id;
+					$destination = $data->destination_type;
+
+					$destination_type = "destination_user";
+					$query = "";
+					if($destination == "user"){
+						$query = "UPDATE Messages
+								SET 
+									is_read='1'  
+								WHERE
+									destination_user='$from_id'
+										AND
+									source_user='$to_id';";
+					}
+					else{
+						$query = "UPDATE Messages
+								SET 
+									is_read='1'  
+								WHERE
+									destination_group='$to_id';";
+					}
+					
+					$this->db->query($query);
+					if($destination == "user"){
+						if(in_array($to_id, $this->users_ids)){
+							$this->variableConn(
+										array_search(
+											$to_id,
+											$this->users_ids
+											)
+										)->send(
+											json_encode(
+												array(
+													"type"=>$type,
+													"from_id"=>$from_id,
+													"to_id"=>$to_id,
+													"destination_type"=>$destination
+												)
+										)								
+									);	
+						}	
+					}
+					else{						
+						$query="SELECT userID FROM Groups_users WHERE groupID='$to_id';";
+						$result=$this->db->query($query)->fetchAll();
+						foreach($result as $row){
+							$userID=$row['userID'];							
+							if(in_array($to_id, $this->users_ids)){
+								$this->variableConn(
+											array_search(
+												$to_id,
+												$this->users_ids
+												)
+											)->send(
+												json_encode(
+													array(
+														"type"=>$type,
+														"from_id"=>$from_id,
+														"to_id"=>$to_id,
+														"destination_type"=>$destination_type
+													)
+											)								
+										);	
+							}	
+						}
+					}
+					break;
 			}
 		}
 
 		public function onError(ConnectionInterface $conn, \Exception $e) {			
 			$userID=$this->users_ids[$conn->resourceId];
-			$result=$this->db->query("SELECT username FROM Users WHERE userID='$userID';")->fetchArray();
-			echo"$result[username] disconnected for an error: ".$e."\n";
+			echo $e;
 		}
 	}
 

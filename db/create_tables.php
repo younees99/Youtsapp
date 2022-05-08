@@ -5,6 +5,7 @@
     $query="CREATE TABLE IF NOT EXISTS `Users`(        
         userID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
         username VARCHAR(255) NOT NULL,
+        nickname VARCHAR(255) NOT NULL,
         password VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL,
         image_url VARCHAR(255),

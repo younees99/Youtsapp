@@ -1,15 +1,16 @@
 <?php
     include "config.php";
     $user=$db->escapeString($_POST['user']);
+    $nickname=$db->escapeString($_POST['nickname']);
     $email=$db->escapeString($_POST['email']);
     $pass=$db->escapeString($_POST['pass']);
     $tmp_name=$_FILES['uploaded_image']['tmp_name'];
     $name=$_FILES['uploaded_image']['name'];
 
     if(!file_exists($tmp_name)||!is_uploaded_file($tmp_name)){
-        echo "ciao!";
         $file_name="blank_profile_picture.png";
     }
+
     else{
         $want_to_upload = true;
         $valid_ext=array("gif", "jpeg", "jpg", "png");
@@ -41,8 +42,9 @@
         }
     } 
     
-    $query="INSERT INTO Users(username,password,email,image_url) VALUES
+    $query="INSERT INTO Users(username,nickname,password,email,image_url) VALUES
                 ('$user',
+                '$nickname',
                 MD5('$pass'),
                 '$email',
                 '$file_name');

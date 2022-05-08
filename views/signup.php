@@ -11,6 +11,7 @@
         <form class='box' name='mioForm' action='../db/signupdatabase.php' method='POST' onsubmit='return validaForm(this);'  enctype="multipart/form-data">
             <h1>Sign-up</h1>
             <input type='text' name='user' onchange="checkUser(this);" placeholder='Username'>
+            <input type='text' name='nickname' onchange="checkNickname(this);" placeholder='Nickname'>
             <input type='text' name='email' onchange="checkEmail(this);" placeholder='Email'>
             <input type='password' name='pass' onchange="checkPassword(this);" placeholder='Password'>
             <input type='password' name='conf_pass' onchange="checkPassword(this);" placeholder='Confirm password'>
