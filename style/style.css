@@ -82,6 +82,55 @@ text-transform: none;
 text-align: center;
 }
 
+/* Container needed to position the overlay. Adjust the width as needed */
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Make the image to responsive */
+.image {
+  width: 100%;
+  height: auto;
+}
+
+/* The overlay effect (full height and width) - lays on top of the container and over the image */
+.overlay_propic {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  transition: .3s ease;
+  background-color: red;
+}
+
+/* When you mouse over the container, fade in the overlay icon*/
+.container:hover .overlay {
+  opacity: 1;
+}
+
+/* The icon inside the overlay is positioned in the middle vertically and horizontally */
+.loadPhoto {
+  color: white;
+  font-size: 100px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+/* When you move the mouse over the icon, change color */
+.fa-camera:hover {
+  color: #eee;
+}
+
 input[type='file']{
   display: none;
 }
@@ -108,6 +157,9 @@ a{
 }
 
 #main{
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 100vh;
   width: 60vw;
   background-color: black;
@@ -160,20 +212,25 @@ h1{
   transform: scale(1.25);
 }
 
-#backButton{  
-  float: left;
+.headerButtons{
   background: Transparent;
   border: 0;
   vertical-align: middle;
   height: 50px;
+  width: 50px;
+  color: white;
+}
+
+#backButton{  
+  float: left;
   display: none;
 }
 
 #header_chat{
   background-color: #191919;
   color:white;
-  display: block;
-  overflow: auto;
+  height: 55px;
+  display: inline-flex;
 }
 
 #chats{
@@ -207,12 +264,17 @@ h1{
     cursor: pointer; 
 }
 
+#logout{
+  color : #fb0000c2;
+}
+
 .iconbtn {
   background-color: transparent; 
   border: none; 
   color: white; 
   padding: 2px 2px; 
   cursor: pointer; 
+  text-decoration: none;
 }
 
 .header_chats{ 
@@ -234,6 +296,7 @@ h1{
 
 .message_value{  
   margin:0;
+  font-size: 16px;
   white-space: pre-wrap;
 }
 
@@ -245,6 +308,7 @@ h1{
 #header_table{
   table-layout: fixed;
   width: calc(100% - 50px);
+  margin-right: 50px;
 }
 
 li{
@@ -260,7 +324,8 @@ li{
   float: right;
   right: 20px;
   max-width: 25vw;
-  word-wrap: break-word
+  word-wrap: break-word;
+  font-size: 0.8em;
 }
 
 .right::before {
@@ -314,9 +379,6 @@ li{
   clear: both;
 }
 
-.iconbtn{
-  text-decoration: none;
-}
 
 button.select_chat{
     border:0;
@@ -382,7 +444,12 @@ td#profile_table{
   text-align: center;
 }
 
-.mess_preview{
+#profile_table{
+  margin-right: 0;
+  display: inline;
+}
+
+.mess_preview,.is_typing{
   float: left;
   text-align: left;
   margin-left: 2px;
@@ -390,6 +457,11 @@ td#profile_table{
   white-space: nowrap;
   overflow: hidden;
   width: calc(40vw - 95px);
+}
+
+.is_typing{
+  color: #2287d9;
+  display: none;
 }
 
 .send_form{
@@ -402,14 +474,10 @@ td#profile_table{
 }
 
 .print_text{
-  position: fixed;
-  top: 50%;
-  left: 50%;
   background-color:#192735de;
   border-radius: 24px;
   color:white;
   padding: 2px 8px;
-  display: inline-block;
 }
 
 .print_date{
@@ -444,14 +512,30 @@ td#profile_table{
   display: inline-block;
 }
 
+.error{
+  color : red;
+  display: none;
+}
+
 .time-left{
   font-size:0.8em;
   color: #162736;
 }
 
+.circle_checked{
+  float:right;
+  margin-left: 5px;
+}
+
+.circle_unchecked{
+  float:right;
+  margin-left: 5px;
+}
+
 .time-right{
   font-size:0.8em;
   color: #162736;
+  float: right;
 }
 
 .message_source{
@@ -462,7 +546,7 @@ ul {
   list-style-type: none;
 }
 
-#username,#log{
+#nickname,#log{
   margin: 0;
   text-align: center;
 }
@@ -479,15 +563,6 @@ ul {
   border:solid 2.5px #191919;
 }
 
-#nickname{
-  margin:1ch;
-  text-align: center;
-}
-#log{
-  margin:1ch;
-  margin-bottom: 0;
-  text-align: center;
-}
 #menu_laterale{
   height: 100vh;
 }
@@ -575,8 +650,8 @@ tr#messages{
     width: 100vw;
   }
 
-  .mess_preview{
-    width: calc(80vw - 95px);
+  .mess_preview,.is_typing{
+    width: calc(100vw - 96px);
   }
 
   #chats{

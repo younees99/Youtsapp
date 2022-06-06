@@ -1,5 +1,7 @@
 var global_to_id;
 var global_destination_type;
+var users_typing_per_group;
+var online_users_per_group;
 
 //AJAX functions
 function requestResults(search) {
@@ -41,7 +43,7 @@ function loadChat(jsonChat){
         chatImage = "../src/profile_pictures/"+chat.chatImage;	
         mess_text=chat.mess_text;	
         date = new Date(chat.date_time)
-        date_time= date.getHours() + ":" + date.getMinutes();	
+        date_time= date.getHours() + ":" + date.getMinutes();	        
         print_chats += "<li>";
         print_chats += "<button class='select_chat'";
         print_chats += 'onClick=\'showConversation("'+chat_type+'","'+chatID+'");';
@@ -74,8 +76,8 @@ function printMessage(message){
 
     if(from_id == session_id){
         print_message += "<tr><td><div id='message_"+messages_id+"' class='right'> <p class='message_value'>"+mess_text+"</p>";
-        print_message += "<span class='time-right'>"+time+"</span>";           
-        print_message += '<i class="fa fa-circle-o unread_'+chat_type+'_'+destination+'" aria-hidden="true"></i></div></td></tr>';     
+        print_message += '<i class="fa fa-circle-o circle_unchecked unread_'+chat_type+'_'+destination+'" aria-hidden="true"></i>';   
+        print_message += "<span class='time-right'>"+time+"</span></div></td></tr>";             
     } 
 
     else{
@@ -84,7 +86,7 @@ function printMessage(message){
         if(chat_type == 'group'){
             destination = to_id;
             user = message.from_id;
-            username = message.from_username;
+            username = message.from_nickname;
             var image_url = "../src/profile_pictures/"+message.image_url;
             print_message += "<div class='propic_from_chat propic_from_chat"+user+"' ";
             print_message += "style='background-image:url(" +image_url+");";
@@ -105,11 +107,18 @@ function printMessage(message){
             readMessages(chat_type,message.to_id);
     }
 
+    var today_span = document.getElementById("today_span_"+chat_type+"_"+destination);
+    if(today_span){
+        today_span.style.display="inline-block";
+        today_span.removeAttribute('id');
+    }
 }
 
 function showConversation(chat_type,chatID){
     global_to_id = chatID;
     global_destination_type = chat_type;
+
+    document.getElementById("main").style.display="block";
 
     document.getElementById("messages").style.display="table";    
     document.getElementById("select_chat_alert").style.display='none';        
@@ -137,13 +146,13 @@ function showHeader(jsonHeader,chat_type){
     var print_header = "";
     for(let json of jsonHeader){
         if(chat_type == "user"){
-            username = json.username;
+            nickname = json.nickname;
             image_url = "../src/profile_pictures/" + json.image_url;
             is_typing = Boolean(parseInt(json.is_typing));
             is_online = Boolean(parseInt(json.is_online));
             last_seen = json.last_seen;
-            
-            print_header += '<button onClick="exitChat()" id="backButton">';
+
+            print_header += '<button onClick="exitChat()" id="backButton" class="headerButtons">';
             print_header += '<i class="fa fa-chevron-left fa-2x" aria-hidden="true" ';
             print_header += 'style="color: white;padding-top: 10px;"></i></button>';
             print_header += "<div id='propic' style='background-image:url("+image_url+");";
@@ -151,7 +160,7 @@ function showHeader(jsonHeader,chat_type){
                 print_header += "border:2.5px solid #00ff33";
             print_header += "'></div>";
             print_header += "<table id='header_table'><tr><td>";
-            print_header += "<p id='username'>"+username+"</p></td></tr><tr><td><p id='log'>";
+            print_header += "<p id='nickname'>"+nickname+"</p></td></tr><tr><td><p id='log'>";
             if(is_typing)
                 print_header += 'Is typing...';
             else if(is_online)
@@ -165,15 +174,15 @@ function showHeader(jsonHeader,chat_type){
             image_url = "../src/profile_pictures/" + json.image_url;
             online_users = json.online_users;
             
-            print_header += '<button onClick="exitChat()" id="backButton">';
+            print_header += '<button onClick="exitChat()" id="backButton" class="headerButtons">';
             print_header += '<i class="fa fa-chevron-left fa-2x" aria-hidden="true" ';
             print_header += 'style="color: white;padding-top: 10px;"></i></button>';
             print_header += "<div id='propic' style='background-image:url("+image_url;
             print_header += ");'></div>";
-            print_header += "<table id='header_table'><tr><td><p id='username'>"+group_name+"</p></td></tr>";
+            print_header += `<table id='header_table'><tr><td><p id='nickname'>${group_name}</p></td></tr>`;
             print_header += "<tr><td><p id='log'>";
-            print_header += 'Online users: <span id="count_online">'+online_users;
-            print_header += '</span></p></td></tr></table>';
+            print_header += `Online users: <span id="count_online">${online_users}`;
+            print_header += `</span></p></td></tr></table>`;
         }
     }
     document.getElementById("header_chat").innerHTML = print_header;
@@ -230,6 +239,7 @@ function openProfileMenu(){
 function search(){
     document.getElementById("overlay").style='display: block;';
     document.getElementById("searchForm").style='display: block;';
+    document.getElementById("input_search").focus();
     document.getElementById("createGroupForm").style='display: none;';
     document.getElementById("profileForm").style='display: none;';
 }
@@ -243,6 +253,7 @@ function createGroup() {
 
 function exitChat(){
     var intFrameWidth = window.innerWidth;
+    document.getElementById("main").style.display="flex";
     if(intFrameWidth<704)
         document.getElementById("right_main_div").style.display = 'none';
     document.getElementById("left_main_div").style.display='block';
@@ -250,11 +261,13 @@ function exitChat(){
     document.getElementById("select_chat_alert").style.display='block';
     document.getElementById("footer_form").style.display='none';	
     document.getElementById("output").style.overflowY='hidden';
-    document.getElementById("header_chat").style.display='none';    
+    document.getElementById("header_chat").style.display='none';   
+    global_to_id = 0;
+    global_destination_type = 0;
 }
 
 function closeOverlay(){
-    document.getElementById("overlay").style='display: none;';   
+    document.getElementById("overlay").style.display = 'none';   
 }
 
 function fileUploaded(input_file){
@@ -315,16 +328,18 @@ function decrementPrintCountOnline(id){
 function updateScroll(){
     var messages=document.getElementById("messages");
     var output=document.getElementById("output");
+    var footer_form=document.getElementById("footer_form");
     if(messages&&output){
-        output.scrollTop = messages.offsetHeight;
+        output.scrollTop = messages.offsetHeight - footer_form.offsetHeight;
     }
 }
 
 function printTyping(type,is_typing,message){
-    source = message.from_username;
+    source = message.from_nickname;
     from_id = message.from_id;
     to_id = message.to_id;
     source_id = from_id;
+
     if(type == "group")
         source_id = to_id;
 
@@ -339,6 +354,8 @@ function printTyping(type,is_typing,message){
         document.getElementById("is_typing_"+type+"_"+source_id).style.display="none";
         document.getElementById("mess_preview_"+type+"_"+source_id).style.display="block";
     }  
+
+
 }
 
 function printPreview(message){
@@ -347,7 +364,8 @@ function printPreview(message){
     var source_type = message.destination_type;
     var source_id = message.from_id;     
     var destination_id = message.to_id;
-    var mess_source = message.from_username+": ";
+    var mess_source = message.from_nickname+": ";
+
     if(source_id == session_id)
         mess_source = "You: "; 
     if(source_type == 'user'){
@@ -395,7 +413,7 @@ function incrementBadgeCount(message){
     if(source_type == "group")
         source_id = destination_id;
         
-    if(source_id != global_to_id && source_type != global_destination_type){
+    if(source_id != global_to_id || source_type != global_destination_type){
         var int_count= parseInt(badge_span.textContent, 10)+1;
         badge_span.innerHTML=int_count;
         if(badge_span.style.display == "none")
@@ -404,6 +422,35 @@ function incrementBadgeCount(message){
     
 }
 
+function updateHeaderStatus(online,time){
+    var log = document.getElementById("log");
+    if(log){
+        if(online)
+                log.innerHTML = "Online";
+        else
+            log.innerHTML = dateTimeToText(time);
+    }   
+}
+
+function updateHeaderTyping(is_typing,json){
+    var log = document.getElementById("log");
+    var nickname = json.from_nickname;
+    if(global_destination_type == "user" && global_to_id == json.from_id){
+        if(is_typing)
+            log.innerHTML = "is typing...";
+        else
+            log.innerHTML = "Online";
+    }
+    /*else if(global_destination_type == "group" && global_to_id == json.to_id){
+        if(is_typing)
+            log.innerHTML = nickname + "is typing...";
+        else
+            log.innerHTML = "Online";
+    }*/
+}
+
+
+
 
 
 // Websocket			
@@ -411,6 +458,7 @@ var websocket_server = new WebSocket("ws://"+server_name+":8080/");
 
 
 function sendMessage(){
+    var inputmessage = document.getElementById("input_message");
     var mess_text = inputmessage.value;
     if(mess_text.length>1){
         websocket_server.send(
@@ -470,9 +518,10 @@ websocket_server.onmessage = function(e){
         
         case 'connected':
             var id=json.user_id;	
-            if(global_destination_type == 'user'){
-                turnLedStatus(id,true);
-            }
+            if(global_destination_type == 'user')
+                turnLedStatus(id,true);      
+                if(id == global_to_id)
+                    updateHeaderStatus(false,json.time); 
             else if(global_destination_type == 'group')            
                 incrementPrintCountOnline(id);
             turnLedStatusList(id,true);
@@ -480,21 +529,21 @@ websocket_server.onmessage = function(e){
         
         case 'disconnected':
             var id = json.user_id;
-            if(global_destination_type == 'user'){
-                turnLedStatus(id,false);
-            }
+            if(global_destination_type == 'user')
+                turnLedStatus(id,false);  
+                if(id == global_to_id)
+                    updateHeaderStatus(false,json.time); 
             else if(global_destination_type == 'group')     
                 decrementPrintCountOnline(id);
             turnLedStatusList(id,false);
-
             break;
         
         case 'typing': 
             var id = json.from_id;
-            var type = json.destination_type;
-            if(id == global_to_id && type == global_destination_type && global_destination_type == 'user')
-                log.innerHTML='is writinig..';       
+            var type = json.destination_type;  
             printTyping(type,true,json);
+            if(global_destination_type != '')
+                updateHeaderTyping(true, json);
             break;
         
         case 'not_typing':
@@ -503,6 +552,8 @@ websocket_server.onmessage = function(e){
             if(id== global_to_id && type == global_destination_type && global_destination_type == 'user')
                 log.innerHTML='Online';   
             printTyping(type,false,json);
+            if(global_destination_type != '')
+                updateHeaderTyping(false, json);
             break;
 
         case 'read':
@@ -518,7 +569,7 @@ websocket_server.onmessage = function(e){
 function checkMessages(type,to_id){
     var unchecked = document.querySelectorAll(".unread_"+type+"_"+to_id);
     for (let i=0;i<unchecked.length;i++){
-        unchecked[i].className = "fa fa-check-circle-o";
+        unchecked[i].className = "fa fa-check-circle-o circle_checked";
     }
 }
 
@@ -527,46 +578,34 @@ function removeBadge(type,to_id){
     document.getElementById("unread_mess_"+type+"_"+to_id).innerHTML='0';
 }
 
-var inputmessage = document.getElementById("input_message");	
-
-
-//Events sending a message
-if(inputmessage){
-    inputmessage.addEventListener('keyup',function(e){
+function checkAndSend(e){
     if(e.key === "Enter" && !e.shiftKey){
         sendMessage();
         updateScroll();
     }
-    });	
-}
-        
-// Events typing a message
-if(inputmessage){
-    inputmessage.addEventListener('focus',function(e){
-        json = JSON.stringify({
-                    'type':'typing',
-                    'from_id':session_id,
-                    'to_id': global_to_id,
-                    'destination_type': global_destination_type
-                });
-        websocket_server.send(json);	
-        console.log("writing message to "+global_destination_type+" "+global_to_id);
-    });
 }
 
-// Events stop typing a message
-if(inputmessage){
-    inputmessage.addEventListener('blur',function(e){
-        json = JSON.stringify({
-            'type':'not_typing',
-            'from_id':session_id,
-            'to_id':global_to_id,
-            'destination_type':global_destination_type
-        });
-        websocket_server.send(json);	
-        console.log("not writing message to "+global_destination_type+" "+global_to_id);
+function typingMessage() {
+    json = JSON.stringify({
+                'type':'typing',
+                'from_id':session_id,
+                'to_id': global_to_id,
+                'destination_type': global_destination_type
+            });
+    websocket_server.send(json);
+}
+
+function notTypingMessage() {
+    json = JSON.stringify({
+        'type':'not_typing',
+        'from_id':session_id,
+        'to_id':global_to_id,
+        'destination_type':global_destination_type
     });
-}		
+    websocket_server.send(json);	     
+}
+    
+	
 
 function dateTimeToText(last_seen){
     var print_text;
@@ -587,17 +626,21 @@ function dateTimeToText(last_seen){
     hour = checkZero(hour);
     minutes = checkZero(minutes);
 
+    diffTime = Math.abs(today - date_time);
+    diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // milliseconds * seconds * minutes * hours
+
+
     if(date_time.getFullYear()<year){
         print_text = "Last seen "+day+" "+months[month]+" "+year;
     }
-    else if(date_time.getDate() < day-2){
+    else if(diffDays>2){
         print_text = "Last seen "+day+" "+months[month]+" at "+hour+":"+minutes;
     }
-    else if(date_time.getDate() < day-1){
+    else if(diffDays==1){
         print_text = "Last seen yesterday at "+hour+":"+minutes;
     }
     else{
-        print_text = "Last seen "+hour+":"+minutes;
+        print_text = "Last seen today at "+hour+":"+minutes;
     }
     
     return print_text;

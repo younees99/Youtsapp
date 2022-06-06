@@ -22,7 +22,7 @@ function validaForm(form){
 }
 
 function checkUser(user){
-    check=validUser(user.value);               
+    check=validUser(user.value) && avialableTag(user);               
     colorBorders(check,user);
     return check;
 }
@@ -32,6 +32,25 @@ function validUser(user) {
     return re.test(user);
 }
 
+function avialableTag(user) {
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log(JSON.parse(this.responseText));
+            showAvialability(JSON.parse(this.responseText),user);
+        }
+        }
+    xmlhttp.open("GET", "../db/ajax_requests.php?tag="+user.value+"&choice=available_tag", true);
+    xmlhttp.send();
+}
+
+function showAvialability(bool,user){
+    colorBorders(!check,user);
+    if(bool)
+        document.getElementById("unavialable_username").style.display='block';
+    else
+        document.getElementById("unavialable_username").style.display='none';
+}
 
 function checkNickname(nickname){
     check=validNickname(nickname.value);               

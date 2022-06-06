@@ -12,7 +12,7 @@
             $chat_type = $_GET['chat_type'];
             if($chat_type == "user"){									
                 $query="SELECT 
-                            username,image_url,is_typing,is_online,last_seen
+                            nickname,image_url,is_typing,is_online,last_seen
                             FROM 
                                 Users U
                                 JOIN 

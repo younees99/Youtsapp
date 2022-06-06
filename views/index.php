@@ -49,9 +49,9 @@
 					FROM Friends F 
 						JOIN Users U
 							ON F.userID=U.userID
-						LEFT JOIN Users FU
+						JOIN Users FU
 							ON FU.userID=friendID
-						LEFT JOIN Messages M
+						JOIN Messages M
 							ON F.last_message=M.messageID
 					WHERE U.userID='$_SESSION[name]'
 				UNION
@@ -83,7 +83,7 @@
 				FROM Groups_users GU
 					JOIN Users U
 						ON GU.userID=U.userID
-					LEFT JOIN Groups G
+					JOIN Groups G
 						ON GU.groupID=G.groupID 
 					LEFT JOIN Messages M
 						ON G.last_message=M.messageID
@@ -129,6 +129,9 @@
 	//Query to fetch the user's data
 	$result = $db->query("SELECT * FROM Users WHERE userID='$_SESSION[name]';");
 	$user_data = $result->fetchArray();	
+
+	
+	
 	
 
 ?>
@@ -136,13 +139,16 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="../style/style.css?version=113">
+	    <link rel="stylesheet" type="text/css" href="../style/style.css?version=5643">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
 		<script>
 			var session_id = <?php echo json_encode($_SESSION["name"])?>;		
 			var server_name = <?php echo json_encode($_SERVER['SERVER_NAME'])?>;
+			console.log(server_name);
 			var user_data = <?php echo json_encode($user_data); ?>;
+			/*var users_typing_per_group = <?php echo json_encode($users_typing_per_group);?>;
+			var online_users_per_group = <?php echo json_encode($online_users_per_group);?>;*/
 		</script>
 	</head>
 	<body>		
@@ -212,38 +218,41 @@
 											<span class='time_preview'  id='time_preview_<?=$chat_type;?>_<?=$chatID;?>'>
 											<?php
 												$print_time = '';
-												if($date == date("d/m",$today))
-													$print_time = $time;
-												elseif($year == date("Y",$today))
-													$print_time = $date;
-												else
-													$print_time = $full_date;
+												if($date != ""){
+													if($date == date("d/m",$today))
+														$print_time = $time;
+													elseif($year == date("Y",$today))
+														$print_time = $date;
+													else
+														$print_time = $full_date;
+												}
 												echo $print_time;
+
 											?></span>
 										</td>
 									</tr>
 									<tr>
 										<td>
 											<?php
-												$mess_preview_span = 'block';
-												$is_typing_span = 'none';
-												if($is_typing==true){													
-													$mess_preview_span = 'none';
-													$is_typing_span = 'block';
+												if($last_message_source_id != ""){								
+													$mess_source = "";
+													if($last_message_source_id == $_SESSION['name'])
+														$mess_source = "You: ";
+													else if($chat_type == "group")
+														$mess_source = $last_message_source.": ";
 												}
-												$mess_source = "";
-												if($last_message_source_id == $_SESSION['name'])
-													$mess_source = "You: ";
-												else if($chat_type == "group")
-													$mess_source = $last_message_source.": ";
+												else{
+													$mess_source = "";
+													$mess_text = "Start a conversation";
+												}
 											?>
-											<span class='mess_preview'  id='mess_preview_<?=$chat_type;?>_<?=$chatID;?>' style='display: <?= $mess_preview_span;?>;'><?=$mess_source.$mess_text;?></span>
-											<span class='mess_preview'  id='is_typing_<?=$chat_type;?>_<?=$chatID;?>' style='display: <?= $is_typing_span;?>; color: #2287d9;'>is typing...</span>
+											<span class='mess_preview'  id='mess_preview_<?=$chat_type;?>_<?=$chatID;?>'><?=$mess_source.$mess_text;?></span>
+											<span class='is_typing'  id='is_typing_<?=$chat_type;?>_<?=$chatID;?>' style='color: #2287d9;'>is typing...</span>						
 										</td>
 										<td>
 										<span class="button__badge" id='unread_mess_<?=$chat_type;?>_<?=$chatID;?>'
 										<?php
-											if($count_unread == 0):
+											if($count_unread == 0 || $last_message_source_id == $_SESSION['name']):
 										?>
 											style='display: none;'
 										<?php
@@ -294,8 +303,16 @@
 
 									?>
 									<?php if($month_day!=date("F d",$date_time)):
-										$month_day=date("F d",$date_time);?>
-										<tr><td align='center'><p class='print_date'><?= $month_day?></p></td></tr>
+										$month_day=date("F d",$date_time);
+										$print_date = $month_day;
+										$now = time();
+										$datediff = ($now - $date_time) / (60 * 60 * 24);
+										if(round($datediff)==0)
+											$print_date = "Today";
+										elseif(round($datediff)==1)
+											$print_date = "Yesterday";
+										?>
+										<tr><td align='center'><p class='print_date'><?= $print_date?></p></td></tr>
 									<?php endif;?>
 									<?php
 									$mess_text=htmlspecialchars(str_replace("/n","<br>",$mess_text));
@@ -303,18 +320,18 @@
 										<tr><td>
 											<div id='message_<?= $message_number;?>' class='right'>
 													<p class='message_value'><?=$mess_text;?></p> 
-													<span class='time-right'><?=$time?></span>
 													<?php
 														if($is_read):
 													?>
-														<i class="fa fa-check-circle-o" aria-hidden="true"></i>
+														<i class="fa fa-check-circle-o circle_checked" aria-hidden="true"></i>
 													<?php
 														else:
 													?>
-														<i class="fa fa-circle-o unread_<?=$chat_type?>_<?=$chatID?>" aria-hidden="true"></i>
+														<i class="fa fa-circle-o circle_unchecked unread_<?=$chat_type?>_<?=$chatID?>" aria-hidden="true"></i>
 													<?php
 														endif;
 													?>
+													<span class='time-right'><?=$time?></span>
 											</div>
 										</td></tr>
 									<?php else: ?>
@@ -327,7 +344,7 @@
 												if($is_online) 
 													$border="#00ff33";
 												if($chat_type=='group'):
-											?>													
+											?>												
 											<div class='propic_from_chat propic_from_chat<?=$chatID?>'
 												style='background-image:url(<?=$image_url?>);border:2.5px solid <?= $border?>'>
 											</div>
@@ -343,18 +360,26 @@
 											<?php
 										endif;
 									?>
-								<?php endforeach; ?>
+								<?php endforeach; 								
+									if($date != date("d/m",$today)):
+								?>
+									<tr><td align='center'><p class='print_date' style="display:none" id="today_span_<?=$chat_type?>_<?=$chatID?>">Today</p></td></tr>
+								<?php
+									endif;
+								?>
 							</tbody>
-							<?php endforeach; ?>
+							<?php endforeach; 
+							if(count($chats)==0): 
+							?>
+								<p class='print_text' id='no_message'>There is no message yet!<br>Start a coversation!</p>
+							<?php endif;?>
 						</table>
 					</div>
-					<footer class='send_form right_main' id='footer_form' style='display:none'>		
-						<button id='send_emoji' style='display:block; float:left;' class='footer_btn'><i class='fa fa-smile-o fa-2x'></i></button>						
-						<textarea name='msg' placeholder='Write a message...' id='input_message' ></textarea>
+					<footer class='send_form right_main' id='footer_form' style='display:none'>					
 						<button id='send_attachment' class='footer_btn'><i class='fa fa-paperclip fa-2x'></i></button>
+						<textarea name='msg' placeholder='Write a message...' id='input_message' onkeyup="checkAndSend(event);" onfocus="typingMessage();" onblur="notTypingMessage();"></textarea>
 						<button id='send_message' class='footer_btn'><i class='fa fa-send fa-2x' onclick='sendMessage(); this.blur();'></i></button>
 					</footer>
-					<p class='print_text' id='no_message' style='display : none;'>There is no message yet!<br>Start a coversation!</p>
 					<p class='print_text' id='select_chat_alert'>Select a chat to start a conversation!</p>
 				</div>
 			</div>
@@ -370,7 +395,7 @@
 				</div>
 
 				<form class='box' action='' id='createGroupForm' method='POST'  enctype="multipart/form-data">
-					<button id='closeBtn' style='background-color: Transparent; border:none; float: right' onclick='closeOverlay()'>
+					<button id='closeBtn' style='background-color: Transparent; border:none; float: right' onclick="closeOverlay();" >
 						<i class="fa fa-times fa-2x" aria-hidden="true" style='color: white;'></i>
 					</button>   
 					<h2>Create a new group</h2>
@@ -384,23 +409,27 @@
 				</form>
 
 				<form class='box' action='' id='profileForm' method='POST'  enctype="multipart/form-data">	
+					<h2 class="youtsapp" >Profile</h2>
 					<button id='closeBtn' style='background-color: Transparent; border:none; float: right' onclick='closeOverlay()'>
 							<i class="fa fa-times fa-2x" aria-hidden="true" style='color: white;'></i>
-						</button>   
+					</button>   
+					<label for="profile_image_input" id='label_upload' align="center">		
+						<div class="container">
+						<img id="profile_image" class='propic_from_list' style="float: center;" src="../src/profile_pictures/<?= $user_data['image_url'];?>"/>
+						<div class="overlay_propic">
+							<button id="loadPhoto">
+							<i class="fa fa-camera" aria-hidden="true"></i>
+							</button>
+						</div>
+						</div>
+					</label>
 					<table id='profile_table'>
-						<tr><th colspan='2'>Profile</th></tr>
-						<tr><td colspan='2'>
-							<label for="profile_image_input" id='label_upload'>						
-								<img id="profile_image" class='propic_from_list' style="float: center;" src="../src/profile_pictures/<?= $user_data['image_url'];?>"/>
-							</label>
-						</td></tr>
 						<tr>
 							<td>
 								<i class="fa fa-at fa-2x" aria-hidden="true"></i>
 							</td>
 							<td>
-								Username:<br>
-								<?= $user_data["username"];?>
+								Username: <?= $user_data["username"];?>
 							</td>
 							<td>
 								<i class="fa fa-pencil" aria-hidden="true"></i>
@@ -411,8 +440,7 @@
 								<i class="fa fa-user fa-2x" aria-hidden="true"></i>
 							</td>
 							<td>
-								Nickname:<br>
-								<?= $user_data["nickname"];?>
+								Nickname: <?= $user_data["nickname"];?>
 							</td>
 							<td>
 								<i class="fa fa-pencil" aria-hidden="true"></i>
@@ -423,8 +451,7 @@
 								<i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
 							</td>
 							<td>
-								Email:<br>
-								<?= $user_data["email"];?>
+								Email: <?= $user_data["email"];?>
 							</td>
 							<td>
 								<i class="fa fa-pencil" aria-hidden="true"></i>
@@ -441,8 +468,8 @@
 								<i class="fa fa-pencil" aria-hidden="true"></i>
 							</td>
 						</tr>
-						<tr><td>
-							<a href="../logout.php" class="iconlink">
+						<tr><td colspan="2" width="100%" align="center">
+							<a href="../logout.php" class="iconlink" id="logout">
 								<i class="fa fa-sign-out fa-2x" aria-hidden="true" ></i>
 							</a>	
 						</td></tr>							
@@ -452,21 +479,7 @@
 					
             </div>  
 			
-		<script src="../scripts/index_scripts.js?t=104"></script>
-		<!--<script src="../fg-emoji-picker/fgEmojiPicker.js"></script>
-		<script>
-			const emojiPicker = new FgEmojiPicker({
-				trigger: ['send_emoji'],
-				removeOnSelection: false,
-				closeButton: true,
-				position: ['top', 'right'],
-				preFetch: true,
-				insertInto: document.querySelector('input_message'),
-				emit(obj, triggerElement) {
-					console.log(obj, triggerElement);
-				}
-			});
-		</script>-->
+		<script src="../scripts/index_scripts.js?t=827"></script>
 		<?php
 			$db->close();
 		?>

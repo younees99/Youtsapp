@@ -33,7 +33,6 @@
         source_user INT(255),
         destination_user INT(255),
         destination_group INT(255),
-        is_read tinyint NOT NULL DEFAULT 0,
         FOREIGN KEY (source_user) REFERENCES Users(userID),  
         FOREIGN KEY (destination_user) REFERENCES Users(userID),
         FOREIGN KEY (destination_group) REFERENCES Groups(groupID)
@@ -43,7 +42,6 @@
     //Adding charset for emojis
     $query="ALTER TABLE `Messages` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;";
     $db->query($query);
-
 
     //Adding last_message foreign key in group table
     $query="ALTER TABLE  `Groups`
@@ -76,6 +74,17 @@
         FOREIGN KEY (last_message) REFERENCES Messages(messageID)
     )engine=InnoDB";
     $db->query($query);  
+
+    //Creating MESSAGES_USERS table to save which users saw a message in a group
+    //When a users sees a message his and the message ids will be saved here
+    $query = "CREATE TABLE IF NOT EXISTS `Messages_users`(
+        message_userID INT (255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
+        userID INT(255),
+        messageID INT(255),
+        date_read TIMESTAMP,
+        FOREIGN KEY (userID) REFERENCES Users(userID),  
+        FOREIGN KEY (messageID) REFERENCES Messages(messageID)
+    )engine=InnoDB";
 
     //Creating global group    
     $query="INSERT INTO `Groups` (group_name,image_url,grouptag) VALUES('Global','global_group.png','global');";

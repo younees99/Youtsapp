@@ -4,13 +4,15 @@
         <meta charset="utf-8">
         <title>Sign-up</title>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link rel="stylesheet" type="text/css" href="../style/style.css?version=25">
+        <link rel="stylesheet" type="text/css" href="../style/style.css?version=12">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
         <form class='box' name='mioForm' action='../db/signupdatabase.php' method='POST' onsubmit='return validaForm(this);'  enctype="multipart/form-data">
             <h1>Sign-up</h1>
             <input type='text' name='user' onchange="checkUser(this);" placeholder='Username'>
+            <p id="unavialable_username" class="error">Unavialable username*</p>
+            <p id="username_not_valid" class="error">Username must start with a letter, contain more than 6 and less than 32 characters*</p>
             <input type='text' name='nickname' onchange="checkNickname(this);" placeholder='Nickname'>
             <input type='text' name='email' onchange="checkEmail(this);" placeholder='Email'>
             <input type='password' name='pass' onchange="checkPassword(this);" placeholder='Password'>
@@ -22,6 +24,6 @@
             <input type='submit' name='ok' value='Sign-up' class='buttons_index'>            
             <a href='index.php' class="buttons_index">Login!</a>
         </form>
-        <script src="../scripts/signup_control.js"></script>
+        <script src="../scripts/signup_control.js?t=463"></script>
     </body>
 </html>
