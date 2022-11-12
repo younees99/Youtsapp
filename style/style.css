@@ -83,50 +83,41 @@ text-align: center;
 }
 
 /* Container needed to position the overlay. Adjust the width as needed */
-.container {
+.container {  
   position: relative;
-  width: 100%;
-  max-width: 400px;
-}
-
-/* Make the image to responsive */
-.image {
-  width: 100%;
-  height: auto;
+  width: 50px;
+  height: 50px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 /* The overlay effect (full height and width) - lays on top of the container and over the image */
 .overlay_propic {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  width: 100%;
-  opacity: 0;
+  right: 49%;
+  bottom: 50%;
+  height: 50px;
+  width: 50px;
   transition: .3s ease;
-  background-color: red;
+  background-color: #3293d4;
+  transform: translate(50%, 50%);
+  border-radius: 50%;
+  opacity: 0;
 }
 
-/* When you mouse over the container, fade in the overlay icon*/
-.container:hover .overlay {
+.container:hover .overlay_propic {
   opacity: 1;
 }
 
-/* The icon inside the overlay is positioned in the middle vertically and horizontally */
 .loadPhoto {
   color: white;
-  font-size: 100px;
+  font-size: 30px;
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  text-align: center;
+  transform: translate(-50%, -45%);
 }
 
-/* When you move the mouse over the icon, change color */
 .fa-camera:hover {
   color: #eee;
 }
@@ -315,7 +306,7 @@ li{
   margin: 10px 0;
 }
 
-.right {
+.right, .right_multi{
   position: relative;
   background: #4ba38a;
   text-align: left;
@@ -328,7 +319,7 @@ li{
   font-size: 0.8em;
 }
 
-.right::before {
+.right::before, .right_multi::before {
   content: '';
   position: absolute;
   visibility: visible;
@@ -340,26 +331,30 @@ li{
   content: '';
   position: absolute;
   visibility: visible;
-  top: 0px;
+  bottom: 0px;
   right: -8px;
   border: 10px solid transparent;
   border-top: 10px solid #4ba38a;
   clear: both;
 }
 
-.left {
+.left, .left_multi {
   position: relative;
   background: #12828c;
   text-align: left;
   padding: 5px 10px;
   border-radius: 6px;
   float: left;
-  left: 20px;
+  left: 50px;
   max-width: 25vw;
   word-wrap: break-word
 }
 
-.left::before {
+.private_message{
+  left: 10px;
+}
+
+.left::before, .left_multi::before {
   content: '';
   position: absolute;
   visibility: visible;
@@ -379,7 +374,6 @@ li{
   clear: both;
 }
 
-
 button.select_chat{
     border:0;
     background-color:#333333;
@@ -398,41 +392,37 @@ td.select_chat :hover{
   background-color: #39393a;
 }
 
+.propic_from_list, .propic_from_chat, .propic_from_form{
+  background-size: cover;
+  object-fit:cover;
+  border-radius:50%;
+}
+
+.propic_from_form{
+  width: 50px;
+  height: 50px;
+}
 
 .propic_from_list{
   width: 50px;
   height: 50px;
-  max-width:100%;
-  max-height:100%;
-  background-size: cover;
-  object-fit:cover;
-  border-radius:50%;
-  background-position: center center;
-  background-repeat: no-repeat;
   float: left;
-  border: solid 2.5px #333333;
 }
 
 .propic_from_chat{
   width: 35px;
   height: 35px;
-  max-width:100%;
-  max-height:100%;
-  background-size: cover;
-  object-fit:cover;
-  border-radius:50%;
-  background-position: center center;
-  background-repeat: no-repeat;
   float: left;
-  border: solid 2.5px #000000;
+  position: absolute;
+  bottom: 0;
 }
 
 #profile_image{
   border-color: #191919;
 }
 
-#profileForm,#createGroupForm,#searchForm{
-  background-color: #1b2126;
+#profileMenu,#myProfileForm,#createGroupForm,#searchForm{
+  background-color: #323232;
 }
 .time_preview{
   font-size: 12px;
@@ -549,6 +539,7 @@ ul {
 #nickname,#log{
   margin: 0;
   text-align: center;
+  white-space: nowrap;
 }
 
 #propic{  

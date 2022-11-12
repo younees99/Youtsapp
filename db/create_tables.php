@@ -5,7 +5,7 @@
     $query="CREATE TABLE IF NOT EXISTS `Users`(        
         userID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
         username VARCHAR(255) NOT NULL,
-        nickname VARCHAR(255) NOT NULL,
+        nickname VARCHAR(255) NOT NULL DEFAULT '',
         password VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL,
         image_url VARCHAR(255),
@@ -29,13 +29,13 @@
     $query="CREATE TABLE IF NOT EXISTS `Messages`( 
         messageID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
         date_time TIMESTAMP NOT NULL,
-        mess_text TEXT CHARSET utf8mb NOT NULL,
+        mess_text TEXT CHARSET utf8 NOT NULL,
         source_user INT(255),
         destination_user INT(255),
         destination_group INT(255),
-        FOREIGN KEY (source_user) REFERENCES Users(userID),  
-        FOREIGN KEY (destination_user) REFERENCES Users(userID),
-        FOREIGN KEY (destination_group) REFERENCES Groups(groupID)
+        FOREIGN KEY (source_user) REFERENCES Users(userID) ON DELETE CASCADE,  
+        FOREIGN KEY (destination_user) REFERENCES Users(userID) ON DELETE CASCADE,
+        FOREIGN KEY (destination_group) REFERENCES Groups(groupID) ON DELETE CASCADE
     )engine=InnoDB";
     $db->query($query);
 
@@ -56,8 +56,8 @@
         groupID INT(255),
         userID INT(255),
         is_typing BOOLEAN NOT NULL DEFAULT 0,
-        FOREIGN KEY (userID) REFERENCES Users(userID),
-        FOREIGN KEY (groupID) REFERENCES Groups(groupID)
+        FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE,
+        FOREIGN KEY (groupID) REFERENCES Groups(groupID) ON DELETE CASCADE
     )engine=InnoDB";
     $db->query($query);
  
@@ -69,21 +69,21 @@
         friendID INT(255) NOT NULL,
         last_message INT(255),
         is_typing BOOLEAN NOT NULL DEFAULT 0,
-        FOREIGN KEY (userID) REFERENCES Users(userID),  
-        FOREIGN KEY (friendID) REFERENCES Users(userID),
-        FOREIGN KEY (last_message) REFERENCES Messages(messageID)
+        FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE,  
+        FOREIGN KEY (friendID) REFERENCES Users(userID) ON DELETE CASCADE,
+        FOREIGN KEY (last_message) REFERENCES Messages(messageID) ON DELETE CASCADE
     )engine=InnoDB";
     $db->query($query);  
 
-    //Creating MESSAGES_USERS table to save which users saw a message in a group
+    //Creating MESSAGES_READ table to save which users saw a message in a group
     //When a users sees a message his and the message ids will be saved here
-    $query = "CREATE TABLE IF NOT EXISTS `Messages_users`(
-        message_userID INT (255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    $query = "CREATE TABLE IF NOT EXISTS `Messages_read`(
+        message_readID INT (255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
         userID INT(255),
         messageID INT(255),
         date_read TIMESTAMP,
-        FOREIGN KEY (userID) REFERENCES Users(userID),  
-        FOREIGN KEY (messageID) REFERENCES Messages(messageID)
+        FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE,  
+        FOREIGN KEY (messageID) REFERENCES Messages(messageID) ON DELETE CASCADE
     )engine=InnoDB";
 
     //Creating global group    

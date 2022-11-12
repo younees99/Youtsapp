@@ -25,14 +25,14 @@
                         echo"<p style='color:white'>
                                 File not uploaded!
                             </p>";
-                        $href='singup.php';
+                        $href='signup.php';
                         break;
                     
                     case 'ext':
                         echo"<p style='color:white'>
                                 Extention not supported
                             </p>";
-                        $href='singup.php';
+                        $href='signup.php';
                         break;
 
                     case'pass':
@@ -47,7 +47,7 @@
                             </p>";
                         break;
                 }
-                echo"<a href='../$href' class='buttons_index' id='log_in'>
+                echo"<a href='$href' class='buttons_index' id='log_in'>
                         Try again!
                     </a>";
             ?>

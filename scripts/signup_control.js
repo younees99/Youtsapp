@@ -1,4 +1,6 @@
-function validaForm(form){       
+var available_tag = true;
+
+function validateForm(form){       
     user=form["user"];
     nickname=form["nickname"];
     email=form["email"];
@@ -16,40 +18,51 @@ function validaForm(form){
 
     equal_pass=checkEqualPass(pass,conf_pass);
 
-    valid_form=valid_user&&valid_email&&valid_pass&&equal_pass&&valid_nickname;
+    valid_form=valid_user&&valid_email&&valid_pass&&equal_pass&&valid_nickname&&available_tag;
 
     return valid_form;
 }
 
 function checkUser(user){
-    check=validUser(user.value) && avialableTag(user);               
+    var check = true;   
+    if(!validUser(user.value)){
+        check = false;
+        document.getElementById("username_not_valid").style.display = "block";
+    }            
+    else{
+        check = true;
+        document.getElementById("username_not_valid").style.display = "none";
+    }
     colorBorders(check,user);
     return check;
 }
 
+function showAvialibility(user,json) {
+    console.log(json);
+    var is_taken = json.is_taken;
+    check = !is_taken;
+    if(is_taken)
+        document.getElementById("unavialable_username").style.display = "block";        
+    else
+        document.getElementById("unavialable_username").style.display = "none";
+
+    colorBorders(user);
+    available_tag = check;
+}
+
 function validUser(user) {
-    var re= new RegExp("^[A-Za-z][A-Za-z0-9_-]{6,32}$");
+    var re= new RegExp("^[A-Za-z][A-Za-z0-9_-]{5,32}$");
     return re.test(user);
 }
 
 function avialableTag(user) {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(JSON.parse(this.responseText));
-            showAvialability(JSON.parse(this.responseText),user);
-        }
+        if (this.readyState == 4 && this.status == 200) 
+            showAvialibility(user,this.responseText);
         }
     xmlhttp.open("GET", "../db/ajax_requests.php?tag="+user.value+"&choice=available_tag", true);
     xmlhttp.send();
-}
-
-function showAvialability(bool,user){
-    colorBorders(!check,user);
-    if(bool)
-        document.getElementById("unavialable_username").style.display='block';
-    else
-        document.getElementById("unavialable_username").style.display='none';
 }
 
 function checkNickname(nickname){
@@ -59,49 +72,64 @@ function checkNickname(nickname){
 }
 
 function validNickname(nickname) {
-    var result;
+    var valid = true;
     nickname = nickname.trim();
     if(nickname.length<6 || nickname>30)
-        result = false;
-    return result;
+        valid = false;
+    if(valid)
+        document.getElementById("nickname_not_valid").style.display="none";
+    else
+        document.getElementById("nickname_not_valid").style.display="block";
+    return valid;
 }
 
 function checkEqualPass(pass,conf_pass){
-    check=true;  
-    if(pass.value.length>0){                                              
-        if(pass.value==conf_pass.value){
-            check=true;
-            colorBordersBlue(pass);
-            colorBordersBlue(conf_pass); 
-        }
-        else{
-            colorBordersRed(pass);
-            colorBordersRed(conf_pass);  
-            alert("Attention! The password must be equal");
-            check=false;
-        }
-    } 
-    
+    check=true;                                               
+    if(pass.value==conf_pass.value)
+        showPasswordNotEqual(check);
+    else{  
+        check=false;
+        showPasswordNotEqual(check);
+    }
+    colorBorders(check,pass);    
+    colorBorders(check,conf_pass);    
     return check;
 }
 
+function samePassword(conf_pass_field){
+    pass_field = document.getElementById("pass");
+    checkEqualPass(pass_field,conf_pass_field);    
+}
+
+function showPasswordNotEqual(same) {
+    var spans = document.querySelector(".password_not_same");
+    var display = "block";
+    if(!same)   display = "none";
+    for (let i = 0; i < spans.length; i++) {
+        let span = spans[i];
+        span.style.display = display;
+    }
+}
 
 function checkPassword(pass){
-    valida=validPassword(pass.value);               
-    colorBorders(valida,pass);
-    return valida;
+    var valid=validPassword(pass.value);     
+    if(valid)
+        document.getElementById("password_not_valid").style.display="none";
+    else
+        document.getElementById("password_not_valid").style.display="block";
+    colorBorders(valid,pass);
+    return valid;
 }
 
 function validPassword(password) {
-    var re= new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*\.\,\'])(?=.{8,})");
-    console.log(re.test(password));
+    var re= /^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@#$.,;-_:%^&*]).{8,32}$/;
     return re.test(password);
 }
 
 function checkEmail(email){
-    valida=emailValida(email.value);
-    colorBorders(valida,email);
-    return valida;
+    var valid=emailValida(email.value);
+    colorBorders(valid,email);
+    return valid;
 }
 
 function emailValida(email) {
@@ -109,36 +137,26 @@ function emailValida(email) {
     return re.test(email);
 }
 
-function colorBorders(bool,campo){
+function colorBorders(bool,field){
     if(!bool)
-        colorBordersRed(campo);
+        colorBordersRed(field);
     else
-        colorBordersBlue(campo);
+        colorBordersBlue(field);
 }
 
 
-function colorBordersRed(campo) {
-    campo.style.borderColor="red";
+function colorBordersRed(field) {
+    field.style.borderColor="red";
 }
 
-
-function colorBordersBlue(campo) {
-    campo.style.borderColor="#3498db";
+function previewImage(input) {
+    const [file] = input.files;
+    profile_image = document.getElementById("profile_image");
+    if (file) {
+        profile_image.src = URL.createObjectURL(file);
+    }
 }
 
-
-
-function controllaCampoVuoto(campo){
-    vuoto=false;
-    if(campo.value.length==0)
-        vuoto=true;
-    colorBorders(vuoto);
-    return vuoto;
-}
-
-function fileUploaded(input_file){
-    var val_uploaded_image=input_file.value;
-    var inizioNomeFile=val_uploaded_image.lastIndexOf("\\");
-    val_uploaded_image=val_uploaded_image.substr(inizioNomeFile+1);
-    document.getElementById("label_upload").innerHTML=val_uploaded_image;
+function colorBordersBlue(field) {
+    field.style.borderColor="#3498db";
 }

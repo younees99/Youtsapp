@@ -16,7 +16,7 @@
 	include '../db/config.php';
 	date_default_timezone_set('Europe/Berlin');
 
-	//Query to fetch the chat list for the user's friends and groups
+	//Query to fetch the chat list for the user's friends and groups and number of unreaden messages
 	$query="SELECT *
 				FROM(
 				SELECT	friendID AS chatID,
@@ -28,17 +28,31 @@
 						FU.is_online,
 						is_typing,
 						'user' AS chat_type,
-						(SELECT COUNT(*) 
-							FROM Messages M1
-								JOIN
-									Users U1
-									ON
-										U1.userID=M1.source_user
-							WHERE 
-								(source_user='$_SESSION[name]' OR destination_user='$_SESSION[name]') 
-								AND 
-								(source_user=chatID OR destination_user=chatID)
-								AND is_read=0)
+						(
+							SELECT COUNT(*) 
+								FROM Messages M
+									JOIN
+										Users U
+										ON
+											U.userID=M.source_user
+								WHERE 
+									source_user=chatID AND destination_user='$_SESSION[name]'
+						) -
+						(
+							SELECT COUNT(*) 
+								FROM Messages M
+									JOIN
+										Users U
+										ON
+											U.userID=M.source_user
+									JOIN
+										Messages_read MR
+										ON
+											M.messageID=MR.messageID
+
+								WHERE 
+									source_user=chatID AND destination_user='$_SESSION[name]'
+						)
 						AS count_unread,
 						(SELECT nickname
 							FROM Users
@@ -64,15 +78,30 @@
 					'0' AS is_online,
 					'0' AS is_typing,
 					'group' AS chat_type,
-					(SELECT COUNT(*) 
-						FROM Messages M
-							JOIN
-								Users U 
-								ON
-									U.userID=M.source_user
-						WHERE 
-							destination_group=chatID
-							and is_read=0)
+					(
+						SELECT COUNT(*) 
+							FROM Messages M
+								JOIN
+									Users U 
+									ON
+										U.userID=M.source_user
+							WHERE 
+								destination_group=chatID
+					) -
+					(
+						SELECT COUNT(*) 
+							FROM Messages M
+								JOIN
+									Users U 
+									ON
+										U.userID=M.source_user
+								JOIN
+									Messages_read MR
+									ON
+										M.messageID=MR.messageID
+							WHERE 
+								destination_group=chatID
+					)
 					AS count_unread,
 					(SELECT nickname
 						FROM Users
@@ -96,27 +125,33 @@
 	//Query to fetch all messages from all chats of the user	
 	function queryConversation($chat_type,$chatID,$db,$id){
 		if($chat_type=="user"){
-			$query="SELECT *,
-						ROW_NUMBER() OVER(ORDER BY date_time ASC) AS message_number
+			$query="SELECT *
 							FROM Messages M
 								JOIN
 									Users U 
 									ON
 										U.userID=M.source_user
+								LEFT JOIN 
+									Messages_read MR	
+									ON 
+										MR.messageID=M.messageID							
 							WHERE 
-								(source_user='$id' OR destination_user='$id') 
-								AND 
-								(source_user='$chatID' OR destination_user='$chatID') 
+								(source_user='$id' AND destination_user='$chatID')
+								OR 
+								(source_user='$chatID' AND destination_user='$id')
 					ORDER BY date_time;";
 		}
 		elseif($chat_type=="group"){
-			$query="SELECT * ,
-						ROW_NUMBER() OVER(ORDER BY date_time ASC) AS message_number
+			$query="SELECT *
 							FROM Messages M
 								JOIN
 									Users U 
 									ON
 										U.userID=M.source_user
+								LEFT JOIN 
+									Messages_read MR	
+									ON 
+										MR.messageID=M.messageID
 							WHERE 
 								destination_group='$chatID'
 					ORDER BY date_time;";
@@ -130,8 +165,15 @@
 	$result = $db->query("SELECT * FROM Users WHERE userID='$_SESSION[name]';");
 	$user_data = $result->fetchArray();	
 
-	
-	
+	//Query to fetch all users tyiping per group each
+
+	$query = "SELECT * 
+				FROM Groups_users GU
+				JOIN Users U
+					ON GU.userID=U.userID
+				JOIN Groups G
+					ON GU.groupID=G.groupID 
+			WHERE U.userID='$_SESSION[name]'";
 	
 
 ?>
@@ -139,7 +181,7 @@
 <html>
 	<head>
 		<title>Home</title>
-	    <link rel="stylesheet" type="text/css" href="../style/style.css?version=5643">
+	    <link rel="stylesheet" type="text/css" href="../style/style.css?version=342">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
 		<script>
@@ -164,7 +206,7 @@
 							Youtsapp
 						</p>
 					</button>
-					<button class='iconbtn' onclick='openProfileMenu()'>
+					<button class='iconbtn' onclick='openMyProfileMenu()'>
 						<i class="fa fa-user-circle-o fa-2x" aria-hidden="true" style="float:right"></i>
 					</button>
 				</header>
@@ -246,8 +288,18 @@
 													$mess_text = "Start a conversation";
 												}
 											?>
-											<span class='mess_preview'  id='mess_preview_<?=$chat_type;?>_<?=$chatID;?>'><?=$mess_source.$mess_text;?></span>
-											<span class='is_typing'  id='is_typing_<?=$chat_type;?>_<?=$chatID;?>' style='color: #2287d9;'>is typing...</span>						
+											<span class='mess_preview'  id='mess_preview_<?=$chat_type;?>_<?=$chatID;?>'   
+												<?php
+													if(boolval($is_typing))
+														echo "style = 'display: none;'";														
+												?>
+											><?=$mess_source.$mess_text;?></span>
+											<span class='is_typing'  id='is_typing_<?=$chat_type;?>_<?=$chatID;?>' style='color: #2287d9; 
+												<?php
+													if(boolval($is_typing))
+														echo "display: block;";													
+												?>
+											'>is typing...</span>						
 										</td>
 										<td>
 										<span class="button__badge" id='unread_mess_<?=$chat_type;?>_<?=$chatID;?>'
@@ -291,15 +343,20 @@
 								$chat_type = $chat["chat_type"];
 								$messages = queryConversation($chat_type,$chatID,$db,$_SESSION['name']); ?>								
 							<tbody id="chat<?= $chat_type;?>_<?= $chatID;?>" class="chat">
-								<?php foreach($messages as $message): 
+								<?php for($i=0;$i<count($messages);$i++):
+										$message = $messages[$i]; 
 										$date_time = strtotime($message['date_time']);
 										$time = date("H:i",$date_time);	
 										$date = date("d/m",$date_time);
 										$full_date = date("d/m/Y",$date_time);
 										$source_user = $message['source_user'];	
-										$message_number = $message['message_number'];	
+										$message_id = $message['messageID'];	
 										$mess_text = $message['mess_text'];
-										$is_read = $message['is_read'];
+										if(isset($messages[$i+1])){
+											$next_source_user = $messages[$i+1]["source_user"];
+											$next_date_time = strtotime($messages[$i+1]['date_time']);
+											$next_date = date("d/m",$next_date_time);
+										}										
 
 									?>
 									<?php if($month_day!=date("F d",$date_time)):
@@ -318,10 +375,10 @@
 									$mess_text=htmlspecialchars(str_replace("/n","<br>",$mess_text));
 									if($source_user==$_SESSION['name']):?>
 										<tr><td>
-											<div id='message_<?= $message_number;?>' class='right'>
+											<div id='message_<?= $message_id;?>' class='right'>
 													<p class='message_value'><?=$mess_text;?></p> 
 													<?php
-														if($is_read):
+														if(isset($message['date_read'])):
 													?>
 														<i class="fa fa-check-circle-o circle_checked" aria-hidden="true"></i>
 													<?php
@@ -335,21 +392,34 @@
 											</div>
 										</td></tr>
 									<?php else: ?>
-										<tr><td>
+										<tr><td style="position: relative;">
 											<?php
 												$nickname=$message["nickname"];
 												$image_url="../src/profile_pictures/".$message["image_url"];
 												$is_online=$message['is_online'];
-												$border="#333333";
+												$border="#000000";
+												$class = 'left_multi'; #122636
 												if($is_online) 
 													$border="#00ff33";
-												if($chat_type=='group'):
+												if($chat_type=='user')
+													$class='left private_message';
+												if(
+													($chat_type=='group' &&(
+														!isset($messages[$i+1]) ||
+															($next_source_user != $source_user ||
+															$next_date != $date
+															)
+														)
+													)
+												):
+													$class = 'left';													
+
 											?>												
-											<div class='propic_from_chat propic_from_chat<?=$chatID?>'
+											<button class='propic_from_chat propic_from_chat<?=$chatID?>' onclick='openProfileMenu(<?=$source_user;?>,"user"); loadProfileInfo(<?=$source_user;?>,"user");'
 												style='background-image:url(<?=$image_url?>);border:2.5px solid <?= $border?>'>
-											</div>
+											</button>
 											<?php endif;?>	
-											<div id='message_<?= $message_number;?>' class='left'>	
+											<div id='message_<?= $message_id;?>' class='<?=$class?>'>	
 												<?php if($chat_type=='group'): ?>						
 													<p class='message_source'><b><?=$nickname?></b></p>
 												<?php endif; ?>
@@ -360,7 +430,7 @@
 											<?php
 										endif;
 									?>
-								<?php endforeach; 								
+								<?php endfor; 								
 									if($date != date("d/m",$today)):
 								?>
 									<tr><td align='center'><p class='print_date' style="display:none" id="today_span_<?=$chat_type?>_<?=$chatID?>">Today</p></td></tr>
@@ -394,92 +464,107 @@
 					</ul>
 				</div>
 
-				<form class='box' action='' id='createGroupForm' method='POST'  enctype="multipart/form-data">
+				<div class='box' id='createGroupForm'>
 					<button id='closeBtn' style='background-color: Transparent; border:none; float: right' onclick="closeOverlay();" >
 						<i class="fa fa-times fa-2x" aria-hidden="true" style='color: white;'></i>
-					</button>   
-					<h2>Create a new group</h2>
-					<input type='text' name='name' placeholder='Insert the new group name'>
-					<input type='text' name='tag' placeholder='Insert the new group tag'>
-					<input id="file-upload" type="file" name="uploaded_image" accept="image/*" onchange="fileUploaded(this)">
-					<label for="file-upload" id='label_upload' class='buttons_index'>
-						Upload group photo! <i class="fa fa-upload" aria-hidden="true"></i>
-					</label>
-					<input type='submit' class='buttons_index' name='create' value='Create'>
-				</form>
-
-				<form class='box' action='' id='profileForm' method='POST'  enctype="multipart/form-data">	
-					<h2 class="youtsapp" >Profile</h2>
+					</button> 
+					<form action=''method='POST'  enctype="multipart/form-data">  
+						<h2>Create a new group</h2>
+						<input type='text' name='name' placeholder='Insert the new group name'>
+						<input type='text' name='tag' placeholder='Insert the new group tag'>
+						<input id="file-upload" type="file" name="uploaded_image" accept="image/*" onchange="fileUploaded(this)">
+						<label for="file-upload" id='label_upload' class='buttons_index'>
+							Upload group photo! <i class="fa fa-upload" aria-hidden="true"></i>
+						</label>
+						<input type='submit' class='buttons_index' name='create' value='Create'>
+					</form>
+				</div>
+				
+				<div class='box' id='myProfileForm'>
 					<button id='closeBtn' style='background-color: Transparent; border:none; float: right' onclick='closeOverlay()'>
 							<i class="fa fa-times fa-2x" aria-hidden="true" style='color: white;'></i>
 					</button>   
-					<label for="profile_image_input" id='label_upload' align="center">		
-						<div class="container">
-						<img id="profile_image" class='propic_from_list' style="float: center;" src="../src/profile_pictures/<?= $user_data['image_url'];?>"/>
-						<div class="overlay_propic">
-							<button id="loadPhoto">
-							<i class="fa fa-camera" aria-hidden="true"></i>
-							</button>
-						</div>
-						</div>
-					</label>
-					<table id='profile_table'>
-						<tr>
-							<td>
-								<i class="fa fa-at fa-2x" aria-hidden="true"></i>
-							</td>
-							<td>
-								Username: <?= $user_data["username"];?>
-							</td>
-							<td>
-								<i class="fa fa-pencil" aria-hidden="true"></i>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<i class="fa fa-user fa-2x" aria-hidden="true"></i>
-							</td>
-							<td>
-								Nickname: <?= $user_data["nickname"];?>
-							</td>
-							<td>
-								<i class="fa fa-pencil" aria-hidden="true"></i>
-							</td>
-						</tr>		
-						<tr>
-							<td>
-								<i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
-							</td>
-							<td>
-								Email: <?= $user_data["email"];?>
-							</td>
-							<td>
-								<i class="fa fa-pencil" aria-hidden="true"></i>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<i class="fa fa-lock fa-2x" aria-hidden="true"></i>
-							</td>
-							<td>
-								Change password
-							</td>
-							<td>
-								<i class="fa fa-pencil" aria-hidden="true"></i>
-							</td>
-						</tr>
-						<tr><td colspan="2" width="100%" align="center">
-							<a href="../logout.php" class="iconlink" id="logout">
-								<i class="fa fa-sign-out fa-2x" aria-hidden="true" ></i>
-							</a>	
-						</td></tr>							
-					</table>
-					<input accept="image/*" name="uploaded_image" type='file' id="profile_image_input" onchange="previewImage(this)"/>						
-				</form> 
-					
+					<form action='' method='POST' enctype="multipart/form-data">	
+						<h2 class="youtsapp" >Profile</h2>
+						<label for="profile_image_input" id='label_upload' align="center">		
+							<div class="container">
+								<img id="profile_image" class='propic_from_list' src="../src/profile_pictures/<?= $user_data['image_url'];?>"/>
+								<div class='overlay_propic'>
+									<div class="loadPhoto">
+										<i class="fa fa-camera" aria-hidden="true"></i>									
+									</div>
+								</div>
+							</div>
+						</label>
+						<table id='my_profile_table'>
+							<tr>
+								<td>
+									<i class="fa fa-at fa-2x" aria-hidden="true"></i>
+								</td>
+								<td>
+									Username: <?= $user_data["username"];?>
+								</td>
+								<td>
+									<i class="fa fa-pencil" aria-hidden="true"></i>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<i class="fa fa-user fa-2x" aria-hidden="true"></i>
+								</td>
+								<td>
+									Nickname: <?= $user_data["nickname"];?>
+								</td>
+								<td>
+									<i class="fa fa-pencil" aria-hidden="true"></i>
+								</td>
+							</tr>		
+							<tr>
+								<td>
+									<i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+								</td>
+								<td>
+									Email: <?= $user_data["email"];?>
+								</td>
+								<td>
+									<i class="fa fa-pencil" aria-hidden="true"></i>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<i class="fa fa-lock fa-2x" aria-hidden="true"></i>
+								</td>
+								<td>
+									Change password
+								</td>
+								<td>
+									<i class="fa fa-pencil" aria-hidden="true"></i>
+								</td>
+							</tr>
+							<tr><td colspan="2" width="100%" align="center">
+								<a href="../logout.php" class="iconlink" id="logout">
+									<i class="fa fa-sign-out fa-2x" aria-hidden="true" ></i>
+								</a>	
+							</td></tr>							
+						</table>
+						<input accept="image/*" name="uploaded_image" type='file' id="profile_image_input" onchange="previewImage(this)"/>						
+					</form> 
+				</div>
+
+				<div class='box' id='profileMenu'>						
+					<h2 class="youtsapp" id="profile_info_name"></h2>
+					<button id='closeBtn' style='background-color: Transparent; border:none; float: right' onclick='closeOverlay()'>
+							<i class="fa fa-times fa-2x" aria-hidden="true" style='color: white;'></i>
+					</button>   
+
+					<div>
+						<img id="profile_image" class='propic_from_list'/>
+					</div>
+							
+				</div>
             </div>  
 			
-		<script src="../scripts/index_scripts.js?t=827"></script>
+		<script src="../scripts/index_scripts.js?t=563"></script>
 		<?php
 			$db->close();
 		?>

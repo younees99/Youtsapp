@@ -82,25 +82,30 @@ function printMessage(message){
 
     else{
         destination = from_id;
-        print_message += "<tr><td>";
+        print_message += "<tr><td style='position: relative'>";
+        mess_class = "left private_message";
         if(chat_type == 'group'){
             destination = to_id;
             user = message.from_id;
             username = message.from_nickname;
+            mess_class = "left";
             var image_url = "../src/profile_pictures/"+message.image_url;
             print_message += "<div class='propic_from_chat propic_from_chat"+user+"' ";
             print_message += "style='background-image:url(" +image_url+");";
             print_message += "border:2.5px solid rgb(0, 255, 51)'></div>";
         }
-        print_message += "<div id='message_"+messages_id+"' class='left'>";
+        print_message += "<div id='message_"+messages_id+"' class='"+mess_class+"'>";
         if(chat_type == 'group')
             print_message += "<p class='message_source'><b>"+username+"</b></p>";
         print_message += "<p class='message_value'>"+mess_text+"</p>";
         print_message += "<span class='time-left'>"+time+"</span>";
         print_message += '</div></td></tr>';
     }
+
     document.getElementById("chat"+chat_type+"_"+destination).innerHTML+=print_message;
+
     if(chat_type == global_destination_type && from_id == global_to_id){
+        
         if(global_destination_type == "user")   
             readMessages(chat_type,from_id);
         else
@@ -147,6 +152,7 @@ function showHeader(jsonHeader,chat_type){
     for(let json of jsonHeader){
         if(chat_type == "user"){
             nickname = json.nickname;
+            id = json.userID;
             image_url = "../src/profile_pictures/" + json.image_url;
             is_typing = Boolean(parseInt(json.is_typing));
             is_online = Boolean(parseInt(json.is_online));
@@ -155,10 +161,11 @@ function showHeader(jsonHeader,chat_type){
             print_header += '<button onClick="exitChat()" id="backButton" class="headerButtons">';
             print_header += '<i class="fa fa-chevron-left fa-2x" aria-hidden="true" ';
             print_header += 'style="color: white;padding-top: 10px;"></i></button>';
+            print_header += '<button onClick="loadProfileInfo("user",'+id+')" class="headerButtons">';
             print_header += "<div id='propic' style='background-image:url("+image_url+");";
             if(is_online)
                 print_header += "border:2.5px solid #00ff33";
-            print_header += "'></div>";
+            print_header += "'></div></button>";
             print_header += "<table id='header_table'><tr><td>";
             print_header += "<p id='nickname'>"+nickname+"</p></td></tr><tr><td><p id='log'>";
             if(is_typing)
@@ -170,6 +177,7 @@ function showHeader(jsonHeader,chat_type){
             print_header += '</p></td></tr></table>';
         }
         else{
+            id = json.groupID;
             group_name = json.group_name;
             image_url = "../src/profile_pictures/" + json.image_url;
             online_users = json.online_users;
@@ -177,8 +185,9 @@ function showHeader(jsonHeader,chat_type){
             print_header += '<button onClick="exitChat()" id="backButton" class="headerButtons">';
             print_header += '<i class="fa fa-chevron-left fa-2x" aria-hidden="true" ';
             print_header += 'style="color: white;padding-top: 10px;"></i></button>';
+            print_header += '<button onClick="loadProfileInfo("group",'+id+')" class="headerButtons">';
             print_header += "<div id='propic' style='background-image:url("+image_url;
-            print_header += ");'></div>";
+            print_header += ");'></div></button>";
             print_header += `<table id='header_table'><tr><td><p id='nickname'>${group_name}</p></td></tr>`;
             print_header += "<tr><td><p id='log'>";
             print_header += `Online users: <span id="count_online">${online_users}`;
@@ -212,15 +221,15 @@ function showRequest(jsonChats) {
         print_chats += "<button class='select_chat'";
         print_chats += 'onClick=\'showConversation("'+chat_type+'","'+chatID+'");';
         print_chats += 'requestHeader("'+chat_type+'","'+chatID+'");';
-        print_chats += 'closeOverlay(); '
-        print_chats += 'document.getElementById("input_search").value = "";';
-        print_chats += 'document.getElementById("tableResults").innerHTML = "";\'>';
+        print_chats += 'closeOverlay(); \'>';
         print_chats += "<div class='select_chat'>";
         print_chats += "<div class='propic_from_list' ";
         print_chats += "style='background-image:url(\""+chat_image+"\");'>";
         print_chats += "</div> ";
-        print_chats += "<p class='chat_name'>"+chat_name+"</p>";
-        print_chats += "<span class='mess_preview'>"+chat_tag+"</span>";
+        print_chats += "<table class='chat_table'><tr><td>";
+        print_chats += "<p class='chat_name'>"+chat_name+"</p></td></tr>";
+        print_chats += "<tr><td><span class='mess_preview'>"+chat_tag+"</span>";
+        print_chats += "</td></tr></table>";
         print_chats += "</div></button></li>";
     }
     if(jsonChats.length==0)
@@ -229,11 +238,20 @@ function showRequest(jsonChats) {
 }
 
 
+function openMyProfileMenu(){
+    document.getElementById("overlay").style='display: block;';
+    document.getElementById("searchForm").style='display: none;';
+    document.getElementById("createGroupForm").style='display: none;';
+    document.getElementById("profileMenu").style='display: none;';
+    document.getElementById("myProfileForm").style='display: block;';
+}
+
 function openProfileMenu(){
     document.getElementById("overlay").style='display: block;';
     document.getElementById("searchForm").style='display: none;';
     document.getElementById("createGroupForm").style='display: none;';
-    document.getElementById("profileForm").style='display: block;';
+    document.getElementById("profileMenu").style='display: block;';
+    document.getElementById("myProfileForm").style='display: none;';
 }
 
 function search(){
@@ -241,14 +259,16 @@ function search(){
     document.getElementById("searchForm").style='display: block;';
     document.getElementById("input_search").focus();
     document.getElementById("createGroupForm").style='display: none;';
-    document.getElementById("profileForm").style='display: none;';
+    document.getElementById("profileMenu").style='display: none;';
+    document.getElementById("myProfileForm").style='display: none;';
 }
 
 function createGroup() {
     document.getElementById("overlay").style='display: block;';
     document.getElementById("searchForm").style='display: none;';
     document.getElementById("createGroupForm").style='display: block;';
-    document.getElementById("profileForm").style='display: none;';
+    document.getElementById("profileMenu").style='display: none;';
+    document.getElementById("myProfileForm").style='display: none;';
 }
 
 function exitChat(){
@@ -354,8 +374,6 @@ function printTyping(type,is_typing,message){
         document.getElementById("is_typing_"+type+"_"+source_id).style.display="none";
         document.getElementById("mess_preview_"+type+"_"+source_id).style.display="block";
     }  
-
-
 }
 
 function printPreview(message){
@@ -404,21 +422,22 @@ function incrementBadgeCount(message){
     var source_type = message.destination_type;
     var source_id = message.from_id;     
     var destination_id = message.to_id;
-    var badge_span_id = "unread_mess_"+source_type+"_"+source_id;
-    var badge_span = document.getElementById(badge_span_id);
+    var badge_span;
 
-    if(source_type == "group")
-        badge_span_id = "unread_mess_"+source_type+"_"+destination_id;
-
-    if(source_type == "group")
+    if(source_type.trim() == "group")
         source_id = destination_id;
-        
-    if(source_id != global_to_id || source_type != global_destination_type){
+
+    var badge_span_id = "unread_mess_"+source_type+"_"+source_id;
+
+    badge_span = document.getElementById(badge_span_id);
+    
+    if(!(source_id == global_to_id && source_type == global_destination_type) && badge_span){
         var int_count= parseInt(badge_span.textContent, 10)+1;
         badge_span.innerHTML=int_count;
         if(badge_span.style.display == "none")
             badge_span.style.display = "inline";
     }
+    
     
 }
 
@@ -507,7 +526,6 @@ websocket_server.onerror = function(e) {
 
 websocket_server.onmessage = function(e){
     var json = JSON.parse(e.data);
-    console.log(json); 
     switch(json.type){
         case 'chat':
             printMessage(json);
@@ -518,10 +536,11 @@ websocket_server.onmessage = function(e){
         
         case 'connected':
             var id=json.user_id;	
-            if(global_destination_type == 'user')
+            if(global_destination_type == 'user'){
                 turnLedStatus(id,true);      
                 if(id == global_to_id)
-                    updateHeaderStatus(false,json.time); 
+                    updateHeaderStatus(true,json.time); 
+            }
             else if(global_destination_type == 'group')            
                 incrementPrintCountOnline(id);
             turnLedStatusList(id,true);
@@ -529,13 +548,15 @@ websocket_server.onmessage = function(e){
         
         case 'disconnected':
             var id = json.user_id;
-            if(global_destination_type == 'user')
+            if(global_destination_type == 'user'){
                 turnLedStatus(id,false);  
                 if(id == global_to_id)
                     updateHeaderStatus(false,json.time); 
+            }
             else if(global_destination_type == 'group')     
                 decrementPrintCountOnline(id);
             turnLedStatusList(id,false);
+            console.log("Id "+id+" disconnected");
             break;
         
         case 'typing': 
@@ -630,18 +651,18 @@ function dateTimeToText(last_seen){
     diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // milliseconds * seconds * minutes * hours
 
 
-    if(date_time.getFullYear()<year){
+    if(date_time.getFullYear()<year)
         print_text = "Last seen "+day+" "+months[month]+" "+year;
-    }
-    else if(diffDays>2){
+    
+    else if(diffDays>2)
         print_text = "Last seen "+day+" "+months[month]+" at "+hour+":"+minutes;
-    }
-    else if(diffDays==1){
+    
+    else if(diffDays==1)
         print_text = "Last seen yesterday at "+hour+":"+minutes;
-    }
-    else{
+    
+    else
         print_text = "Last seen today at "+hour+":"+minutes;
-    }
+    
     
     return print_text;
 }
@@ -650,4 +671,14 @@ function checkZero(data){
     if(data.length == 1)
         data = "0" + data;    
     return data;
+}
+
+function loadProfileInfo(type, id){
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) 
+            showRequest(JSON.parse(this.responseText))
+        }
+    xmlhttp.open("GET", "../db/ajax_requests.php?name="+search+"&choice=search", true);
+    xmlhttp.send();
 }

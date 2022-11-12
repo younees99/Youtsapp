@@ -1,18 +1,18 @@
 <?php
 	session_start();
     include 'config.php';
-    $id = $_SESSION['name'];
     $choice = $_GET['choice'];
     $choice=$db->escapeString($choice);
     $query = '';
     switch ($choice) {
         case 'head':
+            $id = $_SESSION['name'];
             $chatID = $_GET['chatID'];
             $chatID=$db->escapeString($chatID);
             $chat_type = $_GET['chat_type'];
             if($chat_type == "user"){									
                 $query="SELECT 
-                            nickname,image_url,is_typing,is_online,last_seen
+                            U.userID,nickname,image_url,is_typing,is_online,last_seen
                             FROM 
                                 Users U
                                 JOIN 
@@ -26,7 +26,7 @@
             }
             elseif($chat_type="group"){
                 $query="SELECT 
-                            group_name,image_url, (
+                            G.groupID,group_name,image_url, (
                                     SELECT COUNT(*) as online_users 
                                         FROM Users 
                                         WHERE 
@@ -48,53 +48,53 @@
             break;
 
         case 'search':
+            $id = $_SESSION['name'];
             $search = $_GET['name'];
             $search = $db->escapeString($search);
             $search = strtolower($search);
-            $query="SELECT U.userID AS chatID,
-                            username AS chat_tag,
-                            nickname AS chat_name,
-                            image_url,
-                            is_online,
-                            'user' AS chat_type,
-                            MAX(since) AS since
-                        FROM Friends F 
-                            LEFT JOIN Users U 
-                                ON (U.userID=F.friendID)
-                    WHERE 
-                        LOWER(username) LIKE '$search%'
-                        AND U.userID!='$id'
-                    GROUP BY chatID
-                    UNION
-                    SELECT GU.groupID AS chatID,
-                            grouptag AS chat_tag,
-                            group_name AS chat_name,
-                            image_url,
-                            '0'AS is_online,
-                            'group' AS chat_type,
-                            MAX(since) AS since
-                        FROM Groups G
-                            LEFT JOIN Groups_users GU
-                                ON (G.groupID=GU.groupID)
-                    WHERE 
-                        LOWER(grouptag) LIKE '$search%'
-                    GROUP BY chatID;";
+            $query="SELECT userID AS chatID,
+                username AS chat_tag,
+                nickname AS chat_name,
+                image_url,
+                is_online,
+                'user' AS chat_type
+                FROM Users
+            WHERE 
+                (LOWER(username) LIKE '$search%'
+                OR
+                LOWER(nickname) LIKE '$search%')
+                AND userID!='$id'
+            GROUP BY chatID
+            UNION
+            SELECT groupID AS chatID,
+                    grouptag AS chat_tag,
+                    group_name AS chat_name,
+                    image_url,
+                    '0'AS is_online,
+                    'group' AS chat_type
+                FROM Groups
+            WHERE 
+                LOWER(grouptag) LIKE '$search%'
+            GROUP BY chatID;";
     
             break;
             case 'available_tag':
                 $tag = $_GET['tag'];
                 $tag = $db->escapeString($tag);
-                $query = "SELECT COUNT(*)
-                            FROM
-                                Users U
-                            WHERE
-                                U.username = '$tag'
-                        UNION
-                        SELECT
-                            FROM
-                                Groups G
-                            WHERE
-                                G.grouptag = '$tag';";
+                $query = "SELECT COUNT(*) as is_taken
+                        FROM(
+                            SELECT userID
+                                FROM
+                                    Users U
+                                WHERE
+                                    U.username = '$tag'
+                            UNION
+                            SELECT groupID
+                                FROM
+                                    Groups G
+                                WHERE
+                                    G.grouptag = '$tag'
+                        )a;";
                 break;
     }
     $result=$db->query($query)->fetchAll();

@@ -287,7 +287,7 @@
 					$from_nickname = $row['nickname'];										
 
 					if($destination_type=='user'){
-						$query="UPDATE Friends SET is_typing='1' WHERE userID='$from_id' AND friendID='$to_id';";
+						$query="UPDATE Friends SET is_typing='1' WHERE userID='$to_id' AND friendID='$from_id';";
 						$this->db->query($query);	
 						if(in_array($to_id, $this->users_ids)){
 							$this->variableConn(
@@ -353,7 +353,7 @@
 					$from_nickname = $row['nickname'];	
 
 					if($destination_type=='user'){
-						$query="UPDATE Friends SET is_typing='0' WHERE userID='$from_id' AND friendID='$to_id';";
+						$query="UPDATE Friends SET is_typing='0' WHERE userID='$to_if' AND friendID='$from_id';";
 						$this->db->query($query);	
 						if(in_array($to_id, $this->users_ids)){
 							$this->variableConn(
@@ -410,35 +410,68 @@
 					$destination_type = "destination_user";
 					$query = "";
 					if($destination == "user"){
-						$query = "UPDATE Messages
-								SET 
-									date_read=NOW()  
-								WHERE
-									destination_user='$from_id'
-										AND
-									source_user='$to_id';";
-					}
-					else{
-						$query = "INSERT INTO Messages_users
+						$query = "INSERT INTO Messages_read
 									(
 										userID,
-										messaageID,
+										messageID,
+										date_read
+									)								
+									SELECT 
+										'$from_id', messageID, NOW()
+									FROM
+										Messages M
+									JOIN
+										Friends F
+									ON
+										M.destination_user = F.userID
+									WHERE
+										F.userID = '$from_id'
+										AND
+										F.friendID = '$to_id'
+										AND
+										NOT EXISTS (
+											SELECT
+												userID,
+												messageID
+											FROM 
+												Messages_read
+											WHERE
+												userID = $from_id
+												AND
+												messageID = M.messageID
+										);";
+					}
+					else{
+						$query = "INSERT INTO Messages_read
+									(
+										userID,
+										messageID,
 										date_read
 									)
-									VALUES
-									(
-										SELECT 
-											'$from_id', messageID, NOW()
-										FROM
-											Messages M
-										JOIN
-											Groups G
-										ON
-											M.destination_group = G.groupID
-										WHERE
-											groupID = '$to_id';
-
-									);";
+									SELECT 
+										'$from_id', messageID, NOW()
+									FROM
+										Messages M
+									JOIN
+										Groups G
+									ON
+										M.destination_group = G.groupID
+									WHERE
+										groupID = '$to_id'
+										AND
+										M.source_user != '$from_id'
+										AND
+										NOT EXISTS (
+											SELECT
+												userID,
+												messageID
+											FROM 
+												Messages_read
+											WHERE
+												userID = $from_id
+												AND
+												messageID = M.messageID
+										);";
 					}
 					
 					$this->db->query($query);
