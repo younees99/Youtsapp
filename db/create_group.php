@@ -23,9 +23,8 @@
         }
     }
 
-    $query="INSERT INTO groups(grouptag,group_name,image_url) VALUES
+    $query="INSERT INTO groups(group_name,image_url) VALUES
                 ('$name',
-                '$tag',
                 '$file_name');
     ";
     $db->query($query);   

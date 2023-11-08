@@ -20,7 +20,7 @@
 	$query="SELECT *
 				FROM(
 				SELECT	friendID AS chatID,
-						FU.nickname AS chatName,
+						FU.username AS chatName,
 						FU.image_url AS chatImage,
 						mess_text,
 						date_time,
@@ -54,7 +54,7 @@
 									source_user=chatID AND destination_user='$_SESSION[name]'
 						)
 						AS count_unread,
-						(SELECT nickname
+						(SELECT username
 							FROM Users
 								WHERE
 									userID=last_message_source_id)
@@ -103,7 +103,7 @@
 								destination_group=chatID
 					)
 					AS count_unread,
-					(SELECT nickname
+					(SELECT username
 						FROM Users
 							WHERE
 								userID=last_message_source_id)
@@ -194,11 +194,11 @@
 		</script>
 	</head>
 	<body>		
-		<div id="loading_div" style='display:none;' class='box'>
+		<div id="loading_div" style='display:block;' class='box'>
 			<i class="fa fa-circle-o-notch fa-spin fa-2x" aria-hidden="true"></i>
 			<p style="font-size: 28px;">Connection...</p>
 		</div>
-		<div id='main_div' style='display: block;'>
+		<div id='main_div' style='display: none;'>
 			<div id='left_main_div'>
 				<header class='header_chats' id='header_chats'> 
 					<button class='iconbtn' onclick='exitChat()'>
@@ -368,7 +368,7 @@
 											$print_date = "Today";
 										elseif(round($datediff)==1)
 											$print_date = "Yesterday";
-										?>
+										?>Z
 										<tr><td align='center'><p class='print_date'><?= $print_date?></p></td></tr>
 									<?php endif;?>
 									<?php
@@ -394,7 +394,7 @@
 									<?php else: ?>
 										<tr><td style="position: relative;">
 											<?php
-												$nickname=$message["nickname"];
+												$username=$message["username"];
 												$image_url="../src/profile_pictures/".$message["image_url"];
 												$is_online=$message['is_online'];
 												$border="#000000";
@@ -421,7 +421,7 @@
 											<?php endif;?>	
 											<div id='message_<?= $message_id;?>' class='<?=$class?>'>	
 												<?php if($chat_type=='group'): ?>						
-													<p class='message_source'><b><?=$nickname?></b></p>
+													<p class='message_source'><b><?=$username?></b></p>
 												<?php endif; ?>
 												<p class='message_value'><?=$mess_text?></p> 
 												<span class='time-left'><?=$time?></span>
@@ -503,17 +503,6 @@
 								</td>
 								<td>
 									Username: <?= $user_data["username"];?>
-								</td>
-								<td>
-									<i class="fa fa-pencil" aria-hidden="true"></i>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<i class="fa fa-user fa-2x" aria-hidden="true"></i>
-								</td>
-								<td>
-									Nickname: <?= $user_data["nickname"];?>
 								</td>
 								<td>
 									<i class="fa fa-pencil" aria-hidden="true"></i>

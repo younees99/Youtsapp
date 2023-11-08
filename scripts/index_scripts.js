@@ -87,7 +87,7 @@ function printMessage(message){
         if(chat_type == 'group'){
             destination = to_id;
             user = message.from_id;
-            username = message.from_nickname;
+            username = message.from_username;
             mess_class = "left";
             var image_url = "../src/profile_pictures/"+message.image_url;
             print_message += "<div class='propic_from_chat propic_from_chat"+user+"' ";
@@ -151,7 +151,7 @@ function showHeader(jsonHeader,chat_type){
     var print_header = "";
     for(let json of jsonHeader){
         if(chat_type == "user"){
-            nickname = json.nickname;
+            username = json.username;
             id = json.userID;
             image_url = "../src/profile_pictures/" + json.image_url;
             is_typing = Boolean(parseInt(json.is_typing));
@@ -167,7 +167,7 @@ function showHeader(jsonHeader,chat_type){
                 print_header += "border:2.5px solid #00ff33";
             print_header += "'></div></button>";
             print_header += "<table id='header_table'><tr><td>";
-            print_header += "<p id='nickname'>"+nickname+"</p></td></tr><tr><td><p id='log'>";
+            print_header += "<p id='username'>"+username+"</p></td></tr><tr><td><p id='log'>";
             if(is_typing)
                 print_header += 'Is typing...';
             else if(is_online)
@@ -188,7 +188,7 @@ function showHeader(jsonHeader,chat_type){
             print_header += '<button onClick="loadProfileInfo("group",'+id+')" class="headerButtons">';
             print_header += "<div id='propic' style='background-image:url("+image_url;
             print_header += ");'></div></button>";
-            print_header += `<table id='header_table'><tr><td><p id='nickname'>${group_name}</p></td></tr>`;
+            print_header += `<table id='header_table'><tr><td><p id='username'>${group_name}</p></td></tr>`;
             print_header += "<tr><td><p id='log'>";
             print_header += `Online users: <span id="count_online">${online_users}`;
             print_header += `</span></p></td></tr></table>`;
@@ -355,7 +355,7 @@ function updateScroll(){
 }
 
 function printTyping(type,is_typing,message){
-    source = message.from_nickname;
+    source = message.from_username;
     from_id = message.from_id;
     to_id = message.to_id;
     source_id = from_id;
@@ -382,7 +382,7 @@ function printPreview(message){
     var source_type = message.destination_type;
     var source_id = message.from_id;     
     var destination_id = message.to_id;
-    var mess_source = message.from_nickname+": ";
+    var mess_source = message.from_username+": ";
 
     if(source_id == session_id)
         mess_source = "You: "; 
@@ -453,7 +453,7 @@ function updateHeaderStatus(online,time){
 
 function updateHeaderTyping(is_typing,json){
     var log = document.getElementById("log");
-    var nickname = json.from_nickname;
+    var username = json.from_username;
     if(global_destination_type == "user" && global_to_id == json.from_id){
         if(is_typing)
             log.innerHTML = "is typing...";
@@ -462,7 +462,7 @@ function updateHeaderTyping(is_typing,json){
     }
     /*else if(global_destination_type == "group" && global_to_id == json.to_id){
         if(is_typing)
-            log.innerHTML = nickname + "is typing...";
+            log.innerHTML = username + "is typing...";
         else
             log.innerHTML = "Online";
     }*/
@@ -507,7 +507,7 @@ function readMessages(chat_type,chatID){
 }
 websocket_server.onopen = function(e){
     document.getElementById("loading_div").style='display: none;';	
-    document.getElementById("main_div").style='display: block;';	
+    //document.getElementById("main_div").style='display: block;';	
 
     websocket_server.send(
         JSON.stringify({
@@ -673,7 +673,7 @@ function checkZero(data){
     return data;
 }
 
-function loadProfileInfo(type, id){
+function loadProfileInfo(){
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) 

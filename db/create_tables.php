@@ -5,7 +5,6 @@
     $query="CREATE TABLE IF NOT EXISTS `Users`(        
         userID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
         username VARCHAR(255) NOT NULL,
-        nickname VARCHAR(255) NOT NULL DEFAULT '',
         password VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL,
         image_url VARCHAR(255),
@@ -17,7 +16,6 @@
     //Creating GROUPS table
     $query="CREATE TABLE IF NOT EXISTS `Groups`( 
         groupID INT(255) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-        grouptag VARCHAR(255) NOT NULL,
         founded TIMESTAMP NOT NULL,
         group_name VARCHAR(255) NOT NULL,
         image_url VARCHAR(255),
@@ -56,6 +54,7 @@
         groupID INT(255),
         userID INT(255),
         is_typing BOOLEAN NOT NULL DEFAULT 0,
+        request ENUM('from_user','from_member'),
         FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE,
         FOREIGN KEY (groupID) REFERENCES Groups(groupID) ON DELETE CASCADE
     )engine=InnoDB";

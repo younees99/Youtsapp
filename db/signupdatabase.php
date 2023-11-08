@@ -1,7 +1,6 @@
 <?php
     include "config.php";
     $user=$db->escapeString($_POST['user']);
-    $nickname=$db->escapeString($_POST['nickname']);
     $email=$db->escapeString($_POST['email']);
     $pass=$db->escapeString($_POST['pass']);
     $tmp_name=$_FILES['uploaded_image']['tmp_name'];
@@ -34,9 +33,8 @@
     } 
 
     if($uploaded == $want_to_upload){    
-        $query="INSERT INTO Users(username,nickname,password,email,image_url) VALUES
+        $query="INSERT INTO Users(username,password,email,image_url) VALUES
                     ('$user',
-                    '$nickname',
                     MD5('$pass'),
                     '$email',
                     '$file_name');

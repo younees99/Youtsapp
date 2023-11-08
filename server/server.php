@@ -125,11 +125,11 @@
 					$time = date('H:i', strtotime("now"));
 					$destination_type = $data->destination_type;						
 					
-					$query = "SELECT image_url,nickname FROM Users WHERE userID='$from_id';";			
+					$query = "SELECT image_url,username FROM Users WHERE userID='$from_id';";			
 					$result = $this->db->query($query);
 					$row = $result->fetchArray();
 					$image_url = $row['image_url'];
-					$from_nickname = $row['nickname'];										
+					$from_username = $row['username'];										
 
 					$query="INSERT INTO Messages(mess_text,source_user,destination_$destination_type) 
 								VALUES ('$mess_text','$from_id','$to_id');";
@@ -142,7 +142,7 @@
 											"mess_text"=>$mess_text,
 											"from_id"=>$from_id,
 											"to_id"=>$to_id,
-											"from_nickname"=>$from_nickname,
+											"from_username"=>$from_username,
 											"destination_type"=>$destination_type,
 											"image_url"=>$image_url,
 											"time"=>$time,
@@ -203,7 +203,7 @@
 
 				case 'socket':
 					$user_id = $data->user_id;
-
+					echo "yo";
 					$result=$this->db->query("SELECT username FROM Users WHERE userID='$user_id';")->fetchArray();
 					$this->users_ids[$from->resourceId]=$user_id;
 					echo"$result[username]($user_id) just connected\n";
@@ -217,7 +217,7 @@
 									'typing' AS 'type',
 									U1.userID AS 'from_id',
 									groupID AS 'to_id',
-									U2.nickname AS 'from_nickname',
+									U2.username AS 'from_username',
 									'group' AS 'destination_type'
 								FROM
 									Users U1
@@ -280,11 +280,11 @@
 					$to_id= $data->to_id;
 					$destination_type= $data->destination_type;
 
-					$query = "SELECT nickname FROM Users WHERE userID='$from_id';";			
+					$query = "SELECT username FROM Users WHERE userID='$from_id';";			
 					$result = $this->db->query($query);					
 					$row = $result->fetchArray();
 
-					$from_nickname = $row['nickname'];										
+					$from_username = $row['username'];										
 
 					if($destination_type=='user'){
 						$query="UPDATE Friends SET is_typing='1' WHERE userID='$to_id' AND friendID='$from_id';";
@@ -328,7 +328,7 @@
 														"type"=>$type,
 														"from_id"=>$from_id,
 														"to_id"=>$to_id,
-														"from_nickname"=>$from_nickname,
+														"from_username"=>$from_username,
 														"destination_type"=>$destination_type
 													)
 											)						
@@ -346,11 +346,11 @@
 					$result = $this->db->query($query);
 					$row = $result->fetchArray();
 
-					$query = "SELECT nickname FROM Users WHERE userID='$from_id';";			
+					$query = "SELECT username FROM Users WHERE userID='$from_id';";			
 					$result = $this->db->query($query);					
 					$row = $result->fetchArray();
 
-					$from_nickname = $row['nickname'];	
+					$from_username = $row['username'];	
 
 					if($destination_type=='user'){
 						$query="UPDATE Friends SET is_typing='0' WHERE userID='$to_if' AND friendID='$from_id';";
@@ -392,7 +392,7 @@
 														"type"=>$type,
 														"from_id"=>$from_id,
 														"to_id"=>$to_id,
-														"from_nickname"=>$from_nickname,
+														"from_username"=>$from_username,
 														"destination_type"=>$destination_type
 													)
 											)						

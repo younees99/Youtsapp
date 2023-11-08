@@ -25,8 +25,6 @@
             <input type='text' name='user' onchange="checkUser(this);" onchange="avialableTag(this);" placeholder='Username'>
             <p id="unavialable_username" class="error">Unavialable username*</p>
             <p id="username_not_valid" class="error">Username must start with a letter, contain more than 6 and less than 32 characters*</p>
-            <input type='text' name='nickname' onchange="checkNickname(this);" placeholder='Nickname'>
-            <p id="nickname_not_valid" class="error">Nickname must start with a letter, contain more than 6 and less than 32 characters*</p>
             <input type='text' name='email' onchange="checkEmail(this);" placeholder='Email'>
             <p id="email_not_valid" class="error">Wrong e-mail format</p>
             <input type='password' id='pass' name='pass' onchange="checkPassword(this);" placeholder='Password'>

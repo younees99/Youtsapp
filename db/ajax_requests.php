@@ -12,7 +12,7 @@
             $chat_type = $_GET['chat_type'];
             if($chat_type == "user"){									
                 $query="SELECT 
-                            U.userID,nickname,image_url,is_typing,is_online,last_seen
+                            U.userID,image_url,is_typing,is_online,last_seen
                             FROM 
                                 Users U
                                 JOIN 
@@ -53,28 +53,24 @@
             $search = $db->escapeString($search);
             $search = strtolower($search);
             $query="SELECT userID AS chatID,
-                username AS chat_tag,
-                nickname AS chat_name,
+                username AS chat_name,
                 image_url,
                 is_online,
                 'user' AS chat_type
                 FROM Users
             WHERE 
-                (LOWER(username) LIKE '$search%'
-                OR
-                LOWER(nickname) LIKE '$search%')
+                LOWER(username) LIKE '$search%'
                 AND userID!='$id'
             GROUP BY chatID
             UNION
             SELECT groupID AS chatID,
-                    grouptag AS chat_tag,
                     group_name AS chat_name,
                     image_url,
                     '0'AS is_online,
                     'group' AS chat_type
                 FROM Groups
             WHERE 
-                LOWER(grouptag) LIKE '$search%'
+                LOWER(group_name) LIKE '$search%'
             GROUP BY chatID;";
     
             break;
@@ -93,7 +89,7 @@
                                 FROM
                                     Groups G
                                 WHERE
-                                    G.grouptag = '$tag'
+                                    G.group_name = '$tag'
                         )a;";
                 break;
     }
