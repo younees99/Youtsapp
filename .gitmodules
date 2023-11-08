@@ -1,3 +1,6 @@
 [submodule "fg-emoji-picker"]
 	path = fg-emoji-picker
 	url = https://github.com/woody180/vanilla-javascript-emoji-picker
+[submodule "ratchetphp"]
+path = vendor
+url = https://github.com/ratchetphp/Ratchet
