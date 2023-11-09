@@ -1,6 +1,6 @@
 # YOUTSAPP
 
-Youtsapp is a real-time chat app which uses www.socketo.me sockets
+Youtsapp is a real-time chat app which uses [socketo.me](http://socketo.me/) sockets
 
 # CONFIGURATION
 
