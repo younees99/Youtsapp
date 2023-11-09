@@ -7,8 +7,7 @@ Youtsapp is a real-time chat app which uses [socketo.me](http://socketo.me/) soc
 ## Database
 Before starting we have to create the Youtsapp database and put some initial entries by running this script either by browser or terminal.
 ```bat
-    cd ..\db
-    php create_tables.php
+    php src\controller\admin\create_tables.php
 ```
 
 ## Running real time socket server
@@ -16,8 +15,7 @@ Before starting we have to create the Youtsapp database and put some initial ent
 In order to enable the real-time chat run the server socket in your bash using this command
 
 ```bat
-    cd ..\server
-    php server.php
+    php server\server.php
 ```
 
 # Ready to go
