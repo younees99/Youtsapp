@@ -15,7 +15,7 @@ Before starting we have to create the Youtsapp database and put some initial ent
 In order to enable the real-time chat run the server socket in your bash using this command
 
 ```bat
-    php server\server.php
+    php server\index.php
 ```
 
 # Ready to go
